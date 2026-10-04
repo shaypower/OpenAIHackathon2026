@@ -7,13 +7,14 @@ from backend.orchestration.execution import RunLimits
 from backend.orchestration.service import Orchestrator
 from backend.orchestration.store import MemoryRunStore
 from fixtures import MockBaselineBackend, analysis_request
+from backend.agents.objectives import TemplateCompiler
 
 
 class RunAPITests(unittest.TestCase):
     def start_app(self, *, behavior="wait", limits=None, store=None):
         self.backend = MockBaselineBackend(behavior)
         self.service = Orchestrator(backend=self.backend, limits=limits, store=store)
-        self.app = create_app()
+        self.app = create_app(compiler=TemplateCompiler())
         self.app.state.orchestrator = self.service
         self.client = self.enterContext(TestClient(self.app))
         return analysis_request().model_dump(mode="json")
@@ -53,6 +54,9 @@ class RunAPITests(unittest.TestCase):
         self.assertEqual(result["run"]["evidence"][0]["verification"], "synthetic")
         self.assertEqual(result["tool_trace"][0]["status"], "succeeded")
         self.assertEqual(result["ranking"], [])
+        self.assertEqual(result["agent_summary"]["run_id"], accepted["data"]["run_id"])
+        self.assertEqual(result["agent_summary"]["generated_by"], "deterministic_tool_summary")
+        self.assertIn("synthetic", result["agent_summary"]["text"])
         self.assertTrue(any("MOCKED" in item for item in result["limitations"]))
         self.assertEqual(self.client.post("/api/objectives/analyse", json=payload).json(), accepted)
         self.assertEqual(self.backend.calls, 1)
@@ -68,6 +72,7 @@ class RunAPITests(unittest.TestCase):
         self.assertEqual(result["run"]["error_code"], "execution_deadline")
         self.assertIsNone(result["run"]["before"])
         self.assertIsNone(result["run"]["after"])
+        self.assertIsNone(result["agent_summary"])
 
     def test_http_expiry_and_restart_give_explicit_404(self):
         now = [0.0]
@@ -79,5 +84,5 @@ class RunAPITests(unittest.TestCase):
         response = self.client.get(accepted["poll_url"])
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json()["error"]["code"], "run_not_found")
-        with TestClient(create_app()) as restarted:
+        with TestClient(create_app(compiler=TemplateCompiler())) as restarted:
             self.assertEqual(restarted.get(accepted["poll_url"]).status_code, 404)

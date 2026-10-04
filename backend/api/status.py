@@ -50,7 +50,9 @@ def get_status(orchestrator: Annotated[Orchestrator, Depends(get_orchestrator)])
             restart_behavior="All runs and idempotency records are lost on restart, expiry or eviction; use one worker.",
         ),
         limitations=[
-            "The parser supports only the documented primary-healthcare template in Tipperary.",
+            ("The parser supports only the documented primary-healthcare template in Tipperary."
+             if orchestrator.compiler.mode == "deterministic_template" else
+             "OpenAI structured objective compilation is configured; credentials/model availability are checked on use."),
             "Source inventory metadata does not establish analytical readiness.",
             "The active-run limit applies to this entire local server; user/session isolation is not implemented.",
             "Candidate/refinement budgets exist, but candidate generation and simulation are unavailable.",

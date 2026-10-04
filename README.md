@@ -23,13 +23,13 @@ Try `POST /api/objectives/validate` in `/api/docs` with:
 
 ```json
 {
-  "text": "Make primary healthcare reachable within 30 minutes for elderly people without cars in rural Tipperary."
+  "text": "Make primary healthcare reachable within 30 minutes for elderly residents without cars in rural Tipperary."
 }
 ```
 
 The deterministic template parser preserves the requested time bound, discloses
 its age/default assumptions and rejects unsupported intent/geography/cohorts.
-It supports primary healthcare for elderly people without cars in Tipperary only;
+It accepts “elderly people” or “elderly residents” without cars in Tipperary;
 it does not establish dataset availability or calculate impact.
 
 `POST /api/objectives/analyse` validates its request but currently returns
@@ -38,6 +38,23 @@ it does not establish dataset availability or calculate impact.
 unknown, expired, evicted or restarted runs return `404 run_not_found`.
 Lifecycle acceptance/polling is tested with an explicitly MOCKED backend in tests
 only; the production app never registers that fixture.
+
+## Person C agent work
+
+An optional OpenAI objective compiler supports paraphrases within the same
+primary-healthcare/age-65+/no-car/Tipperary scope. Default mode remains the template
+parser. Model mode requires a server-side key, model ID, price rates and cost
+ceiling; install `backend/requirements-agent.txt`. See
+[agent setup and limits](docs/team/AGENT_IMPLEMENTATION.md) before enabling it.
+Live model use is unverified; model/SDK checks use injected responses without
+paid calls.
+
+The controlled candidate workflow generates proposals, calls an injected
+simulator, preserves its ranking and allows one refinement within shared budgets.
+It is tested with labelled MOCKED tools; B's production adapter and candidate
+HTTP endpoints remain pending. Successful run readback includes a tool-based
+`agent_summary` and optional compilation `model_usage` receipt. The UI remains
+on D's mock providers.
 
 Local limits: one active run for the entire server, 12 tool actions, 20 candidate
 evaluations, one refinement and a 30-second execution deadline. Candidate APIs
@@ -81,5 +98,9 @@ sources, objective validation, analysis validation/dependency guards and run
 readback. Actual simulation remains unavailable.
 Shared Python DTOs are in `backend/domain/models.py`; planned public-data,
 deterministic simulation and agent/API capabilities are explicitly marked.
+Proposed connected transport DTOs are in `backend/api/transport_models.py`, matching
+D's display network through snake_case mapping. `/api/transport` is not mounted;
+snapshot ingestion and D's HTTP provider/proxy remain pending. See the
+[transport contract](docs/team/API_CONTRACTS.md#additional-d-provider-responses--planned).
 No real civic dataset ingestion has been verified in this checkout. Run the
 shared contract checks with `python -m unittest discover -s backend/domain -p 'test_*.py'`.

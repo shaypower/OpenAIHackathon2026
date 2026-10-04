@@ -66,7 +66,7 @@ Owned agent/tool/orchestration/API code, focused tests, reviewed shared-contract
 
 ## KNOWN BLOCKERS / FALLBACKS
 
-Status/source readers, a deterministic template parser, memory run store and bounded baseline boundary now exist. No production deterministic backend or model runtime is connected. Test fixtures are explicitly MOCKED and never registered in the default app. Keep the current mock UI as fallback. Do not imply domain DTOs implement an agent; server cancellation and durable runs remain unavailable. B's blocking routing must be bounded/isolated before it can satisfy the cooperative deadline contract.
+Status/source readers, template/optional structured model compilers, memory run store, baseline boundary, candidate workflow policy and tool summaries now exist. No production deterministic backend is connected; default compiler mode uses no model. Live OpenAI use is unverified and needs explicit server configuration. Candidate tools remain test-only MOCKED; the default app never registers them. Keep the current mock UI as fallback. Server cancellation/durability, stress execution and graph-level failure inspection remain pending. B's blocking routing must be bounded/isolated for the cooperative deadline.
 
 ## CURRENT OWNER PROGRESS
 
@@ -76,3 +76,20 @@ verified (35 orchestration/API tests, nine DTO tests, live default HTTP guards).
 See STATUS/HANDOFFS for wire examples, additive trace field and B's adapter seam.
 Next: connect B's validated deterministic baseline, then D's provider/proxy.
 The default API returns 503 on analysis and creates no run; no paid model call is enabled.
+
+2026-10-04 14:42 Europe/Dublin: reviewed D's `f5a6f2c` handoff, accepted the
+frontend default's “elderly residents” wording, and added proposed C-owned
+transport display DTOs including connected edges and geometry sources. Verified
+against the actual UI default and D's committed capture; 45 orchestration/API/
+transport tests and nine domain tests pass. Updated wire mapping and resolved D
+gap notes. Transport HTTP/snapshot reader and B's production baseline adapter
+remain pending; D's provider/proxy integration requires paired review.
+
+2026-10-04 15:06 Europe/Dublin: optional structured objective compiler and
+predictable candidate agent workflow implemented. Strict extraction/scope checks,
+model token-count/cost reservations/deadline/retry limits, accepted and rejected
+compilation replay, typed simulator evaluation/ranking, one refinement and
+evidence-linked summaries verified with injected/MOCKED tools. 74 orchestration/
+API/agent/transport checks and nine domain checks pass; no paid model call.
+See AGENT_IMPLEMENTATION/HANDOFFS for setup and exact B/D integration changes.
+Production baseline/candidate/stress/browser integration remains incomplete.

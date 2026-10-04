@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 import re
 from uuid import uuid4
+from typing import Literal, Protocol
 
 from backend.domain.models import CivicObjective, ObjectiveConstraint, ObjectivePopulation
 from backend.orchestration.errors import WorkflowError
@@ -12,16 +13,46 @@ PARSER_MODE = "deterministic_template"
 PATTERN = re.compile(
     r"Make primary healthcare reachable"
     r"(?: within (?P<minutes>\d+(?:\.\d+)?) minutes)?"
-    r" for elderly people without cars in (?P<geography>[A-Za-z ]+)\.?",
+    r" for elderly (?:people|residents) without cars in (?P<geography>[A-Za-z ]+)\.?",
     re.IGNORECASE,
 )
 GEOGRAPHIES = {"tipperary": "Tipperary", "rural tipperary": "rural Tipperary"}
 
 
 @dataclass(frozen=True)
+class CompilationUsage:
+    model: str
+    generation_attempts: int
+    input_tokens: int
+    output_tokens: int
+    reserved_tokens: int
+    reserved_cost_usd: str
+
+
+@dataclass(frozen=True)
 class CompiledObjective:
     objective: CivicObjective
     assumptions: tuple[str, ...]
+    parser_mode: Literal["deterministic_template", "openai_structured"] = "deterministic_template"
+    model_usage: CompilationUsage | None = None
+
+
+class ObjectiveCompiler(Protocol):
+    mode: Literal["deterministic_template", "openai_structured"]
+
+    async def compile(self, text: str) -> CompiledObjective: ...
+
+    async def close(self) -> None: ...
+
+
+class TemplateCompiler:
+    mode = "deterministic_template"
+
+    async def compile(self, text: str) -> CompiledObjective:
+        return compile_objective(text)
+
+    async def close(self) -> None:
+        pass
 
 
 def compile_objective(text: str) -> CompiledObjective:

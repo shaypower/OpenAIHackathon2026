@@ -13,12 +13,14 @@ Read your owner file, then [API contracts](API_CONTRACTS.md) and [integration or
 
 Inspection date: 2026-10-04. The repository root is `OpenAIHackathon2026/`, not its parent directory.
 
-- `backend/main.py` is a 14-line FastAPI composition root with **only `GET /api/`** (`{"status":"ok"}`). Docs: `/api/docs`; OpenAPI: `/api/openapi.json`.
+- `backend/main.py` composes six application paths: health (`GET /api/` still returns `{"status":"ok"}`), status, sources, objective validation, analysis guard and run readback. Analysis returns 503 until B's adapter is registered. Docs: `/api/docs`; OpenAPI: `/api/openapi.json`.
 - The working UI is React/TypeScript/Vite in **`src/frontend/`**. `frontend/` and `ai/` contain only `.gitkeep`. Preserve the map and provider interfaces already in place.
 - UI data, objective parsing, interventions, simulations and stress effects are **MOCKED in the browser**. They make no civic backend calls. The objective text does not change the preset scenario.
 - Existing fixture story: Borrisoleigh/Roscrea/Newport, Borrisoleigh **57% → 94% → flood 68% → contingency 91%**. These are illustrative values, not public findings or deterministic transport calculations.
 - The pasted description's `frontend/index.html`, `backend/simulate_demo.py`, `north_tipperary_demo.json`, `demo_simulation_result.geojson` and old 29-feature/48-of-110 story are **absent**. Do not claim to have run that CLI, import nonexistent files, or mix those figures into this UI's demo.
 - `backend/domain/models.py` now defines shared DTOs, not a simulator. `backend/data/source_inventory.json` records planned sources and existing context/fixtures; no real civic ingestion has been verified.
+- D's `f5a6f2c` adds connected display topology, geometry source metadata, replay, light/dark themes, MultiPolygon support and unscored proposals. C's parser accepts D's default objective. Proposed transport DTOs are ready for paired review; `/api/transport`, the snapshot reader and D's HTTP provider/proxy remain planned. See current STATUS/HANDOFFS for verified artifacts.
+- C's [agent implementation](AGENT_IMPLEMENTATION.md) adds an optional structured model compiler, candidate evaluation/ranking/refinement policy and tool-evidence summaries. Default mode requires no model/key. Live model use and production B/D integration remain unverified; agent/simulator tests use labelled injected tools.
 
 ## Editing zones
 
@@ -30,8 +32,8 @@ Inspection date: 2026-10-04. The repository root is `OpenAIHackathon2026/`, not 
 | `backend/tests/data/` (new) | A | Read |
 | `backend/routing/`, `backend/accessibility/`, `backend/optimization/`, `backend/simulation/` (all new) | B | Read; C calls public functions |
 | `backend/tests/transport/` (new) | B | Read |
-| `backend/agents/`, `backend/orchestration/`, `backend/api/` (all new) | C | Read; D requests adapter needs |
-| `backend/tests/orchestration/` (new) | C | Read |
+| `backend/agents/`, `backend/orchestration/`, `backend/api/` | C | Read; D requests adapter needs |
+| `backend/tests/orchestration/` | C | Read |
 | `src/frontend/`, including local mocks, models, adapters and tests | D | Read; propose changes through D |
 | `backend/domain/`, including contract checks | Shared, C integrates | A/B/D propose additive contract changes; coordinate before editing |
 | `backend/main.py`, `backend/requirements.txt` | Shared, C integrates | One writer; owner supplies a small patch in HANDOFFS |
@@ -48,7 +50,7 @@ C's integration role is file coordination, not authority to change B's maths or 
 ## Working without a meeting
 
 1. Inspect `git status --short` and read [STATUS](STATUS.md). Claim one task in your own section with a Dublin timestamp, paths, next output and blocker. A plan is not progress evidence.
-2. Use your own clone or worktree/branch, e.g. `person-a/data`, `person-b/transport`, `person-c/orchestration`, `person-d/frontend`. **This checkout already has a modified README and substantial untracked frontend work.** New worktrees inherit commits only. Have the owner commit/share those existing files explicitly before branching from them; do not bulk-stage or stash someone else's work.
+2. Use your own clone or worktree/branch, e.g. `person-a/data`, `person-b/transport`, `person-c/orchestration`, `person-d/frontend`. Inspect the current working tree before branching; new worktrees inherit commits only. The backend and D's frontend are now committed through `75e76f5` and `f5a6f2c`; this C compatibility follow-up is uncommitted. Preserve existing user changes (including the npm lockfile); do not bulk-stage or stash someone else's work.
 3. Keep one task per small commit. Stage explicit owned paths. Never run `git add .`, `git reset --hard`, `git clean`, or switch branches in another person's active checkout.
 4. A shared contract change needs a handoff entry naming producer, consumer, fields, compatibility, example and checks. C lands the agreed contract first, then implementations. Required-field changes need A/B/D coordination; version-one consumers reject unknown fields.
 5. Merge or cherry-pick one reviewed commit at a time; use [INTEGRATION](INTEGRATION.md) gates. Update only your STATUS/HANDOFFS blocks. Supply the next person an exact input artifact or function, not “backend done.”
@@ -66,8 +68,10 @@ UI: http://127.0.0.1:5173. Install Python dependencies in your own environment, 
 
 ```sh
 python -m pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload
+python -m uvicorn backend.main:app --reload
+python -m pip install -r backend/requirements-dev.txt
 python -m unittest discover -s backend/domain -p 'test_*.py'
+python -m unittest discover -s backend/tests/orchestration -p 'test_*.py'
 ```
 
 Backend: http://127.0.0.1:8000/api/. **Port 8000 `/` does not serve the UI.** Full frontend checks: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`. No API key is needed for the current demo.

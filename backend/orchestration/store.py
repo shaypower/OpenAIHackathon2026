@@ -24,6 +24,7 @@ class RunRecord:
     assumptions: list[str]
     limitations: list[str]
     tool_trace: list[dict] = field(default_factory=list)
+    model_usage: dict | None = None
 
 
 @dataclass
@@ -94,6 +95,11 @@ class MemoryRunStore:
             if item is None:
                 raise WorkflowError(404, "run_not_found", "Run is unknown, expired, evicted or lost after restart.")
             return deepcopy(item.record)
+
+    def has_active_run(self) -> bool:
+        with self._lock:
+            self._prune()
+            return any(item.record.run.status not in TERMINAL for item in self._runs.values())
 
     def transition(self, run_id: str, status: str, *, phase: str, **changes) -> None:
         with self._lock:

@@ -1,8 +1,8 @@
 from typing import Annotated
+from dataclasses import asdict
 
 from fastapi import APIRouter, Depends
 
-from backend.agents.objectives import compile_objective
 from backend.api.dependencies import get_orchestrator
 from backend.api.models import (
     AnalyseObjectiveRequest, ErrorResponse, ObjectiveValidationData,
@@ -14,13 +14,19 @@ router = APIRouter()
 
 
 @router.post("/objectives/validate", tags=["objectives"], response_model=ObjectiveValidationResponse,
-             responses={422: {"model": ErrorResponse}})
-def validate_objective(request: ObjectiveValidationRequest) -> ObjectiveValidationResponse:
-    compiled = compile_objective(request.text)
+             responses={code: {"model": ErrorResponse} for code in (422, 503)})
+async def validate_objective(
+    request: ObjectiveValidationRequest,
+    orchestrator: Annotated[Orchestrator, Depends(get_orchestrator)],
+) -> ObjectiveValidationResponse:
+    compiled = await orchestrator.compiler.compile(request.text)
     return ObjectiveValidationResponse(data=ObjectiveValidationData(
-        objective=compiled.objective, assumptions=list(compiled.assumptions),
+        objective=compiled.objective, assumptions=list(compiled.assumptions), parser_mode=compiled.parser_mode,
+        model_usage=asdict(compiled.model_usage) if compiled.model_usage else None,
         limitations=[
-            "Deterministic template parser: primary healthcare for elderly people without cars in Tipperary only.",
+            ("Deterministic template parser: primary healthcare for elderly people/residents without cars in Tipperary only."
+             if compiled.parser_mode == "deterministic_template" else
+             "Model-extracted intent: primary healthcare for age-65+ residents without cars in Tipperary; review the interpretation."),
             "Compilation does not validate dataset/cohort availability or calculate accessibility.",
         ],
     ))

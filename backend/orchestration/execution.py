@@ -13,6 +13,12 @@ from backend.orchestration.errors import WorkflowError
 T = TypeVar("T")
 
 
+def validate_tool_output(schema, output):
+    """Rebuild nested models so mutated/model_construct instances cannot skip fields."""
+    value = schema.model_validate(output)
+    return schema.model_validate(value.model_dump())
+
+
 @dataclass(frozen=True)
 class RunLimits:
     max_tool_actions: int = 12

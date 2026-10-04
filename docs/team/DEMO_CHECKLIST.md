@@ -49,3 +49,21 @@ Date: 2026-10-04, Europe/Dublin. This section is populated only after actual che
 - Browser/runtime/path/failure: native Safari via computer use at the existing port-5173 dev server. Observed objective → Borrisoleigh 57% → illustrative journey → candidate C → simulated 94% → flood 68%/1,421 network residents → contingency 91%. `/?fail=once` visibly produced the provider error; Reset & retry restored three communities, a new analysis completed, and Reset demo returned to the initial ready state. An attempted cancel hit an expired native control after the brief analysis had completed; no successful browser cancellation is claimed. Cancellation remains covered by existing frontend unit tests and prior QA evidence, with live cancellation unchecked above.
 - Rehearsal scope: desktop native UI only. This documentation/DTO task did not redo mobile, reduced-motion, console/network inspection, site modal or two full rehearsals. Those remain unchecked above; prior frontend evidence is documented separately. No integrated deterministic/model/API workflow was claimed.
 - Current capability limit: all civic backend workflows remain planned; UI outcomes remain synthetic fixture values.
+
+## C compatibility follow-up — 2026-10-04
+
+- 45 orchestration/API/transport tests and nine shared domain tests pass. D's actual default objective validates with 200; analyse reaches the explicit 503 dependency guard and creates no run. OpenAPI retains six application paths and health bytes are unchanged.
+- C's proposed transport DTOs validate D's committed display geometry/source capture without changing paths. `/api/transport` remains planned; no real analytical snapshot or production simulation adapter is connected.
+- D's later spatial QA is recorded in its HANDOFFS section and `docs/design/VERIFICATION.md`; this C follow-up does not claim new browser rehearsals or mark the integrated deterministic/agent gates complete.
+
+## C agent follow-up — 2026-10-04
+
+- 74 orchestration/API/agent/transport checks and nine domain checks pass. Strict
+  model compilation, budget/deadline/replay handling and candidate evaluation/
+  ranking/one-refinement use injected model responses/MOCKED simulator tools.
+- The actual optional SDK serializes token-count/generation payloads through an
+  HTTP mock transport. No paid model call or live model availability is claimed.
+- Default local health/validation/OpenAPI checked; health remains unchanged and
+  six application paths remain. Nullable summary/model-use receipt fields are
+  documented for D. Production B adapters/browser/stress integration gates remain
+  unchecked. Temporary API server stopped.

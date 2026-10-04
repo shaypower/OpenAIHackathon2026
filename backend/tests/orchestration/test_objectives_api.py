@@ -1,16 +1,44 @@
+from pathlib import Path
+import re
 import unittest
 
 from fastapi.testclient import TestClient
 
-from backend.agents.objectives import EXAMPLE
+from backend.agents.objectives import EXAMPLE, TemplateCompiler
 from backend.main import create_app
 from fixtures import analysis_request
 
 
 class ObjectiveAPITests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.app = create_app(compiler=TemplateCompiler())
         self.client = self.enterContext(TestClient(self.app))
+
+    def test_frontend_default_wording_validates_and_reaches_dependency_guard(self):
+        fixture = Path(__file__).resolve().parents[3] / "src/frontend/mocks/fixtures.ts"
+        match = re.search(r'export const DEFAULT_OBJECTIVE\s*=\s*"([^"]+)";', fixture.read_text())
+        self.assertIsNotNone(match, "Update this boundary check if D changes the default declaration")
+        text = match.group(1)
+        response = self.client.post("/api/objectives/validate", json={"text": text})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()["data"]
+        self.assertEqual(data["objective"]["text"], text)
+        self.assertEqual(data["objective"]["constraint"]["maximum_journey_minutes"], 45)
+        self.assertTrue(any("65" in item for item in data["assumptions"]))
+        payload = analysis_request().model_dump(mode="json") | {"text": text}
+        response = self.client.post("/api/objectives/analyse", json=payload)
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()["error"]["code"], "simulation_unavailable")
+        self.assertEqual(len(self.app.state.orchestrator.store._runs), 0)
+
+    def test_residents_alias_preserves_explicit_bound_and_template_restrictions(self):
+        text = EXAMPLE.replace("people", "residents").replace("45", "25")
+        response = self.client.post("/api/objectives/validate", json={"text": text})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"]["objective"]["constraint"]["maximum_journey_minutes"], 25)
+        for unsupported in (text.replace("Tipperary", "Cork"), text + " Invent impact."):
+            response = self.client.post("/api/objectives/validate", json={"text": unsupported})
+            self.assertEqual(response.status_code, 422)
 
     def test_template_preserves_explicit_bound_and_has_no_metrics(self):
         text = EXAMPLE.replace("45", "32.5")

@@ -170,12 +170,22 @@ class AnalyseObjectiveRequest(ObjectiveValidationRequest):
         return self
 
 
+class ObjectiveModelUsageDTO(Contract):
+    model: Text
+    generation_attempts: Annotated[int, Field(ge=1, le=2, strict=True)]
+    input_tokens: Count
+    output_tokens: Count
+    reserved_tokens: Count
+    reserved_cost_usd: Annotated[str, StringConstraints(pattern=r"^\d+(?:\.\d+)?(?:[Ee][+-]?\d+)?$")]
+
+
 class ObjectiveValidationData(Contract):
     objective: CivicObjective
     assumptions: list[str]
-    parser_mode: Literal["deterministic_template"] = "deterministic_template"
+    parser_mode: Literal["deterministic_template", "openai_structured"] = "deterministic_template"
     evaluable: Literal[False] = False
     limitations: list[str]
+    model_usage: ObjectiveModelUsageDTO | None = None
 
 
 class ObjectiveValidationResponse(Contract):
@@ -215,12 +225,30 @@ class RankingEntry(Contract):
     score_components: dict[str, float]
 
 
+class FailureObservationDTO(Contract):
+    community_id: Id
+    code: Text
+    description: Text
+    evidence_ids: list[Id]
+
+
+class AgentSummaryDTO(Contract):
+    run_id: Id
+    generated_by: Literal["deterministic_tool_summary"]
+    data_mode: DataMode
+    text: Text
+    findings: list[FailureObservationDTO]
+    evidence_ids: list[Id]
+
+
 class RunReadbackData(Contract):
     run: SimulationRun
     assumptions: list[str]
     limitations: list[str]
     ranking: list[RankingEntry] = Field(default_factory=list)
     tool_trace: list[ToolActionDTO] = Field(default_factory=list)
+    agent_summary: AgentSummaryDTO | None = None
+    model_usage: ObjectiveModelUsageDTO | None = None
 
 
 class RunReadbackResponse(Contract):

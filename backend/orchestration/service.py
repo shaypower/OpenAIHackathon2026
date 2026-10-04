@@ -1,7 +1,9 @@
 """Baseline boundary for B's future adapter; the production backend is unavailable."""
 
 import asyncio
-from dataclasses import dataclass
+from collections import OrderedDict
+from copy import deepcopy
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import math
 import time
@@ -10,13 +12,13 @@ from uuid import uuid4
 
 from pydantic import Field, ValidationError, model_validator
 
-from backend.agents.objectives import compile_objective
+from backend.agents.objectives import TemplateCompiler
 from backend.domain.models import (
     AccessibilityResult, CivicObjective, Contract, DataMode, Evidence, Journey,
     Provenance, SimulationMetrics, SimulationRun,
 )
 from backend.orchestration.errors import WorkflowError
-from backend.orchestration.execution import ExecutionContext, RunLimits
+from backend.orchestration.execution import ExecutionContext, RunLimits, validate_tool_output
 from backend.orchestration.store import MemoryRunStore, RunRecord, fingerprint
 
 
@@ -112,34 +114,87 @@ class BaselineBackend(Protocol):
 
 
 class Orchestrator:
-    def __init__(self, *, store=None, backend: BaselineBackend | None = None, limits=None):
+    def __init__(self, *, store=None, backend: BaselineBackend | None = None, limits=None, compiler=None):
         self.store = store if store is not None else MemoryRunStore()
         self.backend = backend
         self.limits = limits if limits is not None else RunLimits()
         self._tasks: dict[str, asyncio.Task] = {}
         self._closing = False
+        self.compiler = compiler if compiler is not None else TemplateCompiler()
+        self._submit_lock = asyncio.Lock()
+        self._compilations: OrderedDict[str, tuple] = OrderedDict()
+
+    def _remember_compilation(self, request_id, digest, *, compiled=None, error=None):
+        if self.compiler.mode == "deterministic_template":
+            return
+        if len(self._compilations) >= self.store.max_runs:
+            self._compilations.popitem(last=False)
+        public_error = None if error is None else {
+            "status_code": error.status_code, "code": error.code, "message": error.message,
+            "retryable": error.retryable, "details": deepcopy(error.details),
+        }
+        self._compilations[request_id] = (
+            digest, self.store.clock() + self.store.ttl_seconds, deepcopy(compiled), public_error,
+        )
 
     async def submit(self, request) -> dict:
+        # Serialize acceptance across compilation's await boundary, including replay.
+        async with self._submit_lock:
+            return await self._submit(request)
+
+    async def _submit(self, request) -> dict:
         payload = request.model_dump(mode="json")
         digest = fingerprint("POST /api/objectives/analyse", payload)
         replay = self.store.replay(request.client_request_id, digest)
         if replay is not None:
             return replay
-        compiled = compile_objective(request.text)
+        for request_id, cached in list(self._compilations.items()):
+            if cached[1] <= self.store.clock():
+                self._compilations.pop(request_id)
+        cached = self._compilations.get(request.client_request_id)
+        if cached and cached[0] != digest:
+            raise WorkflowError(409, "idempotency_conflict", "Request ID was already used for a different compilation payload.")
+        if cached and cached[3]:
+            raise WorkflowError(**cached[3])
+        if self._closing:
+            raise WorkflowError(503, "server_stopping", "Server is shutting down.", retryable=True)
+        if self.backend is None and self.compiler.mode != "deterministic_template":
+            raise WorkflowError(
+                503, "simulation_unavailable", "No deterministic simulation backend is connected.",
+                retryable=True, details={"objective_validated": False, "parser_mode": self.compiler.mode},
+            )
+        if self.store.has_active_run():
+            raise WorkflowError(429, "run_capacity_exceeded", "One run is already active in this local server.", retryable=True)
+        if self.backend is not None:
+            caps = self.backend.capabilities
+            if not set(request.dataset_ids) <= set(caps.dataset_ids):
+                raise WorkflowError(404, "dataset_not_found", "One or more dataset IDs are unavailable.")
+            if request.demand_config_id not in caps.demand_config_ids:
+                raise WorkflowError(404, "demand_config_not_found", "Demand configuration is unavailable.")
+        deadline = time.monotonic() + self.limits.run_deadline_seconds
+        try:
+            compiled = deepcopy(cached[2]) if cached else await asyncio.wait_for(
+                self.compiler.compile(request.text), timeout=self.limits.run_deadline_seconds,
+            )
+        except TimeoutError as exc:
+            error = WorkflowError(503, "execution_deadline", "Analysis compilation exhausted the execution deadline.")
+            self._remember_compilation(request.client_request_id, digest, error=error)
+            raise error from exc
+        except WorkflowError as error:
+            self._remember_compilation(request.client_request_id, digest, error=error)
+            raise
+        if not cached:
+            self._remember_compilation(request.client_request_id, digest, compiled=compiled)
         if self.backend is None:
             raise WorkflowError(
                 503, "simulation_unavailable", "No deterministic simulation backend is connected.",
-                retryable=True, details={"objective_validated": True, "parser_mode": "deterministic_template"},
+                retryable=True, details={"objective_validated": True, "parser_mode": compiled.parser_mode},
             )
         if self._closing:
             raise WorkflowError(503, "server_stopping", "Server is shutting down.", retryable=True)
         caps = self.backend.capabilities
         if compiled.objective.region_id not in caps.region_ids:
             raise WorkflowError(422, "unsupported_objective", "The backend does not evaluate this geography.")
-        if not set(request.dataset_ids) <= set(caps.dataset_ids):
-            raise WorkflowError(404, "dataset_not_found", "One or more dataset IDs are unavailable.")
-        if request.demand_config_id not in caps.demand_config_ids:
-            raise WorkflowError(404, "demand_config_not_found", "Demand configuration is unavailable.")
 
         inputs = BaselineInputs(
             objective_json=compiled.objective.model_dump_json(), dataset_ids=tuple(request.dataset_ids),
@@ -151,6 +206,8 @@ class Orchestrator:
             raise
         except Exception as exc:
             raise WorkflowError(503, "invalid_backend_context", "Backend could not validate the requested context.") from exc
+        if time.monotonic() >= deadline:
+            raise WorkflowError(503, "execution_deadline", "Analysis input validation exhausted the execution deadline.")
 
         now = datetime.now(timezone.utc)
         run_id = f"run-{uuid4()}"
@@ -169,10 +226,11 @@ class Orchestrator:
         record = RunRecord(
             run, acceptance, list(compiled.assumptions),
             ["Runs and replay records are process-local and lost on restart, expiry or eviction."],
+            model_usage=asdict(compiled.model_usage) if compiled.model_usage else None,
         )
         acceptance, created = self.store.create(record, request.client_request_id, digest)
+        self._compilations.pop(request.client_request_id, None)
         if created:
-            deadline = time.monotonic() + self.limits.run_deadline_seconds
             task = asyncio.create_task(self._execute(run_id, inputs, self.backend, deadline))
             self._tasks[run_id] = task
             task.add_done_callback(lambda completed: self._tasks.pop(run_id, None))
@@ -186,7 +244,7 @@ class Orchestrator:
             async def baseline():
                 output = await backend.run_baseline(inputs, context)
                 try:
-                    result = BaselineResult.model_validate(output)
+                    result = validate_tool_output(BaselineResult, output)
                     mode = backend.capabilities.data_mode
                     if mode != "mixed" and any(item.data_mode != mode for item in [*result.accessibility, *result.journeys]):
                         raise ValueError("Result data mode disagrees with backend")
@@ -230,3 +288,4 @@ class Orchestrator:
                     self.store.transition(run_id, "cancelled", phase="cancelled", error_code="server_shutdown")
             except WorkflowError:
                 pass
+        await self.compiler.close()

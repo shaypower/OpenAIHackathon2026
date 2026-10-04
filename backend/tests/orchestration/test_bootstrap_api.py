@@ -8,7 +8,10 @@ import unittest
 from fastapi.testclient import TestClient
 
 from backend.api.sources import get_inventory_path
-from backend.main import app
+from backend.main import create_app
+from backend.agents.objectives import TemplateCompiler
+
+app = create_app(compiler=TemplateCompiler())
 
 
 class BootstrapAPITests(unittest.TestCase):
