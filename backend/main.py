@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
@@ -15,6 +16,7 @@ from pydantic import BaseModel, Field
 from backend.api.errors import install_error_handlers
 from backend.api.router import router as civic_router
 from backend.orchestration.service import Orchestrator
+from backend.simulation.c_backend import SyntheticBaselineBackend
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,7 +42,8 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
     lifespan=lifespan,
 )
-app.state.orchestrator = Orchestrator()
+_backend = SyntheticBaselineBackend() if os.getenv("CIVIC_ENABLE_SYNTHETIC_BASELINE") == "1" else None
+app.state.orchestrator = Orchestrator(backend=_backend)
 install_error_handlers(app)
 app.include_router(civic_router)
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")

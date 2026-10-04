@@ -233,7 +233,16 @@ def load_snapshot(dataset_id: str, root: str | Path | None = None) -> Simulation
         resolved[key] = path
     required = {"communities", "services", "provenance", "walk_edges", "service_hours", "gtfs"}
     if not required <= resolved.keys():
-        raise TransportError("invalid_snapshot", f"Snapshot is missing files: {sorted(required - resolved.keys())}.")
+        missing = sorted(required - resolved.keys())
+        if manifest.get("region_id") == "tipperary" and "communities" in resolved:
+            from backend.domain.models import Community
+            rows = json.loads(resolved["communities"].read_text(encoding="utf-8"))
+            communities = [Community.model_validate(row) for row in rows]
+            unknown_cohort = [c.id for c in communities if c.population.target_cohort_residents is None]
+            if unknown_cohort:
+                raise TransportError("missing_cohort", f"Snapshot has no evidenced target-cohort count for {len(unknown_cohort)} communities; age and no-car marginals cannot identify their intersection.")
+            raise TransportError("missing_data", f"Snapshot is not simulation-ready; missing {', '.join(missing)}. Service locations, validated walk links, weekly opening hours and a bounded GTFS feed are required.")
+        raise TransportError("invalid_snapshot", f"Snapshot is missing files: {missing}.")
     prov_values = json.loads(resolved["provenance"].read_text(encoding="utf-8"))
     provs = [Provenance.model_validate(row) for row in prov_values]
     tables_dir = resolved["gtfs"]

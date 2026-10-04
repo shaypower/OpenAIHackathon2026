@@ -52,6 +52,7 @@ def get_status(orchestrator: Annotated[Orchestrator, Depends(get_orchestrator)])
         limitations=[
             "The parser supports only the documented primary-healthcare template in Tipperary.",
             "Source inventory metadata does not establish analytical readiness.",
+            "The optional synthetic baseline uses an explicitly illustrative miniature fixture; the real Tipperary snapshot lacks an evidenced target cohort, services, validated walk links, opening hours and a bounded GTFS feed.",
             "The active-run limit applies to this entire local server; user/session isolation is not implemented.",
             "Candidate/refinement budgets exist, but candidate generation and simulation are unavailable.",
             "Tool deadlines require cooperative async adapters; CPU-bound routing needs isolation by B.",

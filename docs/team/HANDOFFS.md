@@ -90,6 +90,17 @@ Next: B interprets service calendars/timezone and builds/tests the time-aware gr
 - Checks: nine shared Python contract tests pass; frontend typecheck/lint/eight tests/build pass; live health/OpenAPI and TestClient confirm existing route behaviour and absent planned GET routes. Team file count, required owner sections, Markdown links, inventory counts/paths, Python syntax and diff whitespace checks pass. Safari's mock baseline/intervention/flood/contingency path was observed; recovery details are in DEMO_CHECKLIST. Current package-range install succeeds on Python 3.14.8 with Pydantic 2.13.5; an old pinned 2.9.2 verification attempt could not build on that interpreter and is not the project pin.
 - Next action: each owner claims the first task in their file; C coordinates any contract amendment with actual producer/consumer acknowledgements and lands shared patches once.
 
+### PERSON_B transport integration update — 2026-10-04
+
+- Producer → consumer: B → C; status READY for review, consumer acceptance pending.
+- Paths: `backend/simulation/c_backend.py`, `backend/simulation/synthetic.py`, `backend/main.py`, `backend/api/status.py`, `backend/requirements.txt`, `backend/simulation/service.py`.
+- The app can register `SyntheticBaselineBackend` with C's `Orchestrator` when `CIVIC_ENABLE_SYNTHETIC_BASELINE=1`; the default remains backend-unavailable. The opt-in accepts dataset IDs `synthetic-small-areas-v1` and `synthetic-transit-v1`, demand `synthetic-demand-v1`, a timezone-aware departure in `Europe/Dublin`, and the compiled Tipperary primary-care objective. It returns B-calculated `BaselineResult` DTOs from the three-community fixture; all outputs are synthetic.
+- The real A snapshot loader now returns `missing_cohort` explaining that age/no-car marginals do not identify a joint cohort. Once cohort data exists, it reports missing services, validated walk links, weekly hours and bounded GTFS explicitly. The snapshot remains unavailable for analysis.
+- Status describes the real-snapshot blockers; with the opt-in set, it reports the synthetic-only baseline. `tzdata>=2024.1` was added for Windows `ZoneInfo`.
+- Validation: transport tests could not run in this environment. `uv` has no cached Python 3.14 interpreter; offline execution failed to find `C:\Users\eschm\.local\bin\python3.14.exe`. No network install attempted.
+- Compatibility: no DTO or wire-schema changes. CPU-bound routing remains synchronous; the adapter checks C's cooperative deadline before and after routing, which cannot interrupt an in-progress CPU calculation. Do not use this adapter as evidence about real Tipperary access.
+- Next: C reviews/accepts this adapter and may replace the default registration when real validated inputs become available; A supplies cohort, facilities, walk graph, hours and a bounded feed.
+
 ## Shared change request template
 
 Copy into **your** block and fill actual values:
