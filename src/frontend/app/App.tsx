@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState, useCallback } from "react";
+import { lazy, Suspense, useMemo, useState, useEffect, useRef } from "react";
 import {
   Activity,
   RotateCcw,
@@ -29,7 +29,8 @@ import { HospitalPanel } from "@/frontend/features/healthcare/HospitalPanel";
 import { HospitalMapOverlays } from "@/frontend/features/healthcare/HospitalMapOverlays";
 import { hospitalSearchAreas } from "@/frontend/adapters/data/healthcareSites";
 import { calculateHospitalPlan } from "@/frontend/features/healthcare/planning";
-import type { HospitalCapacity, HospitalPlacement } from "@/frontend/domain/models/healthcare";
+import type { HospitalCapacity, HospitalPlacement, HospitalContext } from "@/frontend/domain/models/healthcare";
+import { hospitalBenefits, parseHospitalContext, screenCapturedHospital } from "@/frontend/features/healthcare/context";
 const MapCanvas = lazy(() =>
   import("@/frontend/components/map/MapCanvas").then((m) => ({
     default: m.MapCanvas,
@@ -49,22 +50,66 @@ export function App({
   const [hospitalBeds, setHospitalBeds] = useState<HospitalCapacity>(60);
   const [showHospitalProposal, setShowHospitalProposal] = useState(false);
   const [hospitalPlacement, setHospitalPlacement] = useState<HospitalPlacement>();
-  const receivePlacement = useCallback((result: HospitalPlacement) => {
-    setHospitalPlacement((current) => current?.status === "checking" && current.areaId === result.areaId && current.beds === result.beds ? result : current);
+  const [hospitalContext, setHospitalContext] = useState<HospitalContext>();
+  const [hospitalContextError, setHospitalContextError] = useState<string>();
+  const [hospitalView, setHospitalView] = useState<"site" | "benefits">("site");
+  const placementSequence = useRef(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/data/hospital-context.json", { signal: controller.signal }).then((r) => {
+      if (!r.ok) throw new Error("Hospital map context could not be loaded. Reload to retry.");
+      return r.json();
+    }).then(parseHospitalContext).then(setHospitalContext).catch((error) => {
+      if (!controller.signal.aborted) setHospitalContextError(error instanceof Error ? error.message : "Hospital context unavailable.");
+    });
+    return () => controller.abort();
   }, []);
+  const checkHospital = async (areaId: string, beds: HospitalCapacity) => {
+    const sequence = ++placementSequence.current;
+    setHospitalPlacement({ status: "checking", areaId, beds });
+    if (!hospitalContext) {
+      setHospitalPlacement({ status: "blocked", areaId, beds, reason: hospitalContextError ?? "Building context is still loading. Please retry in a moment." });
+      return;
+    }
+    try {
+      let result = screenCapturedHospital(hospitalContext, areaId, beds);
+      if (result.status === "clear" && backend.status && !backend.statusError) {
+        try {
+          const response = await fetch("/api/hospitals/preview", { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ area_id: areaId, beds, context_id: hospitalContext.osmSha256 }), signal: AbortSignal.timeout(4000) });
+          if (response.ok) {
+            const value = (await response.json()).data;
+            if (value?.placement?.status !== "clear" || value.placement.snapshotId !== hospitalContext.osmSha256
+              || value.placement.areaId !== areaId || value.placement.beds !== beds
+              || JSON.stringify(value.placement.center) !== JSON.stringify(result.center)) throw new Error("Hospital context mismatch.");
+            result = { ...result, basis: "api" };
+          } else if (response.status !== 404 && response.status < 500) {
+            result = { status: "blocked", areaId, beds, reason: "The server could not confirm this site. Refresh the app to load the current map context." };
+          }
+        } catch { /* The independently checked captured context remains available offline. */ }
+      }
+      if (sequence === placementSequence.current) setHospitalPlacement(result);
+    } catch {
+      if (sequence === placementSequence.current) setHospitalPlacement({ status: "blocked", areaId, beds, reason: "The mapped site could not be verified. No hospital has been placed." });
+    }
+  };
   const toggleHospitalProposal = (show: boolean) => {
     setShowHospitalProposal(show);
-    setHospitalPlacement(show && hospitalAreaId ? { status: "checking", areaId: hospitalAreaId, beds: hospitalBeds } : undefined);
+    setHospitalView("site");
+    if (show && hospitalAreaId) void checkHospital(hospitalAreaId, hospitalBeds);
+    else { placementSequence.current++; setHospitalPlacement(undefined); }
   };
   const changeHospitalCapacity = (beds: HospitalCapacity) => {
     setHospitalBeds(beds);
-    if (showHospitalProposal && hospitalAreaId) setHospitalPlacement({ status: "checking", areaId: hospitalAreaId, beds });
+    if (showHospitalProposal && hospitalAreaId) void checkHospital(hospitalAreaId, beds);
   };
   const hospitalPlan = useMemo(() => calculateHospitalPlan(hospitalBeds), [hospitalBeds]);
   const selectHospital = (id: string | null) => {
+    placementSequence.current++;
     setHospitalAreaId(id);
     setShowHospitalProposal(false);
     setHospitalPlacement(undefined);
+    setHospitalView("site");
     setBackendOpen(false);
     setHospitalOpen(true);
   };
@@ -87,17 +132,20 @@ export function App({
   const [camera, setCamera] = useState<"region" | "street">("region");
   const [offline, setOffline] = useState(false);
   const [stressOpen, setStressOpen] = useState(false);
+  const benefits = useMemo(() => hospitalContext && hospitalPlacement?.status === "clear"
+    ? hospitalBenefits(hospitalContext, hospitalPlacement.center) : undefined, [hospitalContext, hospitalPlacement]);
   const snapshot = useMemo(
     () => ({ state, layers, camera, offline, theme, playback: playback.clock,
-      healthcare: hospitalOpen ? { areas: hospitalSearchAreas, selectedId: hospitalAreaId, plan: hospitalPlan, showProposal: showHospitalProposal, placement: hospitalPlacement } : undefined,
+      healthcare: hospitalOpen ? { areas: hospitalSearchAreas, selectedId: hospitalAreaId, plan: hospitalPlan, showProposal: showHospitalProposal, placement: hospitalPlacement, context: hospitalContext, view: hospitalView, benefits } : undefined,
     }),
-    [state, layers, camera, offline, theme, playback.clock, hospitalOpen, hospitalAreaId, hospitalPlan, showHospitalProposal, hospitalPlacement],
+    [state, layers, camera, offline, theme, playback.clock, hospitalOpen, hospitalAreaId, hospitalPlan, showHospitalProposal, hospitalPlacement, hospitalContext, hospitalView, benefits],
   );
   const scenarios = useMemo(
     () => providers.simulation.getStressScenarios(),
     [providers],
   );
   const reset = () => {
+    placementSequence.current++;
     workspace.reset();
     backend.reset();
     setBackendOpen(false);
@@ -105,6 +153,7 @@ export function App({
     setShowHospitalProposal(false);
     setHospitalBeds(60);
     setHospitalPlacement(undefined);
+    setHospitalView("site");
     setCamera("region");
     setStressOpen(false);
     setLayers({
@@ -203,13 +252,13 @@ export function App({
               onSelect={workspace.select}
               onInspectTransport={workspace.selectTransport}
               onSelectHospital={selectHospital}
-              onHospitalPlacement={receivePlacement}
             />
           </Suspense>
           {hospitalOpen ? <HospitalMapOverlays
             area={hospitalSearchAreas.find((area) => area.id === hospitalAreaId)}
             plan={hospitalPlan} showProposal={showHospitalProposal}
             placement={hospitalPlacement}
+            benefits={benefits} view={hospitalView} onView={setHospitalView}
             offline={offline} onOffline={() => setOffline((v) => !v)} onCompare={() => selectHospital(null)}
           /> : <MapOverlays
             workspace={workspace}
@@ -241,6 +290,8 @@ export function App({
           areas={hospitalSearchAreas} selectedId={hospitalAreaId} plan={hospitalPlan}
           showProposal={showHospitalProposal} onSelect={selectHospital}
           placement={hospitalPlacement}
+          benefits={benefits} view={hospitalView} onView={setHospitalView}
+          contextReady={!!hospitalContext} contextError={hospitalContextError}
           onCapacity={changeHospitalCapacity} onProposal={toggleHospitalProposal}
         /> : backendOpen ? (
           <BackendPanel

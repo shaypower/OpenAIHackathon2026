@@ -3,32 +3,27 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { createMapRenderer } from "@/frontend/adapters/spatial/mapRenderer";
 import type { MapSnapshot } from "@/frontend/adapters/spatial/mapFeatures";
 import type { TransportSelection } from "@/frontend/domain/models";
-import type { HospitalPlacement } from "@/frontend/domain/models/healthcare";
 export function MapCanvas({
   snapshot,
   onSelect,
   onInspectTransport,
   onSelectHospital,
-  onHospitalPlacement,
 }: {
   snapshot: MapSnapshot;
   onSelect: (id: string) => void;
   onInspectTransport: (selection: TransportSelection) => void;
   onSelectHospital: (id: string) => void;
-  onHospitalPlacement: (placement: HospitalPlacement) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const renderer = useRef<ReturnType<typeof createMapRenderer> | null>(null);
   const latest = useRef(onSelect);
   const transport = useRef(onInspectTransport);
   const hospital = useRef(onSelectHospital);
-  const placement = useRef(onHospitalPlacement);
   useEffect(() => {
     latest.current = onSelect;
     transport.current = onInspectTransport;
     hospital.current = onSelectHospital;
-    placement.current = onHospitalPlacement;
-  }, [onSelect, onInspectTransport, onSelectHospital, onHospitalPlacement]);
+  }, [onSelect, onInspectTransport, onSelectHospital]);
   const [status, setStatus] = useState("Starting WebGL");
   const [error, setError] = useState<string>();
   useEffect(() => {
@@ -40,7 +35,6 @@ export function MapCanvas({
         setStatus,
         (selection) => transport.current(selection),
         (id) => hospital.current(id),
-        (result) => placement.current(result),
       );
     } catch {
       // External WebGL initialization can fail synchronously; reflect that failure in the UI.

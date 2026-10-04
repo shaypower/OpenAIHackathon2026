@@ -4,6 +4,7 @@ import type { PlaybackClock } from "@/frontend/features/journeys/playback";
 import type { Theme } from "@/frontend/hooks/useTheme";
 import type { HealthcareMapState } from "@/frontend/domain/models/healthcare";
 import { hospitalMassing, rectangle } from "@/frontend/features/healthcare/planning";
+import { distanceRing } from "@/frontend/features/healthcare/context";
 export type MapLayerKey =
   | "healthcare"
   | "vulnerability"
@@ -38,6 +39,15 @@ export function mapFeatures({
   const area = selectedArea && placement?.status === "clear" && placement.areaId === selectedArea.id && placement.beds === healthcare?.plan.beds
     ? { ...selectedArea, center: placement.center } : undefined;
   return {
+    "hospital-context": collection(healthcare?.context ? Object.entries(healthcare.context.areas)
+      .filter(([id]) => !healthcare.selectedId || id === healthcare.selectedId).flatMap(([, context]) => context.features) : []),
+    "hospital-benefits": collection(area && healthcare?.showProposal && healthcare.view === "benefits" ? (healthcare.benefits?.communities ?? []).map((c) => ({
+      type: "Feature", id: c.id, geometry: c.geometry,
+      properties: { id: c.id, name: c.name, residents: c.residents, olderResidents: c.olderResidents, distanceM: c.distanceM },
+    })) : []),
+    "hospital-distance": collection(area && healthcare?.showProposal && healthcare.view === "benefits" ? [3000, 1000].map((radiusM) => ({
+      type: "Feature", id: `radius-${radiusM}`, geometry: distanceRing(area.center, radiusM), properties: { radiusM },
+    })) : []),
     "hospital-search": collection((healthcare?.areas ?? []).map((area) => ({
       type: "Feature", id: area.id,
       geometry: { type: "Point", coordinates: area.center },

@@ -1,3 +1,20 @@
+# Hospital placement demo — quick walkthrough
+
+Start: `bash scripts/demo.sh` → http://127.0.0.1:5173 (or set `CIVIC_DEMO_WEB_PORT=5174`).
+
+1. Choose **Nenagh · Tyone**.
+2. Click **Find a clear hospital site**. The full 4 ha site is checked against 2,088 captured building footprints and mapped roads/water/green spaces. View the three proposed hospital blocks in 3D.
+3. Click **Show nearby benefits on map**. Teal marks the inner 1 km, violet the 3 km zone and nearby Census areas. Nenagh's selected areas contain 10,578 residents, 1,563 aged 65+, and 735 households without a car.
+4. Change capacity to 40, 60 or 80 beds; the programme, massing and cost allowance update. Placement is checked again.
+5. Switch to **Offline** to show that captured building context and population highlights remain available.
+6. Export the hospital plan, or compare Thurles and Roscrea. Healthcare access remains a separate synthetic scenario.
+
+Describe the result as **clear of mapped obstacles**, with proposed care capacity and measured nearby population context. Land ownership, zoning/flood approval, clinical need, patient uptake and travel-time improvements have not been established. Counts are whole Census areas selected by their centres within 3 km.
+
+Verification: all three sites independently pass the backend geometry check; 35 frontend tests, typecheck/lint/build pass. Chromium desktop/mobile walkthrough confirms placement, benefits, offline placement, no uncaught page errors and no horizontal overflow.
+
+---
+
 # 90-second synthetic demo
 
 Start from repository root: `npm install` then `npm run dev`. Open http://127.0.0.1:5173. No keys, database, agent service or Python server needed. Use a 1440px or wider projector viewport where possible.

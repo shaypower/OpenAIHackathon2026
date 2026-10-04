@@ -18,8 +18,6 @@ import { createJourneyRenderer } from "./journeyRenderer";
 import land from "@/frontend/mocks/land.geojson.json";
 import { mapFeatures, type MapSnapshot } from "./mapFeatures";
 import { hospitalMassing } from "@/frontend/features/healthcare/planning";
-import type { HospitalPlacement } from "@/frontend/domain/models/healthcare";
-import { findClearHospitalEnvelope, type PlacementObstacle } from "@/frontend/features/healthcare/placement";
 setWorkerUrl(workerUrl);
 const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
 const offlineStyle = (theme: Theme): StyleSpecification => ({
@@ -48,7 +46,6 @@ export function createMapRenderer(
   onStatus: (message: string) => void,
   onInspectTransport: (selection: TransportSelection) => void,
   onSelectHospital: (id: string) => void,
-  onHospitalPlacement: (placement: HospitalPlacement) => void,
 ) {
   const reduced = () =>
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -102,65 +99,6 @@ export function createMapRenderer(
   };
   motion.addEventListener("change", motionChanged);
   let labels: Marker[] = [];
-  let placementRequest: HospitalPlacement | undefined;
-  let placementTimer: ReturnType<typeof setTimeout> | undefined;
-  let basemapTileFailed = false;
-  function reportBlocked(request: HospitalPlacement, reason: string) {
-    clearTimeout(placementTimer);
-    if (snapshot?.healthcare?.placement === request && request.status === "checking")
-      onHospitalPlacement({ status: "blocked", areaId: request.areaId, beds: request.beds, reason });
-  }
-  function screenHospitalPlacement() {
-    const hospital = snapshot?.healthcare;
-    const request = hospital?.placement;
-    if (!hospital || request?.status !== "checking" || request !== placementRequest || !ready || map.isMoving()) return;
-    if (fallback || snapshot?.offline) {
-      reportBlocked(request, "Building footprints are unavailable offline. Go online and retry the placement check.");
-      return;
-    }
-    if (!map.getSource("openmaptiles") || !map.isSourceLoaded("openmaptiles") || map.getZoom() < 15) return;
-    if (basemapTileFailed) {
-      reportBlocked(request, "Some map tiles failed to load. Existing-building clearance could not be verified; reload the map and retry.");
-      return;
-    }
-    const area = hospital.areas.find((area) => area.id === request.areaId);
-    if (!area) return;
-    try {
-      const buildings = [
-        ...map.querySourceFeatures("openmaptiles", { sourceLayer: "building" }),
-        ...map.queryRenderedFeatures({ layers: ["building-3d"] }),
-      ];
-      if (!buildings.length) {
-        reportBlocked(request, "No usable building footprints loaded. The planner cannot assume empty map data means vacant land.");
-        return;
-      }
-      const roads = map.querySourceFeatures("openmaptiles", { sourceLayer: "transportation" });
-      const water = map.querySourceFeatures("openmaptiles", { sourceLayer: "water" });
-      const land = map.querySourceFeatures("openmaptiles", { sourceLayer: "landuse" }).filter((f) =>
-        ["cemetery", "park", "recreation_ground", "pitch", "forest", "wood"].includes(String(f.properties.class)));
-      const cover = map.querySourceFeatures("openmaptiles", { sourceLayer: "landcover" }).filter((f) =>
-        ["wood", "wetland"].includes(String(f.properties.class)));
-      const obstacles: PlacementObstacle[] = [
-        ...buildings.map((f) => ({ geometry: f.geometry, kind: "building" as const })),
-        ...roads.map((f) => ({ geometry: f.geometry, kind: "transport" as const })),
-        ...water.map((f) => ({ geometry: f.geometry, kind: "water" as const })),
-        ...[...land, ...cover].map((f) => ({ geometry: f.geometry, kind: "protected-land" as const })),
-      ];
-      const bounds = map.getBounds();
-      const center = findClearHospitalEnvelope(area.center, Math.sqrt(hospital.plan.siteAreaHa * 10_000), obstacles,
-        [[bounds.getWest(), bounds.getSouth()], [bounds.getEast(), bounds.getNorth()]]);
-      if (!center) {
-        reportBlocked(request, "No clear four-hectare envelope found within 400 m in the loaded map. Try another search area; no hospital has been placed here.");
-        return;
-      }
-      clearTimeout(placementTimer);
-      onHospitalPlacement({ status: "clear", areaId: area.id, beds: hospital.plan.beds, center,
-        checkedBuildings: buildings.length, checkedObstacles: obstacles.length, checkedAt: new Date().toISOString() });
-    } catch {
-      reportBlocked(request, "The map's obstacle geometry could not be checked. No hospital has been placed; retry with complete map data.");
-    }
-  }
-  map.on("idle", screenHospitalPlacement);
   const sourceIds = [
     "communities",
     "centers",
@@ -173,6 +111,9 @@ export function createMapRenderer(
     "hospital-search",
     "hospital-site",
     "hospital-blocks",
+    "hospital-context",
+    "hospital-benefits",
+    "hospital-distance",
   ];
   const getSource = (id: string) =>
     map.getSource(`civic-${id}`) as GeoJSONSource | undefined;
@@ -367,6 +308,23 @@ export function createMapRenderer(
         "circle-stroke-width": 3,
       },
     });
+    map.addLayer({ id: "hospital-benefits", type: "fill", source: "civic-hospital-benefits",
+      paint: { "fill-color": ["case", ["<=", ["get", "distanceM"], 1000], "#14b8a6", "#8b5cf6"], "fill-opacity": 0.23 } });
+    map.addLayer({ id: "hospital-benefits-border", type: "line", source: "civic-hospital-benefits",
+      paint: { "line-color": "#7c3aed", "line-width": 0.8, "line-opacity": 0.55 } });
+    map.addLayer({ id: "hospital-distance-fill", type: "fill", source: "civic-hospital-distance",
+      paint: { "fill-color": ["case", ["==", ["get", "radiusM"], 1000], "#14b8a6", "#8b5cf6"], "fill-opacity": 0.07 } });
+    map.addLayer({ id: "hospital-distance-border", type: "line", source: "civic-hospital-distance",
+      paint: { "line-color": ["case", ["==", ["get", "radiusM"], 1000], "#0d9488", "#8b5cf6"], "line-width": 2, "line-dasharray": [3, 2] } });
+    map.addLayer({ id: "hospital-context-land", type: "fill", source: "civic-hospital-context",
+      filter: ["all", ["==", ["geometry-type"], "Polygon"], ["in", ["get", "kind"], ["literal", ["water", "protected-land"]]]],
+      paint: { "fill-color": ["case", ["==", ["get", "kind"], "water"], "#7dd3fc", "#bbd7a0"], "fill-opacity": 0.6 } });
+    map.addLayer({ id: "hospital-context-roads", type: "line", source: "civic-hospital-context",
+      filter: ["==", ["get", "kind"], "transport"],
+      paint: { "line-color": theme === "dark" ? "#82909b" : "#bac3cb", "line-width": 2.5, "line-opacity": 0.8 } });
+    map.addLayer({ id: "hospital-context-buildings", type: "fill-extrusion", source: "civic-hospital-context",
+      filter: ["all", ["==", ["get", "kind"], "building"], ["==", ["geometry-type"], "Polygon"]],
+      paint: { "fill-extrusion-color": theme === "dark" ? "#62758a" : "#b9c7d6", "fill-extrusion-height": 9, "fill-extrusion-opacity": 0.8 } });
     map.addLayer({
       id: "hospital-search", type: "circle", source: "civic-hospital-search",
       paint: { "circle-radius": ["case", ["get", "selected"], 11, 8], "circle-color": palette.teal,
@@ -412,6 +370,7 @@ export function createMapRenderer(
     visibility(["vulnerability"], !next.healthcare && next.layers.vulnerability);
     visibility(["routes", "demo-routes", "stops"], !next.healthcare && next.layers.transport);
     visibility(["services"], !next.healthcare && next.layers.healthcare);
+    if (map.getLayer("building-3d")) map.setLayoutProperty("building-3d", "visibility", next.healthcare?.context ? "none" : "visible");
     visibility(["journey", "patch-halo", "patch-route", "patch-sites", "flood-area", "disrupted-lines", "closed-sites"], !next.healthcare);
     labels.forEach((l) => l.remove());
     labels = [];
@@ -462,12 +421,6 @@ export function createMapRenderer(
         ? hospital.placement : undefined;
       const placedArea = area && checked ? { ...area, center: checked.center } : undefined;
       const proposalVisible = !!placedArea && hospital.showProposal;
-      if (hospital.placement?.status === "checking" && hospital.placement !== placementRequest) {
-        clearTimeout(placementTimer);
-        placementRequest = hospital.placement;
-        const request = placementRequest;
-        placementTimer = setTimeout(() => reportBlocked(request, "Map screening timed out. No hospital has been placed; retry when the geographic context is available."), 8000);
-      } else if (hospital.placement?.status !== "checking") clearTimeout(placementTimer);
       for (const candidate of hospital.areas) {
         if (proposalVisible && candidate.id === area?.id) continue;
         const button = document.createElement("button");
@@ -478,7 +431,7 @@ export function createMapRenderer(
         labels.push(new Marker({ element: button, anchor: "bottom", offset: [0, -14] }).setLngLat(candidate.center).addTo(map));
       }
       if (placedArea && proposalVisible) {
-        for (const block of hospitalMassing(placedArea, hospital.plan)) {
+        for (const block of hospital.view === "benefits" ? [] : hospitalMassing(placedArea, hospital.plan)) {
           const element = document.createElement("div");
           element.className = "hospital-block-label";
           element.textContent = block.label;
@@ -486,26 +439,25 @@ export function createMapRenderer(
         }
         const label = document.createElement("div");
         label.className = "hospital-envelope-label";
-        label.textContent = `${hospital.plan.siteAreaHa} ha illustrative envelope · land unverified`;
+        label.textContent = hospital.view === "benefits" ? `✚ ${hospital.plan.beds} proposed beds · ${area?.name}` : `${hospital.plan.siteAreaHa} ha · mapped footprint clear`;
         labels.push(new Marker({ element: label, anchor: "top", offset: [0, 12] })
           .setLngLat([placedArea.center[0], placedArea.center[1] - 0.0009]).addTo(map));
       }
       const checking = hospital.placement?.status === "checking";
-      const hospitalKey = `hospital:${hospital.selectedId ?? "all"}:${proposalVisible}:${checking}:${checked?.center.join(",") ?? ""}`;
+      const hospitalKey = `hospital:${hospital.view ?? "site"}:${hospital.selectedId ?? "all"}:${proposalVisible}:${checking}:${checked?.center.join(",") ?? ""}`;
       if (lastCamera !== hospitalKey) {
         lastCamera = hospitalKey;
         map.stop();
         popup.remove();
         const mobile = container.clientWidth < 640;
-        if (area) map.easeTo({ center: placedArea?.center ?? area.center, zoom: proposalVisible ? 16.8 : checking ? 15.2 : 13.2,
-          pitch: proposalVisible ? 55 : checking ? 0 : 25, bearing: proposalVisible ? -20 : 0,
+        if (area) map.easeTo({ center: placedArea?.center ?? area.center, zoom: proposalVisible ? hospital.view === "benefits" ? 12.4 : 16.4 : checking ? 15.2 : 13.2,
+          pitch: proposalVisible && hospital.view !== "benefits" ? 50 : 0, bearing: proposalVisible && hospital.view !== "benefits" ? -20 : 0,
           padding: checking ? 0 : { left: 25, right: 25, top: 105, bottom: mobile ? 115 : 85 }, duration: reduced() ? 0 : 1000 });
         else map.fitBounds(geometryBounds({ type: "MultiPoint", coordinates: hospital.areas.map((a) => a.center) }), {
           padding: { left: mobile ? 55 : 95, right: mobile ? 55 : 95, top: 125, bottom: 85 },
           pitch: 20, bearing: 0, maxZoom: 10.6, duration: reduced() ? 0 : 1100,
         });
       }
-      if (checking && (next.offline || fallback)) screenHospitalPlacement();
       return;
     }
     const patchCamera = next.state.simulation
@@ -635,8 +587,6 @@ export function createMapRenderer(
     hoverId = null;
     popup.remove();
     traveller.pause();
-    if (snapshot?.healthcare?.placement?.status === "checking")
-      reportBlocked(snapshot.healthcare.placement, "Building footprints are unavailable offline. Go online and retry the placement check.");
     basemapRequest?.abort();
     map.setStyle(offlineStyle(theme), { diff: false });
     onStatus("Offline map · local land + captured route context");
@@ -645,7 +595,6 @@ export function createMapRenderer(
     const attempt = ++remoteAttempt;
     ready = false;
     fallback = false;
-    basemapTileFailed = false;
     onStatus("Loading geographic context");
     try {
       basemapRequest?.abort();
@@ -748,8 +697,7 @@ export function createMapRenderer(
         : "OpenFreeMap · WebGL",
     );
   });
-  map.on("error", (event) => {
-    if ("sourceId" in event && event.sourceId === "openmaptiles") basemapTileFailed = true;
+  map.on("error", () => {
     if (!fallback) onStatus("Some map tiles unavailable · use Offline map");
   });
   map.on("mousemove", "catchments", (event) => {
@@ -896,7 +844,6 @@ export function createMapRenderer(
       disposed = true;
       remoteAttempt++;
       clearTimeout(basemapTimer);
-      clearTimeout(placementTimer);
       basemapRequest?.abort();
       traveller.dispose();
       motion.removeEventListener("change", motionChanged);

@@ -1,5 +1,33 @@
 # Civic Access Lab — Data / GIS prototype
 
+## Hospital demo — start here
+
+```sh
+bash scripts/demo.sh
+```
+
+Open **http://127.0.0.1:5173**. Choose **Nenagh · Tyone → Find a clear hospital site → Show nearby benefits on map**.
+The launcher starts FastAPI on 8765 and the React app on 5173. If 5173 is occupied,
+use `CIVIC_DEMO_WEB_PORT=5174 bash scripts/demo.sh`.
+
+All three hospital options have captured OpenStreetMap buildings, roads, water and
+green-space obstacles. The complete 4 ha envelope is rechecked before placement,
+including 8 m building clearance and 15 m transport clearance. The API independently
+checks the same geometry; the captured context also works offline. The 3D buildings
+are proposed massing, and nearby existing building heights are illustrative.
+
+The benefits view shows 1 km / 3 km distance zones and real Census 2022 Small Areas.
+For the Nenagh proposal, nearby areas contain **10,578 residents**, including
+**1,563 aged 65+**, and **735 households without a car**. These are whole-area counts
+selected by area centre, not a prediction of patients, access gains or journey savings.
+Planned bed capacity, diagnostics and the capital allowance update with 40/60/80 beds.
+Export includes placement evidence and nearby population. Map clearance does not
+establish land ownership, planning consent or a clinical business case.
+
+The captured file is `src/frontend/public/data/hospital-context.json`, with source
+URL, capture time, checksums and attribution. Hospital API: `GET /api/hospitals/context`
+and `POST /api/hospitals/preview`. No API key is needed for this demo.
+
 A small, map-first proof of concept for the hackathon question: **which rural communities are outside a chosen healthcare travel-time target, and how might an intervention change that?**
 
 The repository has two distinct views. A countywide evidence map uses Census 2022 Small Areas and demographics, CSO published GP distance statistics, Pobal Electoral Division context, and TFI stop locations for all of County Tipperary. A separate pilot models a 45-minute journey for older residents without a car in a synthetic North Tipperary scenario and compares four network states:

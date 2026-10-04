@@ -1,5 +1,5 @@
 import type { Polygon } from "geojson";
-import type { HospitalBlock, HospitalCapacity, HospitalPlan, HospitalSearchArea, HospitalPlacement } from "@/frontend/domain/models/healthcare";
+import type { HospitalBlock, HospitalCapacity, HospitalPlan, HospitalSearchArea, HospitalPlacement, HospitalBenefits } from "@/frontend/domain/models/healthcare";
 
 export const HOSPITAL_CAPACITIES: readonly HospitalCapacity[] = [40, 60, 80];
 // Explicit concept allowances, not fitted rates, tender prices or indexed benchmarks.
@@ -65,7 +65,7 @@ export function capitalRange(plan: HospitalPlan): string {
   return `€${(plan.capitalEur[0] / 1_000_000).toFixed(1)}–${(plan.capitalEur[1] / 1_000_000).toFixed(1)}m`;
 }
 
-export function exportHospitalPlan(area: HospitalSearchArea, plan: HospitalPlan, sourceUrls: string[], placement?: HospitalPlacement) {
+export function exportHospitalPlan(area: HospitalSearchArea, plan: HospitalPlan, sourceUrls: string[], placement?: HospitalPlacement, benefits?: HospitalBenefits) {
   const placedArea = placement?.status === "clear" && placement.areaId === area.id && placement.beds === plan.beds ? { ...area, center: placement.center } : undefined;
   const blob = new Blob([JSON.stringify({ schemaVersion: 1, status: "concept-only", area,
     plan, assumptions: HOSPITAL_ASSUMPTIONS, sourceUrls,
@@ -73,6 +73,8 @@ export function exportHospitalPlan(area: HospitalSearchArea, plan: HospitalPlan,
     landAvailability: "unverified", planningApproval: "unverified", accessibilityImpact: null,
     geometryStatus: "illustrative; approximate anchor; no surveyed parcel",
     placement: placement ?? { status: "not-requested" },
+    nearbyPopulation: benefits ? { residents: benefits.residents, olderResidents: benefits.olderResidents, noCarHouseholds: benefits.noCarHouseholds, censusAreas: benefits.areaCount,
+      method: "Census 2022 Small Areas with centres within 3 km; not a journey catchment or forecast of patients." } : null,
     blocks: placedArea ? hospitalMassing(placedArea, plan) : [],
   }, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);

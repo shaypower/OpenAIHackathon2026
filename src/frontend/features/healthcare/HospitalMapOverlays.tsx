@@ -1,29 +1,26 @@
-import { ArrowLeft, Building2, MapPin } from "lucide-react";
+import { ArrowLeft, Building2, MapPin, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
-import type { HospitalPlan, HospitalSearchArea, HospitalPlacement } from "@/frontend/domain/models/healthcare";
+import type { HospitalPlan, HospitalSearchArea, HospitalPlacement, HospitalBenefits } from "@/frontend/domain/models/healthcare";
 import { capitalRange } from "./planning";
-
-export function HospitalMapOverlays({ area, plan, showProposal, placement, offline, onOffline, onCompare }: {
-  area?: HospitalSearchArea;
-  plan: HospitalPlan;
-  showProposal: boolean;
-  placement?: HospitalPlacement;
-  offline: boolean;
-  onOffline: () => void;
-  onCompare: () => void;
+export function HospitalMapOverlays({ area, plan, showProposal, placement, benefits, view, onView, offline, onOffline, onCompare }: {
+  area?: HospitalSearchArea; plan: HospitalPlan; showProposal: boolean; placement?: HospitalPlacement;
+  benefits?: HospitalBenefits; view: "site" | "benefits"; onView: (view: "site" | "benefits") => void;
+  offline: boolean; onOffline: () => void; onCompare: () => void;
 }) {
   const placed = showProposal && placement?.status === "clear";
   return <>
     <div className="hospital-map-toolbar">
-      {area ? <Button variant="outline" onClick={onCompare}><ArrowLeft size={14} /> All areas</Button> : <div className="hospital-map-title"><MapPin size={16} /><span>Tipperary / hospital search areas</span></div>}
-      <label className="hospital-offline"><input type="checkbox" checked={offline} onChange={onOffline} /> Offline map</label>
+      {area ? <Button variant="outline" onClick={onCompare}><ArrowLeft size={14} /> All areas</Button> : <div className="hospital-map-title"><MapPin size={16} />Tipperary / closer care</div>}
+      {placed ? <div className="hospital-view-toggle"><button aria-pressed={view === "site"} onClick={() => onView("site")}><Building2 size={14} />3D site</button><button aria-pressed={view === "benefits"} onClick={() => onView("benefits")}><Users size={14} />Nearby benefits</button></div> : null}
+      <label className="hospital-offline"><input type="checkbox" checked={offline} onChange={onOffline} /> Offline</label>
     </div>
-    {area && placed ? <div className="hospital-map-readout" role="status">
-      <div><Building2 size={18} /><span className="eyebrow">Proposed hospital / concept only</span></div>
-      <strong>{area.name}<span>{plan.beds} beds · diagnostics</span></strong>
-      <p>{capitalRange(plan)} <span>capital allowance · land not costed</span></p>
-      <small>{offline ? "Previously screened map footprint · offline context" : "Envelope clear of checked map obstacles"} · land unverified</small>
-    </div> : <div className="hospital-map-readout hospital-search-readout" role="status"><p className="eyebrow">{placement?.status === "checking" ? "Checking mapped obstacles" : placement?.status === "blocked" ? "Hospital not placed" : area ? "Selected search area" : "Explore the shortlist"}</p><strong>{area?.name ?? "Three places to investigate"}</strong><p>{placement?.status === "checking" ? "Finding a clear footprint near this area…" : placement?.status === "blocked" ? "Placement check incomplete · see inspector" : area ? "Place a concept from the inspector." : "Select a map label or an area in the inspector."}</p><small>Approximate locations · no confirmed land parcels</small></div>}
-    <div className="map-legend hospital-legend"><span><i className="legend-service" />{placed ? "Proposed hospital" : "Hospital search area"}</span>{placed ? <span><i className="legend-failure" />Illustrative site envelope</span> : null}<span>Land & planning unverified</span></div>
+    <div className="hospital-map-readout" role="status">
+      {placed ? <><div><ShieldCheck size={17} /><span className="eyebrow">MAPPED FOOTPRINT CLEAR</span></div>
+        <strong>{view === "benefits" ? `${benefits?.residents.toLocaleString("en-IE") ?? "—"} residents nearby` : area?.name}<span>{view === "benefits" ? "Census areas within 3 km of the proposal" : `${plan.beds} proposed beds · diagnostics + outpatient`}</span></strong>
+        <p>{view === "benefits" ? `+${plan.beds} planned inpatient beds` : capitalRange(plan)}<span>{view === "benefits" ? "New care capacity to investigate for this area" : "Illustrative capital allowance"}</span></p>
+        <small>{view === "benefits" ? "Distance zones · not travel-time catchments" : "4 ha screened site · ownership & planning unassessed"}</small></>
+      : <><p className="eyebrow">{placement?.status === "checking" ? "CHECKING BUILDING FOOTPRINTS" : "PLAN CARE CLOSER TO HOME"}</p><strong>{area?.name ?? "Three places. One better-connected future."}</strong><p>{area ? "Find a clear site from the inspector." : "Choose an area to place a hospital concept."}</p><small>Existing buildings, roads & water retained on the map</small></>}
+    </div>
+    <div className="map-legend hospital-legend"><span><i style={{ background: "#0d9488" }} />{placed ? "Proposed hospital" : "Search areas"}</span>{placed && view === "benefits" ? <><span><i style={{ background: "#14b8a6" }} />Within 1 km</span><span><i style={{ background: "#8b5cf6" }} />Within 3 km</span><span>Census 2022 · area centres</span></> : <><span><i style={{ background: "#b9c7d6" }} />Existing buildings</span>{placed ? <span><i style={{ background: "#f59e0b" }} />Screened site</span> : null}</>}</div>
   </>;
 }

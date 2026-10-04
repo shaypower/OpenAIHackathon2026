@@ -55,6 +55,7 @@ class BootstrapAPITests(unittest.TestCase):
             "/api/objectives/analyse", "/api/runs/{run_id}",
             "/api/data/tipperary/{filename}", "/api/simulations/accessibility",
             "/api/simulations/accessibility/demo",
+            "/api/hospitals/context", "/api/hospitals/preview",
         })
         source_schema = schema["paths"]["/api/sources"]["get"]["responses"]
         self.assertIn("503", source_schema)

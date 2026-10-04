@@ -92,6 +92,8 @@ function obstructs(obstacle: LocalObstacle, envelope: Bounds): boolean {
 }
 
 export function envelopeIsClear(center: Point, sideM: number, obstacles: PlacementObstacle[]): boolean {
+  if (!center.every(Number.isFinite) || !Number.isFinite(sideM) || sideM <= 0 || !obstacles.length)
+    throw new Error("Missing or invalid placement context");
   const half = sideM / 2;
   return !obstacles.map((obstacle) => localObstacle(obstacle, center)).some((obstacle) => obstructs(obstacle, [-half, -half, half, half]));
 }
