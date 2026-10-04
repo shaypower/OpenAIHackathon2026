@@ -2,6 +2,8 @@ import type { FeatureCollection, Feature, Geometry } from "geojson";
 import type { WorkspaceState } from "@/frontend/features/workspace/state";
 import type { PlaybackClock } from "@/frontend/features/journeys/playback";
 import type { Theme } from "@/frontend/hooks/useTheme";
+import type { HealthcareMapState } from "@/frontend/domain/models/healthcare";
+import { hospitalMassing, rectangle } from "@/frontend/features/healthcare/planning";
 export type MapLayerKey =
   | "healthcare"
   | "vulnerability"
@@ -15,9 +17,11 @@ export interface MapSnapshot {
   offline: boolean;
   theme?: Theme;
   playback?: PlaybackClock;
+  healthcare?: HealthcareMapState;
 }
 export function mapFeatures({
   state,
+  healthcare,
 }: MapSnapshot): Record<string, FeatureCollection> {
   const collection = (features: Feature<Geometry>[]): FeatureCollection => ({
     type: "FeatureCollection",
@@ -29,7 +33,25 @@ export function mapFeatures({
     !!state.simulation &&
     state.simulation.afterPercent >=
       (state.objective?.targetAccessPercent ?? 90);
+  const selectedArea = healthcare?.areas.find((a) => a.id === healthcare.selectedId);
+  const placement = healthcare?.placement;
+  const area = selectedArea && placement?.status === "clear" && placement.areaId === selectedArea.id && placement.beds === healthcare?.plan.beds
+    ? { ...selectedArea, center: placement.center } : undefined;
   return {
+    "hospital-search": collection((healthcare?.areas ?? []).map((area) => ({
+      type: "Feature", id: area.id,
+      geometry: { type: "Point", coordinates: area.center },
+      properties: { id: area.id, name: area.name, selected: area.id === healthcare?.selectedId },
+    }))),
+    "hospital-site": collection(area && healthcare?.showProposal ? [{
+      type: "Feature", id: area.id,
+      geometry: rectangle(area.center, Math.sqrt(healthcare.plan.siteAreaHa * 10_000), Math.sqrt(healthcare.plan.siteAreaHa * 10_000)),
+      properties: { id: area.id, name: "Illustrative site envelope · not a property boundary" },
+    }] : []),
+    "hospital-blocks": collection(area && healthcare?.showProposal ? hospitalMassing(area, healthcare.plan).map((block) => ({
+      type: "Feature", id: block.id, geometry: block.geometry,
+      properties: { id: block.id, name: block.label, kind: block.kind, heightM: block.heightM, floors: block.floors },
+    })) : []),
     communities: collection(
       state.communities.map((c) => ({
         type: "Feature",

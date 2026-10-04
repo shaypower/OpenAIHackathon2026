@@ -1,5 +1,13 @@
 # Frontend integration shell
 
+## Hospital planning workspace
+
+The hospital planner is available on entry, alongside the existing healthcare-access demo. `adapters/data/healthcareSites.ts` holds a bounded, attributed research catalogue checked on 4 October 2026: HSE Nenagh location context, adopted Nenagh/Thurles/Roscrea plans, HSE's UHL ward-block cost, Bon Secours' latest €213m opening announcement and the Oireachtas cost-comparison note. Search anchors are approximate editorial investigation areas, not surveyed plots, council hospital designations, available land or a computed suitability ranking. Nenagh offers documented healthcare-campus context; Thurles and Roscrea remain alternative search hypotheses. The Roscrea station-edge flood constraint remains visible.
+
+`domain/models/healthcare.ts` defines stable search-area IDs, WGS84 anchors, source/date provenance, metre building dimensions and euro cost intervals. `features/healthcare/planning.ts` deterministically calculates 40/60/80-bed concept programmes and massing. The initial assumption is 120 m² gross floor area per bed, two 3-storey inpatient blocks, a 1-storey diagnostics/outpatient block, and a 4 ha illustrative envelope. A local tangent-plane conversion places small metre-scale polygons; these are schematic massings, not observed buildings or property boundaries. The existing MapLibre adapter owns extrusion, labels, cameras and cleanup; offline mode retains all proposal geometry without external glyphs. Selection, capacity, and existing/proposed context are React state independent of access simulation results.
+
+The €1.1–1.5m per-bed allowance and 20–35% contingency are explicit scenario assumptions informed by published project context, not fitted/comparable benchmark rates, a quantity survey or a live quote. A 60-bed concept yields €66–90m base + €13.2–31.5m contingency = €79.2–121.5m. Land, off-site infrastructure, VAT, future inflation and annual operations are excluded and uncosted. No location-specific price differences, construction schedule, staffing approval, land availability or travel-time/population benefits are invented. The inspector links evidence and unresolved feasibility questions; JSON export records these assumptions, exclusions and null accessibility impact. No hospital proposal is sent to the backend or accepted as a computed simulation result.
+
 All frontend source and fixtures live under `src/frontend/`. React 19 + strict TypeScript, Vite, Tailwind 4, selected shadcn/Radix controls, Lucide, and MapLibre GL JS 6.12. No backend is needed. Existing backend files are independent and untouched.
 
 ## Layers

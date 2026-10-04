@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState, useCallback } from "react";
 import {
   Activity,
   RotateCcw,
@@ -8,6 +8,8 @@ import {
   Moon,
   Sun,
   Plug,
+  Building2,
+  Cross,
 } from "lucide-react";
 import type { FrontendProviders } from "@/frontend/domain/contracts/providers";
 import type { LayerVisibility } from "@/frontend/adapters/spatial/mapFeatures";
@@ -23,6 +25,11 @@ import { useJourneyPlayback } from "@/frontend/features/journeys/useJourneyPlayb
 import type { BackendProvider } from "@/frontend/domain/contracts/backend";
 import { useBackend } from "@/frontend/features/backend/useBackend";
 import { BackendPanel } from "@/frontend/features/backend/BackendPanel";
+import { HospitalPanel } from "@/frontend/features/healthcare/HospitalPanel";
+import { HospitalMapOverlays } from "@/frontend/features/healthcare/HospitalMapOverlays";
+import { hospitalSearchAreas } from "@/frontend/adapters/data/healthcareSites";
+import { calculateHospitalPlan } from "@/frontend/features/healthcare/planning";
+import type { HospitalCapacity, HospitalPlacement } from "@/frontend/domain/models/healthcare";
 const MapCanvas = lazy(() =>
   import("@/frontend/components/map/MapCanvas").then((m) => ({
     default: m.MapCanvas,
@@ -37,6 +44,30 @@ export function App({
 }) {
   const backend = useBackend(backendProvider);
   const [backendOpen, setBackendOpen] = useState(false);
+  const [hospitalOpen, setHospitalOpen] = useState(true);
+  const [hospitalAreaId, setHospitalAreaId] = useState<string | null>(null);
+  const [hospitalBeds, setHospitalBeds] = useState<HospitalCapacity>(60);
+  const [showHospitalProposal, setShowHospitalProposal] = useState(false);
+  const [hospitalPlacement, setHospitalPlacement] = useState<HospitalPlacement>();
+  const receivePlacement = useCallback((result: HospitalPlacement) => {
+    setHospitalPlacement((current) => current?.status === "checking" && current.areaId === result.areaId && current.beds === result.beds ? result : current);
+  }, []);
+  const toggleHospitalProposal = (show: boolean) => {
+    setShowHospitalProposal(show);
+    setHospitalPlacement(show && hospitalAreaId ? { status: "checking", areaId: hospitalAreaId, beds: hospitalBeds } : undefined);
+  };
+  const changeHospitalCapacity = (beds: HospitalCapacity) => {
+    setHospitalBeds(beds);
+    if (showHospitalProposal && hospitalAreaId) setHospitalPlacement({ status: "checking", areaId: hospitalAreaId, beds });
+  };
+  const hospitalPlan = useMemo(() => calculateHospitalPlan(hospitalBeds), [hospitalBeds]);
+  const selectHospital = (id: string | null) => {
+    setHospitalAreaId(id);
+    setShowHospitalProposal(false);
+    setHospitalPlacement(undefined);
+    setBackendOpen(false);
+    setHospitalOpen(true);
+  };
   const [objectiveMode, setObjectiveMode] = useState<"demo" | "backend">(
     "demo",
   );
@@ -45,7 +76,7 @@ export function App({
   const { theme, toggleTheme } = useTheme();
   const playback = useJourneyPlayback(
     state.journey,
-    state.view === "journey" && !backendOpen && !isBusy(state.phase),
+    state.view === "journey" && !backendOpen && !hospitalOpen && !isBusy(state.phase),
   );
   const [layers, setLayers] = useState<LayerVisibility>({
     healthcare: true,
@@ -57,8 +88,10 @@ export function App({
   const [offline, setOffline] = useState(false);
   const [stressOpen, setStressOpen] = useState(false);
   const snapshot = useMemo(
-    () => ({ state, layers, camera, offline, theme, playback: playback.clock }),
-    [state, layers, camera, offline, theme, playback.clock],
+    () => ({ state, layers, camera, offline, theme, playback: playback.clock,
+      healthcare: hospitalOpen ? { areas: hospitalSearchAreas, selectedId: hospitalAreaId, plan: hospitalPlan, showProposal: showHospitalProposal, placement: hospitalPlacement } : undefined,
+    }),
+    [state, layers, camera, offline, theme, playback.clock, hospitalOpen, hospitalAreaId, hospitalPlan, showHospitalProposal, hospitalPlacement],
   );
   const scenarios = useMemo(
     () => providers.simulation.getStressScenarios(),
@@ -68,6 +101,10 @@ export function App({
     workspace.reset();
     backend.reset();
     setBackendOpen(false);
+    setHospitalAreaId(null);
+    setShowHospitalProposal(false);
+    setHospitalBeds(60);
+    setHospitalPlacement(undefined);
     setCamera("region");
     setStressOpen(false);
     setLayers({
@@ -106,19 +143,19 @@ export function App({
         </a>
         <div className="region-label">
           Ireland<span>/</span>
-          {state.objective ? "Tipperary" : "Planning workspace"}
+          {hospitalOpen || state.objective ? "Tipperary" : "Planning workspace"}
         </div>
         <div className="header-actions">
           <span className="dataset-state">
             <i />
-            {objectiveMode === "demo" ? "Synthetic demo" : "Synthetic map"}
+            {hospitalOpen ? "Hospital concept" : objectiveMode === "demo" ? "Synthetic demo" : "Synthetic map"}
           </span>
           <Button
             variant="ghost"
             size="sm"
             className="backend-control"
             aria-label="Inspect backend integration"
-            onClick={() => setBackendOpen((v) => !v)}
+            onClick={() => { setHospitalOpen(false); setBackendOpen((v) => !v); }}
           >
             <Plug size={15} />
             <span>
@@ -146,6 +183,11 @@ export function App({
           </Button>
         </div>
       </header>
+      <nav className="workspace-mode-bar" aria-label="Healthcare workspace">
+        <button aria-pressed={hospitalOpen} disabled={isBusy(state.phase)} onClick={() => { setHospitalOpen(true); setBackendOpen(false); }}><Building2 size={15} /> Hospital planner</button>
+        <button aria-pressed={!hospitalOpen} onClick={() => { setHospitalOpen(false); setBackendOpen(false); }}><Cross size={14} /> Healthcare access</button>
+        <span>{hospitalOpen ? "Research → compare areas → preview a hospital" : "Synthetic access scenario / existing demo"}</span>
+      </nav>
       <div id="main-workspace" className="main-workspace">
         <section
           className="spatial-workspace"
@@ -160,9 +202,16 @@ export function App({
               snapshot={snapshot}
               onSelect={workspace.select}
               onInspectTransport={workspace.selectTransport}
+              onSelectHospital={selectHospital}
+              onHospitalPlacement={receivePlacement}
             />
           </Suspense>
-          <MapOverlays
+          {hospitalOpen ? <HospitalMapOverlays
+            area={hospitalSearchAreas.find((area) => area.id === hospitalAreaId)}
+            plan={hospitalPlan} showProposal={showHospitalProposal}
+            placement={hospitalPlacement}
+            offline={offline} onOffline={() => setOffline((v) => !v)} onCompare={() => selectHospital(null)}
+          /> : <MapOverlays
             workspace={workspace}
             layers={layers}
             onLayer={(key) =>
@@ -172,7 +221,7 @@ export function App({
             onCamera={setCamera}
             offline={offline}
             onOffline={() => setOffline((v) => !v)}
-          />
+          />}
           {isBusy(state.phase) ? (
             <div className="analysis-progress" role="status">
               <LoaderCircle size={18} className="spin" />
@@ -188,7 +237,12 @@ export function App({
             </div>
           ) : null}
         </section>
-        {backendOpen ? (
+        {hospitalOpen ? <HospitalPanel
+          areas={hospitalSearchAreas} selectedId={hospitalAreaId} plan={hospitalPlan}
+          showProposal={showHospitalProposal} onSelect={selectHospital}
+          placement={hospitalPlacement}
+          onCapacity={changeHospitalCapacity} onProposal={toggleHospitalProposal}
+        /> : backendOpen ? (
           <BackendPanel
             backend={backend}
             onClose={() => setBackendOpen(false)}
@@ -214,7 +268,7 @@ export function App({
           </Button>
         </div>
       ) : null}
-      <ObjectiveBar
+      {hospitalOpen ? <div className="hospital-planning-dock"><div><Cross size={20} /><span><strong>Plan care closer to home.</strong><small>Evidence-led area screening · transparent cost assumptions · a labelled hospital concept</small></span></div><Button variant="outline" onClick={() => setHospitalOpen(false)}>Explore healthcare access <ArrowUpRight size={15} /></Button></div> : <ObjectiveBar
         phase={state.phase}
         mode={objectiveMode}
         onModeChange={changeMode}
@@ -228,6 +282,7 @@ export function App({
         }
         onSubmit={(text) => {
           setCamera("region");
+          setHospitalOpen(false);
           setStressOpen(false);
           if (objectiveMode === "backend") {
             setBackendOpen(true);
@@ -235,12 +290,11 @@ export function App({
           } else void workspace.submit(text);
         }}
         onReset={reset}
-      />
+      />}
       <footer className="app-footer">
         <span>IRELAND · WGS84 / EPSG:4326</span>
         <span>
-          Synthetic outcomes · route shapes © NTA / CC BY 4.0 · map ©
-          OpenStreetMap / OpenFreeMap
+          {hospitalOpen ? "Researched area context · illustrative buildings & costs · map © OpenStreetMap / OpenFreeMap" : "Synthetic outcomes · route shapes © NTA / CC BY 4.0 · map © OpenStreetMap / OpenFreeMap"}
         </span>
         <span>CIVIC / 01</span>
       </footer>
