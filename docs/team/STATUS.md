@@ -35,13 +35,13 @@ Baseline inspected 2026-10-04 (Europe/Dublin). Update only your block; C owns in
 
 ## PERSON_D
 
-- State: existing mock workflow IMPLEMENTED / MOCKED providers; connected civic backend work NOT_STARTED.
-- Exists: React 19/strict TS/Vite, six provider contracts, mock iterable analysis, workspace reducer/hook, MapLibre layers/offline context, cancellation/recovery, schematic site viewer and eight current tests. Concurrent frontend work added a typed synthetic simulation request context/builder/export; see `docs/SIMULATION_INTEGRATION.md`.
-- Fixture baseline: Borrisoleigh 57%; candidate C 94%; flood 68%; contingency 91%. All synthetic; no real routing calculation.
-- First task: validated HTTP wire adapter and snapshot/lifecycle mapping without losing mock mode; preserve DESIGN.md.
-- Gaps: real Small Area MultiPolygon and unknown-value mapping, unscored candidate states, runtime HTTP validation, backend connection, app dark mode. Current visual theme is light.
-- Prior browser evidence: `docs/design/VERIFICATION.md`; current task's checks are recorded below, not inferred from that older document.
-- Last owner update: unclaimed; setup inspection only.
+- State: **READY_FOR_HANDOFF** — frontend spatial interaction slice verified; connected real-backend definition of done remains pending B/C.
+- Owner update: 2026-10-04 (Europe/Dublin), Person D. Owned paths: `src/frontend/`, DESIGN, D-owned architecture/demo/design/example docs and own status/handoff sections.
+- Delivered: validated display topology (4 paths / 26 nodes / 25 segments), selected static NTA GTFS shapes, road-conforming synthetic feeder/contingency, map and keyboard route/stop inspector with geometry provenance; play/pause/seek journey replay; restrained transitions; light/dark and offline spatial styles; unscored proposals; completed-result-only served styling; Polygon/MultiPolygon camera bounds.
+- Data mode: all population, journey clocks, interventions and impact remain synthetic. Public route geometry is separate geographic context, not real accessibility/routing/optimisation. Full mock sequence remains 57→94→68→91.
+- Checks: typecheck, lint, 18 tests, production build pass. Chromium production UI exercised desktop 1536×1024, tablet 1024×768 and mobile 390×844, replay/seek, reduced motion/manual seek, network/stop selection, export, site/focus, offline, bootstrap failure/retry and reset without late results. Evidence: `docs/design/VERIFICATION.md`, captured context, transport fixture README. Existing MapLibre bundle-size warning remains.
+- Backend boundary: civic HTTP routes, HTTP mapping/proxy, dated routing/calendars, analytical cohort semantics and server-authoritative run context are pending. No backend or other owners' files changed. Native transport runtime validation is implemented; it is not a civic HTTP adapter.
+- Next task: integrate B/C's canonical computed run/DTO samples behind providers, preserving synthetic fallback and accurate missing-value/data-mode labels. See own HANDOFFS section for exact contracts and acknowledgement pending.
 
 ## INTEGRATION — C coordinates
 

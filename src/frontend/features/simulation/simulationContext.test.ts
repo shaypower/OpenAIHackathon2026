@@ -3,6 +3,8 @@ import { buildSimulationRequest } from "./buildSimulationRequest";
 import { initialState } from "@/frontend/features/workspace/state";
 import {
   communities,
+  edges,
+  transportSources,
   DEFAULT_OBJECTIVE,
   interventionsFor,
   journeyFor,
@@ -20,6 +22,8 @@ const state = {
   routes,
   services,
   stops,
+  edges,
+  transportSources,
   objective: {
     id: "objective-1",
     text: DEFAULT_OBJECTIVE,
@@ -43,6 +47,8 @@ describe("simulation context boundary", () => {
       state.journey.legs.length,
     );
     expect(payload.context.sources).toHaveLength(3);
+    expect(payload.context.transit.edges).toHaveLength(25);
+    expect(payload.context.transit.sources[0].kind).toBe("gtfs-shape");
     expect(
       payload.context.sources.every((s: { mock: boolean }) => s.mock),
     ).toBe(true);
@@ -53,8 +59,8 @@ describe("simulation context boundary", () => {
     expect(payload.scenario.id).toBe(scenarios[0].id);
     request.context.community.population.total = 0;
     expect(state.communities[0].population.total).toBe(684);
-    request.intervention.impact.accessPercent = 0;
-    expect(intervention.impact.accessPercent).toBe(94);
+    request.intervention.impact!.accessPercent = 0;
+    expect(intervention.impact!.accessPercent).toBe(94);
   });
   it("rejects incomplete or mixed real/demo input and omits another community's journey", () => {
     expect(() => buildSimulationRequest(initialState, intervention)).toThrow(

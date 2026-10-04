@@ -5,7 +5,7 @@ import { isBusy } from "@/frontend/features/workspace/state";
 export function InterventionPanel({
   workspace,
 }: {
-  workspace: WorkspaceController;
+  workspace: Pick<WorkspaceController, "state" | "preview" | "apply">;
 }) {
   const { state, preview, apply } = workspace;
   const busy = isBusy(state.phase);
@@ -18,10 +18,19 @@ export function InterventionPanel({
         <div className="impact-detail">
           <span>
             Resilience{" "}
-            <strong>{state.intervention.impact.resiliencePercent}%</strong>
+            <strong>
+              {state.intervention.impact
+                ? `${state.intervention.impact.resiliencePercent}%`
+                : "Not evaluated"}
+            </strong>
           </span>
           <span>
-            Equity <strong>{state.intervention.impact.equityPercent}%</strong>
+            Equity{" "}
+            <strong>
+              {state.intervention.impact
+                ? `${state.intervention.impact.equityPercent}%`
+                : "Not evaluated"}
+            </strong>
           </span>
         </div>
         <div className="verified-note">
@@ -38,7 +47,9 @@ export function InterventionPanel({
               onClick={() => preview(v)}
             >
               <span>{v.name}</span>
-              <strong>{v.impact.accessPercent}%</strong>
+              <strong>
+                {v.impact ? `${v.impact.accessPercent}%` : "Unscored"}
+              </strong>
             </button>
           ))}
         </details>
@@ -47,11 +58,20 @@ export function InterventionPanel({
   return (
     <section className="interventions">
       <p className="eyebrow">Candidate civic patches</p>
-      <h3>Three ways to close the gap</h3>
-      <p className="muted">Illustrative options · impact is synthetic</p>
+      <h3>
+        {state.candidates.length === 3
+          ? "Three ways to close the gap"
+          : "Candidate civic patches"}
+      </h3>
+      <p className="muted">
+        {state.candidates.every((v) => v.mock)
+          ? "Illustrative options · impact is synthetic"
+          : "Proposals require a completed simulation"}
+      </p>
       <div className="candidate-list">
         {state.candidates.map((v, i) => (
           <button
+            style={{ animationDelay: `${i * 55}ms` }}
             key={v.id}
             className={`candidate${v.id === state.intervention?.id ? " active" : ""}`}
             disabled={busy}
@@ -62,15 +82,23 @@ export function InterventionPanel({
               <span>
                 {String.fromCharCode(65 + i)} / {v.kind}
               </span>
-              <strong>{v.impact.accessPercent}%</strong>
+              <strong>
+                {v.impact ? `${v.impact.accessPercent}%` : "Unscored"}
+              </strong>
             </div>
             <h4>{v.name}</h4>
             <p>{v.description}</p>
             <div className="candidate-metrics">
-              <span>€{v.impact.operatingCostWeekly}/wk</span>
-              <span>{v.impact.residentsHelped} helped</span>
+              {v.impact ? (
+                <>
+                  <span>€{v.impact.operatingCostWeekly}/wk</span>
+                  <span>{v.impact.residentsHelped} helped</span>
+                </>
+              ) : (
+                <span>Awaiting simulation · cost and impact unknown</span>
+              )}
             </div>
-            {i === 2 ? (
+            {i === 2 && v.impact ? (
               <small>
                 <ShieldCheck size={12} />
                 Most resilient option
@@ -84,10 +112,19 @@ export function InterventionPanel({
           <div className="impact-detail">
             <span>
               Resilience{" "}
-              <strong>{state.intervention.impact.resiliencePercent}%</strong>
+              <strong>
+                {state.intervention.impact
+                  ? `${state.intervention.impact.resiliencePercent}%`
+                  : "Not evaluated"}
+              </strong>
             </span>
             <span>
-              Equity <strong>{state.intervention.impact.equityPercent}%</strong>
+              Equity{" "}
+              <strong>
+                {state.intervention.impact
+                  ? `${state.intervention.impact.equityPercent}%`
+                  : "Not evaluated"}
+              </strong>
             </span>
           </div>
           {state.phase.kind === "intervention-selected" ||

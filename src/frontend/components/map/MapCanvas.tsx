@@ -2,19 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { createMapRenderer } from "@/frontend/adapters/spatial/mapRenderer";
 import type { MapSnapshot } from "@/frontend/adapters/spatial/mapFeatures";
+import type { TransportSelection } from "@/frontend/domain/models";
 export function MapCanvas({
   snapshot,
   onSelect,
+  onInspectTransport,
 }: {
   snapshot: MapSnapshot;
   onSelect: (id: string) => void;
+  onInspectTransport: (selection: TransportSelection) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const renderer = useRef<ReturnType<typeof createMapRenderer> | null>(null);
   const latest = useRef(onSelect);
+  const transport = useRef(onInspectTransport);
   useEffect(() => {
     latest.current = onSelect;
-  }, [onSelect]);
+    transport.current = onInspectTransport;
+  }, [onSelect, onInspectTransport]);
   const [status, setStatus] = useState("Starting WebGL");
   const [error, setError] = useState<string>();
   useEffect(() => {
@@ -24,6 +29,7 @@ export function MapCanvas({
         container.current,
         (id) => latest.current(id),
         setStatus,
+        (selection) => transport.current(selection),
       );
     } catch {
       // External WebGL initialization can fail synchronously; reflect that failure in the UI.
@@ -41,8 +47,12 @@ export function MapCanvas({
     renderer.current?.render(snapshot);
   }, [snapshot]);
   useEffect(() => {
-    if (renderer.current) renderer.current.setOffline(snapshot.offline);
-  }, [snapshot.offline]);
+    if (renderer.current)
+      renderer.current.setEnvironment(
+        snapshot.offline,
+        snapshot.theme ?? "light",
+      );
+  }, [snapshot.offline, snapshot.theme]);
   return (
     <>
       <div

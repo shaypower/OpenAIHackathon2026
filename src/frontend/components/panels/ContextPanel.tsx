@@ -21,17 +21,21 @@ import { InterventionPanel } from "./InterventionPanel";
 import { StressPanel } from "./StressPanel";
 import { WelcomePanel } from "./WelcomePanel";
 import { CommunitySummary } from "./CommunitySummary";
+import { NetworkPanel } from "@/frontend/features/transport/NetworkPanel";
+import type { JourneyPlayback } from "@/frontend/features/journeys/useJourneyPlayback";
 import { exportSimulationRequest } from "@/frontend/features/simulation/exportSimulationRequest";
 export function ContextPanel({
   workspace,
   scenarios,
   stressOpen,
   onStressOpen,
+  playback,
 }: {
   workspace: WorkspaceController;
   scenarios: StressScenario[];
   stressOpen: boolean;
   onStressOpen: () => void;
+  playback: JourneyPlayback;
 }) {
   const { state } = workspace;
   const panel = useRef<HTMLElement>(null);
@@ -51,6 +55,7 @@ export function ContextPanel({
   const community = state.communities.find((c) => c.id === state.selectedId);
   const result = state.results.find((r) => r.communityId === state.selectedId);
   const busy = isBusy(state.phase);
+  if (state.view === "network") return <NetworkPanel workspace={workspace} />;
   if (!community) return <WelcomePanel state={state} />;
   return (
     <aside
@@ -94,6 +99,8 @@ export function ContextPanel({
         <JourneyPanel
           journey={state.journey}
           onBack={() => workspace.setView("overview")}
+          playback={playback}
+          targetMinutes={state.objective?.targetMinutes ?? 45}
         />
       ) : state.view === "investigation" && state.investigation ? (
         <EvidencePanel

@@ -62,7 +62,12 @@ export function buildSimulationRequest(
       community,
       baseline,
       services: state.services,
-      transit: { routes: state.routes, stops: state.stops },
+      transit: {
+        routes: state.routes,
+        stops: state.stops,
+        edges: state.edges,
+        sources: state.transportSources,
+      },
       journey,
       investigation,
       observations,

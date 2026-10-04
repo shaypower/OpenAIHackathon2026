@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Layers,
   Cross,
@@ -48,10 +49,23 @@ export function MapOverlays({
 }) {
   const { state } = workspace;
   const busy = isBusy(state.phase);
+  const [layersOpen, setLayersOpen] = useState(
+    () => !matchMedia("(max-width: 760px)").matches,
+  );
+  useEffect(() => {
+    const media = matchMedia("(max-width: 760px)");
+    const changed = () => setLayersOpen(!media.matches);
+    media.addEventListener("change", changed);
+    return () => media.removeEventListener("change", changed);
+  }, []);
   return (
     <>
       <div className="map-left-overlays">
-        <details className="layer-selector" open>
+        <details
+          className="layer-selector"
+          open={layersOpen}
+          onToggle={(event) => setLayersOpen(event.currentTarget.open)}
+        >
           <summary>
             <Layers size={15} />
             Layers
@@ -106,11 +120,32 @@ export function MapOverlays({
             );
           })}
         </div>
+        <Button
+          variant="outline"
+          className="network-toggle"
+          aria-label="Inspect transport network"
+          disabled={busy || !state.routes.length}
+          onClick={() =>
+            workspace.selectTransport({
+              kind: "route",
+              id:
+                state.selectedId === "borrisoleigh"
+                  ? "demo-feeder"
+                  : state.selectedId === "roscrea"
+                    ? "tfi-854"
+                    : "tfi-391",
+            })
+          }
+        >
+          <Route size={14} />
+          Transport network
+          <ChevronRight size={13} />
+        </Button>
       </div>
       <div className="map-top-controls">
         <ToggleGroup
           type="single"
-          value={camera}
+          value={state.view === "network" ? "region" : camera}
           aria-label="Map perspective"
           onValueChange={(v) => {
             if (v === "region" || v === "street") onCamera(v);
@@ -120,7 +155,10 @@ export function MapOverlays({
             <Compass size={14} />
             Region
           </ToggleGroupItem>
-          <ToggleGroupItem value="street" disabled={!state.selectedId}>
+          <ToggleGroupItem
+            value="street"
+            disabled={!state.selectedId || state.view === "network"}
+          >
             <Box size={14} />
             3D site
           </ToggleGroupItem>
@@ -144,15 +182,17 @@ export function MapOverlays({
           <i
             className={
               state.compare === "after" &&
-              state.intervention &&
-              state.simulation?.status !== "degraded"
+              state.simulation &&
+              state.simulation.afterPercent >=
+                (state.objective?.targetAccessPercent ?? 90)
                 ? "legend-served"
                 : "legend-failure"
             }
           />
           {state.compare === "after" &&
-          state.intervention &&
-          state.simulation?.status !== "degraded"
+          state.simulation &&
+          state.simulation.afterPercent >=
+            (state.objective?.targetAccessPercent ?? 90)
             ? "Served catchment"
             : state.results.length
               ? "Underserved catchment"
@@ -178,7 +218,15 @@ export function MapOverlays({
       {state.objective ? (
         <div className="map-mission-label">
           <span className="eyebrow">Active civic objective</span>
-          <span>45 min / primary healthcare / age 65+</span>
+          <span>
+            {state.objective.targetMinutes} min / civic access /{" "}
+            {state.objective.cohort}
+          </span>
+        </div>
+      ) : null}
+      {state.intervention && !state.simulation && state.compare === "after" ? (
+        <div className="map-preview-label">
+          Proposal preview · not simulated
         </div>
       ) : null}
       <Button

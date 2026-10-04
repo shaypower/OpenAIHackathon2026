@@ -3,7 +3,11 @@ import type {
   FrontendProviders,
   RequestContext,
 } from "@/frontend/domain/contracts/providers";
-import type { Intervention, StressScenario } from "@/frontend/domain/models";
+import type {
+  Intervention,
+  StressScenario,
+  TransportSelection,
+} from "@/frontend/domain/models";
 import { buildSimulationRequest } from "@/frontend/features/simulation/buildSimulationRequest";
 import {
   initialState,
@@ -67,7 +71,15 @@ export function useWorkspace(providers: FrontendProviders) {
         if (!signal.aborted)
           dispatch({
             type: "patch",
-            patch: { communities, services, ...transit, error: undefined },
+            patch: {
+              communities,
+              services,
+              routes: transit.routes,
+              stops: transit.stops,
+              edges: transit.edges,
+              transportSources: transit.sources,
+              error: undefined,
+            },
           });
       } catch (error) {
         if (!signal.aborted)
@@ -118,6 +130,7 @@ export function useWorkspace(providers: FrontendProviders) {
     begin();
     patch({
       selectedId: id,
+      transportSelection: undefined,
       journey: undefined,
       investigation: undefined,
       candidates: [],
@@ -317,6 +330,12 @@ export function useWorkspace(providers: FrontendProviders) {
     reset,
     setCompare: (compare: WorkspaceState["compare"]) => patch({ compare }),
     setView: (view: WorkspaceState["view"]) => patch({ view }),
+    selectTransport: (transportSelection: TransportSelection) => {
+      if (isBusy(state.phase)) return;
+      patch({ transportSelection, view: "network" });
+    },
+    closeTransport: () =>
+      patch({ transportSelection: undefined, view: "overview" }),
     closeSite: () => patch({ site: undefined }),
   };
 }

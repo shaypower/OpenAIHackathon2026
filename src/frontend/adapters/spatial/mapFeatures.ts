@@ -1,5 +1,7 @@
 import type { FeatureCollection, Feature, Geometry } from "geojson";
 import type { WorkspaceState } from "@/frontend/features/workspace/state";
+import type { PlaybackClock } from "@/frontend/features/journeys/playback";
+import type { Theme } from "@/frontend/hooks/useTheme";
 export type MapLayerKey =
   | "healthcare"
   | "vulnerability"
@@ -11,6 +13,8 @@ export interface MapSnapshot {
   layers: LayerVisibility;
   camera: "region" | "street";
   offline: boolean;
+  theme?: Theme;
+  playback?: PlaybackClock;
 }
 export function mapFeatures({
   state,
@@ -20,7 +24,11 @@ export function mapFeatures({
     features,
   });
   const after = state.compare === "after" && !!state.intervention;
-  const degraded = after && state.simulation?.status === "degraded";
+  const served =
+    after &&
+    !!state.simulation &&
+    state.simulation.afterPercent >=
+      (state.objective?.targetAccessPercent ?? 90);
   return {
     communities: collection(
       state.communities.map((c) => ({
@@ -31,8 +39,10 @@ export function mapFeatures({
           id: c.id,
           name: c.name,
           selected: c.id === state.selectedId,
-          failed: state.results.some((r) => r.communityId === c.id),
-          served: after && c.id === state.selectedId && !degraded,
+          failed: state.results.some(
+            (r) => r.communityId === c.id && r.status === "fail",
+          ),
+          served: served && c.id === state.selectedId,
           vulnerability: c.population.aged65Plus / c.population.total,
         },
       })),
@@ -58,16 +68,34 @@ export function mapFeatures({
         type: "Feature",
         id: s.id,
         geometry: s.geometry,
-        properties: { id: s.id, name: s.name },
+        properties: {
+          id: s.id,
+          name: s.name,
+          selected:
+            state.transportSelection?.kind === "stop" &&
+            state.transportSelection.id === s.id,
+        },
       })),
     ),
     routes: collection(
-      state.routes.map((r) => ({
-        type: "Feature",
-        id: r.id,
-        geometry: r.geometry,
-        properties: { id: r.id, name: r.name },
-      })),
+      state.routes
+        .filter(
+          (r) =>
+            r.status !== "proposed" || state.transportSelection?.id === r.id,
+        )
+        .map((r) => ({
+          type: "Feature",
+          id: r.id,
+          geometry: r.geometry,
+          properties: {
+            id: r.id,
+            name: r.name,
+            synthetic: r.serviceContext === "synthetic",
+            selected:
+              state.transportSelection?.kind === "route" &&
+              state.transportSelection.id === r.id,
+          },
+        })),
     ),
     intervention: collection(
       after
@@ -98,7 +126,7 @@ export function mapFeatures({
                     type: "Feature" as const,
                     id: leg.id,
                     geometry: leg.geometry,
-                    properties: { name: leg.label },
+                    properties: { id: leg.id, name: leg.label },
                   },
                 ]
               : [],

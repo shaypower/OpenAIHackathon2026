@@ -23,3 +23,15 @@ Header CIVIC, Ireland / Tipperary, Synthetic demo, Reset demo. Objective, Analys
 ## Responsive and accessibility
 
 Desktop map dominates; tablet narrower inspector; mobile map remains at least 380px then panels flow below. Native form/checkbox semantics and keyboard equivalents to map selection; Radix modal focus trap and restoration. Clear focus rings and 40px targets. No horizontal page overflow. All async actions cancellable/resettable and errors recoverable.
+
+## Person D transport interaction pass — 2026-10-04
+
+Preserve the existing composition. Add a compact Network inspector alongside community inspection, not a second dashboard. Published route shapes and ordered stops are geographic context; timetable/vehicle/accessibility playback remains prominently synthetic. Selecting a line or keyboard route item highlights its connected path and fits the camera; selecting a stop exposes adjacent segments and its source. Route provenance is visible independently of impact provenance.
+
+Journey interaction uses one seekable elapsed-time clock for timeline and map position. Play is user initiated, pauses on inspection/navigation/reset and hidden tabs, and never loops automatically. Reduced motion disables automatic replay; manual step/seek still works. Use CSS entrance transitions (180–240ms), candidate staggering capped at 160ms, fill/line transitions (450ms), camera moves (700–1100ms) and a single requestAnimationFrame loop inside the renderer for map movement. No permanent traffic animation or implied realtime feed.
+
+Dark tokens: background #101e1c, surface #172a26, body #e3eee8, muted #a5b8ae, border #345048, teal #51c7b2, amber #efb86a, danger #f09283. Keep the header ink green. Use a matching dark geographic style; offline land/network remain readable. Theme switches preserve selected community, route, camera, completed results and provenance. Initial theme is light unless a saved preference exists.
+
+Before a completed qualifying simulation, a candidate is a **proposal preview**: proposed route visible, catchment remains failing, no “served” label. A completed access score must meet the objective's coverage threshold before showing served. Unknown counts/times/confidence must stay unknown when real adapters arrive. The backend's existing wire vocabulary remains separate from frontend display topology; no routing/optimisation calculations belong in React.
+
+Network/replay screenshots: `docs/design/transport-network-light.png`, `journey-dark.png`, `transport-contingency-dark.png`. Completed interventions frame their route/facility extent; before/after share that framing. Light site-schematic paper intentionally remains a drawing surface inside dark chrome. An unscored proposal displays unknown cost/impact rather than inheriting fixture metrics.

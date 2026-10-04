@@ -5,6 +5,8 @@ import {
   ArrowUpRight,
   CircleAlert,
   LoaderCircle,
+  Moon,
+  Sun,
 } from "lucide-react";
 import type { FrontendProviders } from "@/frontend/domain/contracts/providers";
 import type { LayerVisibility } from "@/frontend/adapters/spatial/mapFeatures";
@@ -15,6 +17,8 @@ import { ContextPanel } from "@/frontend/components/panels/ContextPanel";
 import { ObjectiveBar } from "@/frontend/components/layout/ObjectiveBar";
 import { MapOverlays } from "@/frontend/components/map/MapOverlays";
 import { SiteTwinViewer } from "@/frontend/features/digital-twin/SiteTwinViewer";
+import { useTheme } from "@/frontend/hooks/useTheme";
+import { useJourneyPlayback } from "@/frontend/features/journeys/useJourneyPlayback";
 const MapCanvas = lazy(() =>
   import("@/frontend/components/map/MapCanvas").then((m) => ({
     default: m.MapCanvas,
@@ -23,6 +27,11 @@ const MapCanvas = lazy(() =>
 export function App({ providers }: { providers: FrontendProviders }) {
   const workspace = useWorkspace(providers);
   const { state } = workspace;
+  const { theme, toggleTheme } = useTheme();
+  const playback = useJourneyPlayback(
+    state.journey,
+    state.view === "journey" && !isBusy(state.phase),
+  );
   const [layers, setLayers] = useState<LayerVisibility>({
     healthcare: true,
     vulnerability: false,
@@ -33,8 +42,8 @@ export function App({ providers }: { providers: FrontendProviders }) {
   const [offline, setOffline] = useState(false);
   const [stressOpen, setStressOpen] = useState(false);
   const snapshot = useMemo(
-    () => ({ state, layers, camera, offline }),
-    [state, layers, camera, offline],
+    () => ({ state, layers, camera, offline, theme, playback: playback.clock }),
+    [state, layers, camera, offline, theme, playback.clock],
   );
   const scenarios = useMemo(
     () => providers.simulation.getStressScenarios(),
@@ -52,7 +61,7 @@ export function App({ providers }: { providers: FrontendProviders }) {
     });
   };
   return (
-    <main className="app-shell">
+    <main className="app-shell" data-theme={theme}>
       <header className="app-header">
         <a
           href="#main-workspace"
@@ -78,6 +87,14 @@ export function App({ providers }: { providers: FrontendProviders }) {
             <i />
             Synthetic demo
           </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+            onClick={toggleTheme}
+          >
+            {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+          </Button>
           <Button variant="ghost" size="sm" onClick={reset}>
             <RotateCcw data-icon="inline-start" />
             <span>Reset demo</span>
@@ -94,7 +111,11 @@ export function App({ providers }: { providers: FrontendProviders }) {
               <div className="map-fallback">Loading spatial workspace…</div>
             }
           >
-            <MapCanvas snapshot={snapshot} onSelect={workspace.select} />
+            <MapCanvas
+              snapshot={snapshot}
+              onSelect={workspace.select}
+              onInspectTransport={workspace.selectTransport}
+            />
           </Suspense>
           <MapOverlays
             workspace={workspace}
@@ -114,7 +135,11 @@ export function App({ providers }: { providers: FrontendProviders }) {
                 <strong>{phaseLabel(state.phase)}</strong>
                 <span>Deterministic demo workflow</span>
               </div>
-              <span>{state.results.length}/3 areas</span>
+              {state.phase.kind === "analysing" ? (
+                <span>
+                  {state.results.length}/{state.communities.length} areas
+                </span>
+              ) : null}
             </div>
           ) : null}
         </section>
@@ -123,6 +148,7 @@ export function App({ providers }: { providers: FrontendProviders }) {
           scenarios={scenarios}
           stressOpen={stressOpen}
           onStressOpen={() => setStressOpen((v) => !v)}
+          playback={playback}
         />
       </div>
       {state.error ? (
@@ -147,8 +173,8 @@ export function App({ providers }: { providers: FrontendProviders }) {
       <footer className="app-footer">
         <span>IRELAND · WGS84 / EPSG:4326</span>
         <span>
-          All civic outcomes are synthetic · map context © OpenStreetMap /
-          OpenFreeMap · offline land: Natural Earth
+          Synthetic outcomes · route shapes © NTA / CC BY 4.0 · map ©
+          OpenStreetMap / OpenFreeMap
         </span>
         <span>CIVIC / 01</span>
       </footer>

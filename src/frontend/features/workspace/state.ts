@@ -11,6 +11,9 @@ import type {
   StressScenario,
   TransitRoute,
   TransitStop,
+  TransitEdge,
+  TransportSource,
+  TransportSelection,
 } from "@/frontend/domain/models";
 import type { CivicEvent } from "@/frontend/domain/events";
 import type { SimulationRequest } from "@/frontend/domain/models/simulation";
@@ -34,6 +37,9 @@ export interface WorkspaceState {
   services: ServiceLocation[];
   routes: TransitRoute[];
   stops: TransitStop[];
+  edges: TransitEdge[];
+  transportSources: TransportSource[];
+  transportSelection?: TransportSelection;
   results: AccessibilityResult[];
   objective?: CivicObjective;
   selectedId?: string;
@@ -46,7 +52,7 @@ export interface WorkspaceState {
   scenario?: StressScenario;
   site?: SiteAudit;
   compare: "before" | "after";
-  view: "overview" | "journey" | "investigation";
+  view: "overview" | "journey" | "investigation" | "network";
   error?: string;
   operationId?: string;
   eventSequence: number;
@@ -59,6 +65,8 @@ export const initialState: WorkspaceState = {
   services: [],
   routes: [],
   stops: [],
+  edges: [],
+  transportSources: [],
   results: [],
   candidates: [],
   compare: "before",
@@ -81,6 +89,8 @@ export function workspaceReducer(
       services: state.services,
       routes: state.routes,
       stops: state.stops,
+      edges: state.edges,
+      transportSources: state.transportSources,
     };
   if (action.type === "patch") return { ...state, ...action.patch };
   const e = action.event;

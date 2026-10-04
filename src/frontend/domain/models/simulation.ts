@@ -10,8 +10,7 @@ import type {
   Journey,
   ServiceLocation,
   StressScenario,
-  TransitRoute,
-  TransitStop,
+  TransportNetwork,
 } from "./index";
 
 /** Serializable analytical inputs, distinct from request cancellation/tracing. */
@@ -21,7 +20,7 @@ export interface SimulationContext {
   community: Community;
   baseline: AccessibilityResult;
   services: ServiceLocation[];
-  transit: { routes: TransitRoute[]; stops: TransitStop[] };
+  transit: TransportNetwork;
   journey?: Journey;
   investigation?: Investigation;
   observations: InfrastructureObservation[];

@@ -1,5 +1,19 @@
-import type { Geometry, Point, Polygon, LineString } from "geojson";
+import type {
+  Geometry,
+  Point,
+  Polygon,
+  MultiPolygon,
+  LineString,
+} from "geojson";
 export type Id = string;
+export type {
+  TransitStop,
+  TransitRoute,
+  TransitEdge,
+  TransportSource,
+  TransportNetwork,
+  TransportSelection,
+} from "./transport";
 export type LngLat = [longitude: number, latitude: number];
 export interface DataSource {
   id: Id;
@@ -36,7 +50,7 @@ export interface Community {
   name: string;
   regionId: Id;
   center: LngLat;
-  geometry: Polygon;
+  geometry: Polygon | MultiPolygon;
   population: PopulationProfile;
   evidence: Evidence[];
 }
@@ -48,18 +62,6 @@ export interface ServiceLocation {
   evidence: Evidence[];
 }
 export type Service = ServiceLocation;
-export interface TransitStop {
-  id: Id;
-  name: string;
-  geometry: Point;
-}
-export interface TransitRoute {
-  id: Id;
-  name: string;
-  geometry: LineString;
-  stopIds: Id[];
-  status: "existing" | "proposed" | "disrupted";
-}
 export interface FailureReason {
   id: Id;
   title: string;
@@ -79,7 +81,7 @@ export interface AccessibilityResult {
 }
 export interface JourneyLeg {
   id: Id;
-  mode: "walk" | "bus" | "transfer" | "wait" | "service";
+  mode: string;
   label: string;
   startTime: string;
   endTime: string;
@@ -87,6 +89,10 @@ export interface JourneyLeg {
   geometry?: LineString;
   status: "completed" | "failed" | "unavailable";
   detail?: string;
+  routeId?: Id;
+  edgeIds?: Id[];
+  fromStopId?: Id;
+  toStopId?: Id;
 }
 export type JourneySegment = JourneyLeg;
 export interface Journey {
@@ -127,7 +133,7 @@ export interface Intervention {
   name: string;
   description: string;
   kind: "schedule" | "service" | "facility" | "combined" | "contingency";
-  impact: InterventionImpact;
+  impact?: InterventionImpact;
   metrics: InterventionMetric[];
   features: SpatialFeature[];
   evidence: Evidence[];
@@ -141,6 +147,7 @@ export interface StressScenario {
   features: SpatialFeature[];
   lossPercentPoints: number;
   affectedResidents: number;
+  blockedEdgeIds?: Id[];
 }
 export interface SimulationRun {
   id: Id;

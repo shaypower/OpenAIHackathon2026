@@ -38,7 +38,7 @@ Frontend presentation contracts: `src/frontend/domain/models/index.ts`. Provider
 | Group | Models / purpose |
 | --- | --- |
 | Goal and population | `CivicObjective`, `Community`, `PopulationProfile`: goal, geography and population summaries |
-| Network and journey | `ServiceLocation`, `TransitRoute`, `TransitStop`, `Journey`, `JourneyLeg`: services, display network and example trip |
+| Network and journey | `ServiceLocation`, `TransportNetwork`, `TransitRoute`, `TransitStop`, `TransitEdge`, `TransportSource`, `Journey`, `JourneyLeg`: services, display network and example trip |
 | Findings | `AccessibilityResult`, `FailureReason`, `Investigation`: baseline failure and explanation |
 | Credibility | `Evidence`, `DataSource`: source/dataset/freshness/confidence/verification and synthetic labeling |
 | Planning | `Intervention`, `InterventionImpact`, `SpatialFeature`: proposed change, preview impacts and map geometry |
@@ -46,14 +46,14 @@ Frontend presentation contracts: `src/frontend/domain/models/index.ts`. Provider
 | Physical site | `InfrastructureObservation`, `SpatialAnnotation`, `SiteAudit`, `DigitalTwinAsset`: observations independent of rendering engine |
 | Input snapshot | `SimulationContext`, `SimulationRequest`: goal + baseline + scoped data + provenance + candidate + optional disruption |
 
-`backend/domain/models.py` defines separate Pydantic wire contracts under development. They use snake_case and stricter analytical semantics. They are not a running simulator. Preserve that distinction: a backend proposal has executable changes and no invented impact; backend metrics belong to the computed `SimulationRun`. Frontend candidate impact is currently only a synthetic preview. A real adapter must map these deliberately, not simply rename keys or copy predicted preview metrics into computed results.
+`backend/domain/models.py` defines separate Pydantic wire contracts under development. They use snake_case and stricter analytical semantics. They are not a running simulator. Preserve that distinction: a backend proposal has executable changes and no invented impact; backend metrics belong to the computed `SimulationRun`. Frontend candidate impact is optional; a missing impact renders as unscored. Existing fixture impact is only a synthetic preview. A real adapter must map these deliberately, not simply rename keys or copy predicted preview metrics into computed results.
 
 Important current model limits:
 
 - `PopulationProfile.aged65Plus` and `.withoutCar` are marginal display counts. They do **not** establish the joint target-cohort denominator. `affectedResidents` in the fixtures is illustrative and cannot be reconstructed from those marginals.
 - Frontend journey clocks such as `07:18` are a storyboard, not dated GTFS service times. Real journeys need service date, timezone, departures, calendars and transfer constraints.
-- Route geometry alone is not a routable graph. A displayed proposed line does not specify an executable timetable or vehicle operation.
-- Frontend stress losses are preset fixture percentage points. Real stress changes must identify graph edges/services/trips, then recompute accessibility.
+- Connected display topology now preserves stop order and edge paths from captured GTFS shapes. It is not a dated routing graph; service calendars, stop times, transfer rules and pedestrian links remain missing. Route geometry alone is not a routable graph. A displayed proposed line does not specify an executable timetable or vehicle operation.
+- Frontend stress losses are preset fixture percentage points. Fixture flood/road scenarios now reference `blockedEdgeIds` on the display network, and the Borrisoleigh contingency uses a disjoint captured path. No engine computes these losses or checks road closure feasibility. Real stress changes must identify canonical graph edges/services/trips, then recompute accessibility.
 - `mock: true` remains authoritative for the current replay, including a run whose frontend status is named `verified`. That status does not certify public data or real analytical validity.
 
 ## Context passed today
@@ -68,7 +68,7 @@ interface SimulationRequest {
     community: Community;
     baseline: AccessibilityResult;
     services: ServiceLocation[];
-    transit: { routes: TransitRoute[]; stops: TransitStop[] };
+    transit: TransportNetwork; // routes, ordered stops, connected edges, geometry sources
     journey?: Journey;
     investigation?: Investigation;
     observations: InfrastructureObservation[];
@@ -88,7 +88,7 @@ interface SimulationRequest {
 }
 ```
 
-The builder is intentionally scoped to the synthetic workspace and rejects real/mixed sources. It deduplicates evidence and sources, excludes another community's journey/investigation/site, and rejects missing goal/community/baseline or cross-region objectives. It includes only already inspected optional details; inspection is not required to simulate the mock. A validated real snapshot adapter will replace this builder's fixture assumptions. Do not expand a browser payload into a whole national dataset.
+The builder is intentionally scoped to the synthetic workspace and rejects real/mixed analytical sources. Public geometry provenance lives separately in `transit.sources`; it never certifies synthetic clocks or impact. It deduplicates evidence and sources, excludes another community's journey/investigation/site, and rejects missing goal/community/baseline or cross-region objectives. It includes only already inspected optional details; inspection is not required to simulate the mock. A validated real snapshot adapter will replace this builder's fixture assumptions. Do not expand a browser payload into a whole national dataset.
 
 After a successful simulation, **Export simulation context · JSON** downloads the actual request consumed by the provider. [The captured example](examples/simulation-context.mock.json) was exported from the production UI after inspecting the journey/evidence and applying the combined intervention. Reset/reselection clears it. A contingency retains its disruption in the exported request so future engines can retest the repair against the original failure.
 
@@ -136,3 +136,5 @@ python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 UI: http://127.0.0.1:5173. API health: http://127.0.0.1:8000/api/. API docs: http://127.0.0.1:8000/api/docs.
 
 Run the default objective → choose Borrisoleigh → inspect Journey → inspect Evidence → return to Overview → Generate interventions → choose the 94% combined option → Apply → Export context. Stress test → Flood → Export context → Generate contingency → Export context → Enter site. Expected mock access: **57% → 94% → 68% → 91%**. The downloaded JSON is the integration artifact, not proof of real routing or AI execution.
+
+Transport capture/provenance and adapter invariants: [fixture notes](../src/frontend/mocks/transport/README.md). Runtime transport validation exists; civic HTTP adapters, API proxy/CORS, backend run polling and server-side context authority remain pending C/B deliverables.
