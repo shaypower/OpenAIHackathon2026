@@ -14,12 +14,13 @@ Baseline inspected 2026-10-04 (Europe/Dublin). Update only your block; C owns in
 
 ## PERSON_B
 
-- State: NOT_STARTED — deterministic backend transport/optimisation.
-- Exists: frontend fixture simulation and new shared DTO shapes. No Python routing graph, GTFS parser, simulator/CLI or solver exists.
-- First task: dated synthetic missed-connection fixture → deterministic baseline → timetable-change simulation → graph-closure rerun.
-- Deliver to C: callable facade, supported kinds, results/errors and transport test evidence.
-- Blocker: real data pending A; independent synthetic fixture allows immediate work.
-- Last owner update: unclaimed; setup inspection only.
+- State: READY_FOR_HANDOFF — deterministic synthetic transport slice.
+- Exists: `backend/routing/gtfs.py`; `backend/simulation/service.py`; cohort weighting at `backend/accessibility/demand.py`; bounded search/ranking at `backend/optimization/`; transport tests and synthetic fixture at `backend/tests/transport/`.
+- Supported: `TimetableChange` only, one per intervention, bounded ±30-minute shift. Candidate evaluation cap is 20; ranking uses weighted access gain, change count, then stable ID while operational/cost fields are null and flagged.
+- Demonstration: 2026-10-05 07:25 Europe/Dublin baseline has 30/130 target-cohort residents reachable; +20 minutes recomputation yields 130/130; closing `ride:connection-trip:1` reruns to 10/130.
+- Checks: 12 transport tests, 9 shared DTO tests, and Python compile check passed on Python 3.14 with Pydantic and `tzdata`. Measured the three-community fixture: 12 candidate shifts generated/evaluated in 7.1 ms; 11 passed the no-loss guard and one was rejected.
+- Limits: synthetic only; no verified real feeds/population, vehicle blocks, capacity, costs, road routing, or polygon-to-edge intersection. C must add `tzdata` to backend requirements for Windows/IANA timezone support.
+- Last owner update: 2026-10-04 14:35 Europe/Dublin.
 
 ## PERSON_C
 
