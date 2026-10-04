@@ -23,13 +23,15 @@ Baseline inspected 2026-10-04 (Europe/Dublin). Update only your block; C owns in
 
 ## PERSON_C
 
-- State: NOT_STARTED — objective/model/tool orchestration and civic HTTP routes.
-- Exists: `GET /api/` health and FastAPI docs; importable v1 shared DTO layer and ownership/target contracts from this setup.
-- All ten requested civic endpoints: PLANNED. No model runtime, run store, SSE, server cancellation or deterministic tool facade exists.
-- First task: status/source readers and a validated objective → bounded baseline run boundary, preserving health.
-- Deliver to D: actual OpenAPI/readback samples, errors, run lifecycle, capability/data-mode labels; coordinate development proxy.
-- Blocker: B's real tools pending; use explicit test stubs without pretending they are completed integrations.
-- Last owner update: unclaimed; setup inspection only.
+- State: IN_PROGRESS — objective/run boundary READY_FOR_HANDOFF; integrated simulation remains pending B.
+- Exists: `backend/agents/objectives.py` deterministic template parser; `backend/orchestration/` memory snapshots/replay, lifecycle, budgets and typed baseline adapter seam; objective/run route models in `backend/api/`. App factory/lifespan clean up cooperative work.
+- Implemented: health/status/sources, additional `POST /api/objectives/validate`, analysis validation/dependency guard, `GET /api/runs/{run_id}`. Baseline computation is UNAVAILABLE in the default app; the other six target civic routes remain PLANNED. No model runtime, SSE or public cancellation exists.
+- Observed: validation 200 for the documented template with explicit maximum time and age assumption; analysis 503 `simulation_unavailable` with no run created; unknown-run 404 `run_not_found`. Status remains degraded/synthetic with empty analytical region/change lists; memory store 100 runs/3600-second TTL and executor guards 1 active run/process, 12 actions, 20 candidate reservations, one refinement, 30-second cooperative deadline.
+- Verification: 35 orchestration/API tests and nine shared DTO tests passed. Test-only MOCKED backend exercises actual HTTP 202 → running → terminal polling/replay and timeout/expiry. Live default HTTP verified health/status/OpenAPI/validation 200, analysis 503, unknown run 404; health bytes unchanged and six application paths present in OpenAPI. Temporary server stopped.
+- Limits: memory/replay records lost on restart/expiry/eviction; one worker; blocking CPU work needs B's bounded/isolation strategy. Candidate execution still unavailable despite reservation guards. Frontend remains on its existing mock providers.
+- Deliver to D/A/B: new validate/readback/error shapes, additive `tool_trace`, adapter interface and exact shared changes in HANDOFFS/API_CONTRACTS; no consumer acceptance implied.
+- Next: B/C agree and connect a tested snapshot/cohort/date-aware baseline adapter, then D/C coordinate dev proxy and provider mapping. Objective parser remains restricted to the documented template.
+- Last owner update: 2026-10-04 14:20 Europe/Dublin.
 
 ## PERSON_D
 
