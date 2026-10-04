@@ -4,6 +4,8 @@ import { initialState, workspaceReducer, type WorkspaceState } from "./state";
 import {
   DEFAULT_OBJECTIVE,
   communities,
+  edges,
+  transportSources,
   services,
   routes,
   stops,
@@ -28,6 +30,8 @@ describe("deterministic civic workflow", () => {
       services,
       routes,
       stops,
+      edges,
+      transportSources,
       operationId: ctx.operationId,
     };
     for await (const event of providers.accessibility.submitObjective(
@@ -129,7 +133,7 @@ describe("deterministic civic workflow", () => {
       cohort: "65+",
       mock: true,
     };
-    const [v] = await providers.interventions.generateInterventions(
+    const [, , v] = await providers.interventions.generateInterventions(
       "borrisoleigh",
       objective,
       context(),
@@ -140,6 +144,8 @@ describe("deterministic civic workflow", () => {
       services,
       routes,
       stops,
+      edges,
+      transportSources,
       results,
       objective,
       selectedId: "borrisoleigh",
@@ -164,8 +170,18 @@ describe("deterministic civic workflow", () => {
       state: { ...state, compare: "after" as const },
     };
     expect(mapFeatures(after).communities.features[0].properties?.served).toBe(
-      true,
+      false,
     );
+    const completed = await providers.simulation.simulateIntervention(
+      buildSimulationRequest(state, v),
+      context(),
+    );
+    expect(
+      mapFeatures({
+        ...after,
+        state: { ...after.state, simulation: completed },
+      }).communities.features[0].properties?.served,
+    ).toBe(true);
     const simulation = await providers.simulation.runStressScenario(
       { ...buildSimulationRequest(state, v), scenario: scenarios[0] },
       context(),
@@ -179,6 +195,7 @@ describe("deterministic civic workflow", () => {
   });
   it("keeps fixture geometry valid and observations linked to scene annotations", () => {
     for (const c of communities) {
+      if (c.geometry.type !== "Polygon") continue;
       const ring = c.geometry.coordinates[0];
       expect(ring[0]).toEqual(ring.at(-1));
       for (const [lng, lat] of ring) {

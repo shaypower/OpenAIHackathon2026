@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
@@ -11,6 +12,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from backend.api.errors import install_error_handlers
+from backend.api.router import router as civic_router
+from backend.orchestration.service import Orchestrator
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +22,12 @@ DATA_DIR = ROOT / "backend" / "data"
 SCENARIO_PATH = DATA_DIR / "north_tipperary_demo.json"
 PROCESSED_DIR = DATA_DIR / "processed"
 FRONTEND_DIR = ROOT / "frontend"
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    await app.state.orchestrator.close()
+
 
 app = FastAPI(
     title="Civic Access Lab API",
@@ -28,7 +38,11 @@ app = FastAPI(
     version="0.2.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
+    lifespan=lifespan,
 )
+app.state.orchestrator = Orchestrator()
+install_error_handlers(app)
+app.include_router(civic_router)
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 

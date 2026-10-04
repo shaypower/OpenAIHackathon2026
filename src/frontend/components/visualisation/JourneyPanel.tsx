@@ -6,9 +6,15 @@ import {
   Clock,
   Cross,
   CircleX,
+  Play,
+  Pause,
+  RotateCcw,
+  Route,
 } from "lucide-react";
 import type { Journey } from "@/frontend/domain/models";
 import { Button } from "@/frontend/components/ui/button";
+import type { JourneyPlayback } from "@/frontend/features/journeys/useJourneyPlayback";
+import { journeyClock } from "@/frontend/features/journeys/playback";
 const icons = {
   walk: Footprints,
   bus: Bus,
@@ -19,9 +25,13 @@ const icons = {
 export function JourneyPanel({
   journey,
   onBack,
+  playback,
+  targetMinutes,
 }: {
   journey: Journey;
   onBack: () => void;
+  playback: JourneyPlayback;
+  targetMinutes: number;
 }) {
   return (
     <section>
@@ -32,17 +42,77 @@ export function JourneyPanel({
       <p className="eyebrow">Resident journey / synthetic</p>
       <h3>A day shaped by one connection</h3>
       <p className="muted">{journey.residentDescription}</p>
+      <div className="journey-replay">
+        <div>
+          <p className="eyebrow">Seekable journey / synthetic</p>
+          <strong>
+            {journeyClock(journey.legs[0]?.startTime, playback.elapsed)}
+            <small>{playback.frame?.leg.label}</small>
+          </strong>
+        </div>
+        <div className="replay-actions">
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label={
+              playback.playing ? "Pause journey replay" : "Play journey replay"
+            }
+            disabled={playback.reduced}
+            onClick={playback.toggle}
+          >
+            {playback.playing ? <Pause size={15} /> : <Play size={15} />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Restart journey replay"
+            onClick={() => playback.seek(0)}
+          >
+            <RotateCcw size={14} />
+          </Button>
+        </div>
+        <input
+          type="range"
+          aria-label="Journey elapsed minutes"
+          min={0}
+          max={playback.duration}
+          step={1}
+          value={playback.elapsed}
+          onChange={(e) => playback.seek(Number(e.target.value))}
+        />
+        <div className="replay-caption">
+          <span>
+            {Math.floor(playback.elapsed)} / {playback.duration} min
+          </span>
+          <span>
+            {playback.reduced
+              ? "Reduced motion · select a step"
+              : "Compressed demo time · 12 min/s"}
+          </span>
+        </div>
+      </div>
       <ol className="journey-timeline">
-        {journey.legs.map((leg) => {
-          const Icon = icons[leg.mode];
+        {journey.legs.map((leg, index) => {
+          const Icon = icons[leg.mode as keyof typeof icons] ?? Route;
           return (
-            <li className={leg.status} key={leg.id}>
+            <li
+              className={`${leg.status}${playback.frame?.index === index ? " active" : ""}`}
+              key={leg.id}
+            >
               <span className="journey-icon">
                 <Icon size={16} />
               </span>
               <div>
                 <time>{leg.startTime}</time>
-                <strong>{leg.label}</strong>
+                <button
+                  aria-current={
+                    playback.frame?.index === index ? "step" : undefined
+                  }
+                  className="journey-step"
+                  onClick={() => playback.seek(playback.starts[index])}
+                >
+                  {leg.label}
+                </button>
                 {leg.detail ? (
                   <p>{leg.detail}</p>
                 ) : (
@@ -59,7 +129,7 @@ export function JourneyPanel({
         <CircleX size={18} />
         <div>
           <strong>Civic test failed</strong>
-          <small>45-minute healthcare objective not met</small>
+          <small>{targetMinutes}-minute civic objective not met</small>
         </div>
       </div>
       <small className="muted">

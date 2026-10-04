@@ -45,7 +45,11 @@ export function StressPanel({
           {state.simulation?.status === "degraded" ? (
             <>
               <div className="disruption-score">
-                <span>{state.intervention?.impact.accessPercent}%</span>
+                <span>
+                  {state.intervention?.impact
+                    ? `${state.intervention.impact.accessPercent}%`
+                    : "Not evaluated"}
+                </span>
                 <span>→</span>
                 <strong>{state.simulation.afterPercent}%</strong>
               </div>

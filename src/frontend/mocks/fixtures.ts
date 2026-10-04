@@ -8,10 +8,9 @@ import type {
   ServiceLocation,
   SiteAudit,
   StressScenario,
-  TransitRoute,
-  TransitStop,
 } from "@/frontend/domain/models";
 import type { Polygon } from "geojson";
+import { transportNetwork, communityPath } from "./transport";
 export const DEFAULT_OBJECTIVE =
   "Make primary healthcare reachable within 45 minutes for elderly residents without cars in rural Tipperary.";
 const source: DataSource = {
@@ -151,46 +150,12 @@ export const services: ServiceLocation[] = [
     evidence,
   },
 ];
-export const stops: TransitStop[] = communities.map((c) => ({
-  id: `stop-${c.id}`,
-  name: `${c.name} interchange · demo`,
-  geometry: { type: "Point", coordinates: c.center },
-}));
-export const routes: TransitRoute[] = [
-  {
-    id: "feeder",
-    name: "Morning feeder · synthetic",
-    geometry: {
-      type: "LineString",
-      coordinates: [
-        [-8.195, 52.865],
-        [-8.083, 52.808],
-        [-7.953, 52.752],
-        [-7.887, 52.721],
-        [-7.813, 52.68],
-      ],
-    },
-    stopIds: ["stop-borrisoleigh"],
-    status: "existing",
-  },
-  {
-    id: "north-link",
-    name: "North county connection · synthetic",
-    geometry: {
-      type: "LineString",
-      coordinates: [
-        [-7.799, 52.955],
-        [-7.827, 52.898],
-        [-7.811, 52.793],
-        [-7.813, 52.68],
-      ],
-    },
-    stopIds: ["stop-roscrea"],
-    status: "existing",
-  },
-];
+export const stops = transportNetwork.stops;
+export const routes = transportNetwork.routes;
+export const edges = transportNetwork.edges;
+export const transportSources = transportNetwork.sources;
 export function journeyFor(communityId: string): Journey {
-  const c = communities.find((c) => c.id === communityId)!;
+  const path = communityPath(communityId);
   return {
     id: `journey-${communityId}`,
     communityId,
@@ -206,10 +171,9 @@ export function journeyFor(communityId: string): Journey {
         endTime: "07:31",
         durationMinutes: 13,
         status: "completed",
-        geometry: {
-          type: "LineString",
-          coordinates: [[c.center[0] - 0.02, c.center[1] + 0.012], c.center],
-        },
+        detail:
+          "Synthetic walk-to-stop timing. Walking geometry has not been validated.",
+        toStopId: path.edges[0].fromStopId,
       },
       {
         id: "stop",
@@ -223,15 +187,16 @@ export function journeyFor(communityId: string): Journey {
       {
         id: "bus",
         mode: "bus",
-        label: "Morning feeder",
+        label: `Synthetic trip · ${path.route.shortName === "DEMO" ? "feeder" : path.route.shortName}`,
         startTime: "07:39",
         endTime: "08:17",
         durationMinutes: 38,
         status: "completed",
-        geometry: {
-          type: "LineString",
-          coordinates: [c.center, [-7.86, 52.714], [-7.813, 52.68]],
-        },
+        geometry: path.geometry,
+        routeId: path.route.id,
+        edgeIds: path.edgeIds,
+        fromStopId: path.edges[0].fromStopId,
+        toStopId: path.edges.at(-1)!.toStopId,
       },
       {
         id: "transfer",
@@ -258,7 +223,8 @@ export function journeyFor(communityId: string): Journey {
   };
 }
 export function interventionsFor(communityId: string): Intervention[] {
-  const c = communities.find((c) => c.id === communityId)!;
+  const path = communityPath(communityId);
+  const pickup = path.geometry.coordinates[0];
   return [
     {
       name: "Shift the morning departure",
@@ -318,15 +284,7 @@ export function interventionsFor(communityId: string): Intervention[] {
               id: `route-${communityId}`,
               label: "Proposed accessible feeder",
               kind: "route",
-              geometry: {
-                type: "LineString",
-                coordinates: [
-                  c.center,
-                  [c.center[0] + 0.032, c.center[1] - 0.013],
-                  [-7.878, 52.719],
-                  [-7.813, 52.68],
-                ],
-              },
+              geometry: path.geometry,
             },
             ...(i === 2
               ? [
@@ -336,7 +294,7 @@ export function interventionsFor(communityId: string): Intervention[] {
                     kind: "facility" as const,
                     geometry: {
                       type: "Point" as const,
-                      coordinates: [c.center[0] + 0.018, c.center[1] - 0.008],
+                      coordinates: pickup,
                     },
                   },
                 ]
@@ -358,9 +316,10 @@ export const scenarios: StressScenario[] = [
         id: "flood-zone",
         label: "Synthetic flood extent",
         kind: "coverage",
-        geometry: catchment(-7.875, 52.719, 0.38),
+        geometry: catchment(-7.9, 52.72, 0.16),
       },
     ],
+    blockedEdgeIds: ["demo-feeder:edge:1"],
     lossPercentPoints: 26,
     affectedResidents: 1421,
   },
@@ -375,15 +334,10 @@ export const scenarios: StressScenario[] = [
         id: "road-block",
         label: "Closed road section",
         kind: "route",
-        geometry: {
-          type: "LineString",
-          coordinates: [
-            [-7.892, 52.728],
-            [-7.858, 52.701],
-          ],
-        },
+        geometry: edges.find((e) => e.id === "demo-feeder:edge:1")!.geometry,
       },
     ],
+    blockedEdgeIds: ["demo-feeder:edge:1"],
     lossPercentPoints: 19,
     affectedResidents: 842,
   },
@@ -415,7 +369,7 @@ export const scenarios: StressScenario[] = [
         id: "cancelled",
         label: "Cancelled feeder",
         kind: "route",
-        geometry: routes[0].geometry,
+        geometry: communityPath("borrisoleigh").geometry,
       },
     ],
     lossPercentPoints: 22,

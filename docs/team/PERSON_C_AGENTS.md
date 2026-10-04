@@ -22,7 +22,7 @@ A's ingestion/data or B's routing/accessibility/optimization/simulation modules;
 
 ## STEP-BY-STEP TASKS
 
-1. Preserve `GET /api/`. Add routers under `backend/api/`; `main.py` should only construct the app and include routers. The ten target endpoints are all PLANNED; change their status only after route/readback tests pass.
+1. Preserve `GET /api/`. Add routers under `backend/api/`; `main.py` constructs the app/lifespan and composes routers/error handlers. Status/sources/run readback and template validation are IMPLEMENTED; the analysis HTTP guard exists but baseline execution is UNAVAILABLE. The other six target routes remain PLANNED. Change status only after route/readback tests pass.
 2. First expose `GET /api/status` and `GET /api/sources` over actual capability state/inventory. Readiness is not “real data ready.” Report mode and supported change kinds honestly; source planned/bundled/failed states must not become ingested through API mapping.
 3. Implement a non-model objective parser for the exact documented fixture first if useful. Label its fixed scenario behaviour explicitly. For a model compiler, use official OpenAI documentation MCP and review structured-output/tool examples before integration; never add an unused model dependency or put keys in the browser.
 4. Compile the user's text into `CivicObjective`. Preserve domain, service, geography, cohort and explicit maximum journey time. Resolve region IDs against available data. Return assumptions for defaults (date, timezone, maximum time if omitted) and a clarification/unsupported error if the requested cohort/geography cannot be evaluated; do not silently reduce every prompt to Tipperary/45 minutes.
@@ -66,4 +66,13 @@ Owned agent/tool/orchestration/API code, focused tests, reviewed shared-contract
 
 ## KNOWN BLOCKERS / FALLBACKS
 
-No model runtime, orchestration, persistent store, civic API or deterministic backend tools exist yet. Build against stub fixtures with a MOCKED label while B progresses. Keep the current mock UI as fallback. Do not imply the new domain package itself implements an agent. Do not claim server cancellation or durable runs without implementing them.
+Status/source readers, a deterministic template parser, memory run store and bounded baseline boundary now exist. No production deterministic backend or model runtime is connected. Test fixtures are explicitly MOCKED and never registered in the default app. Keep the current mock UI as fallback. Do not imply domain DTOs implement an agent; server cancellation and durable runs remain unavailable. B's blocking routing must be bounded/isolated before it can satisfy the cooperative deadline contract.
+
+## CURRENT OWNER PROGRESS
+
+2026-10-04 14:00 Europe/Dublin: first task claimed and status/source slice verified.
+2026-10-04 14:20 Europe/Dublin: objective compilation and bounded run boundary
+verified (35 orchestration/API tests, nine DTO tests, live default HTTP guards).
+See STATUS/HANDOFFS for wire examples, additive trace field and B's adapter seam.
+Next: connect B's validated deterministic baseline, then D's provider/proxy.
+The default API returns 503 on analysis and creates no run; no paid model call is enabled.

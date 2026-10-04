@@ -16,8 +16,10 @@ The journey simulation is intentionally labelled **synthetic and illustrative**.
 From the repository root:
 
 ```sh
+python -m venv .venv
+source .venv/bin/activate
 python -m pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload
+python -m uvicorn backend.main:app --reload
 ```
 
 Open <http://127.0.0.1:8000/> for the interactive map or <http://127.0.0.1:8000/api/docs> for the API. Choose a baseline, candidate-link or flood scenario and adjust the access threshold. Click a locality to compare its four assumed travel times.
@@ -67,6 +69,51 @@ Keep native files immutable, record retrieval time, licence/terms and checksum, 
 
 The health endpoint is `GET /api/`; interactive API docs are at `/api/docs`.
 
+`GET /api/status` reports current backend capabilities. It currently returns
+`degraded` in synthetic demo mode: no analysis dataset or simulation engine is
+connected. A local memory run store and bounded executor are implemented.
+`GET /api/sources` reads the source inventory without promoting planned or bundled
+sources to ingested data. Both use `{"schema_version":1,"data":...}` envelopes;
+an unavailable or invalid source inventory returns a structured HTTP 503 error.
+
+Try `POST /api/objectives/validate` in `/api/docs` with:
+
+```json
+{
+  "text": "Make primary healthcare reachable within 30 minutes for elderly people without cars in rural Tipperary."
+}
+```
+
+The deterministic template parser preserves the requested time bound, discloses
+its age/default assumptions and rejects unsupported intent/geography/cohorts.
+It supports primary healthcare for elderly people without cars in Tipperary only;
+it does not establish dataset availability or calculate impact.
+
+`POST /api/objectives/analyse` validates its request but currently returns
+`503 simulation_unavailable`: B's backend is not registered, so no run is created.
+`GET /api/runs/{run_id}` reads accepted runs when that backend is connected;
+unknown, expired, evicted or restarted runs return `404 run_not_found`.
+Lifecycle acceptance/polling is tested with an explicitly MOCKED backend in tests
+only; the production app never registers that fixture.
+
+Local limits: one active run for the entire server, 12 tool actions, 20 candidate
+evaluations, one refinement and a 30-second execution deadline. Candidate APIs
+are still planned. Adapters must cooperate with async cancellation; B must bound
+or isolate CPU-intensive routing. Use one Uvicorn worker. The store retains up to
+100 runs, expiring completed records one hour after acceptance; active records
+remain until terminal. At capacity, the oldest completed run is evicted. Runs and
+duplicate-request records are lost on restart/expiry/eviction. Exact accepted
+request replay returns the original acceptance; conflicting reuse returns 409.
+No server cancellation route exists; stopping browser polling does not cancel work.
+
+To run the backend checks:
+
+```sh
+python -m pip install -r backend/requirements-dev.txt
+python -m unittest discover -s backend/domain -p 'test_*.py'
+python -m unittest discover -s backend/tests/orchestration -p 'test_*.py'
+```
+
 ## CIVIC frontend skeleton
 
 All frontend source is in `src/frontend/`. From this repository root:
@@ -87,6 +134,9 @@ editing zones, first tasks, [API contracts](docs/team/API_CONTRACTS.md),
 [integration gates](docs/team/INTEGRATION.md), status and handoffs.
 
 The current React UI uses synthetic fixtures while the FastAPI map exposes the countywide data layers.
+The backend also implements health, status,
+sources, objective validation, analysis validation/dependency guards and run
+readback. Actual simulation remains unavailable.
 Shared Python DTOs are in `backend/domain/models.py`; planned public-data,
 deterministic simulation and agent/API capabilities are explicitly marked.
 Real source ingestion is verified for the listed Person A layers; a time-aware

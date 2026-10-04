@@ -14,8 +14,7 @@ import type {
   SimulationRun,
   SiteAudit,
   StressScenario,
-  TransitRoute,
-  TransitStop,
+  TransportNetwork,
 } from "@/frontend/domain/models";
 export interface RequestContext {
   signal: AbortSignal;
@@ -24,9 +23,7 @@ export interface RequestContext {
 export interface CivicDataProvider {
   getCommunities(context: RequestContext): Promise<Community[]>;
   getServices(context: RequestContext): Promise<ServiceLocation[]>;
-  getTransit(
-    context: RequestContext,
-  ): Promise<{ routes: TransitRoute[]; stops: TransitStop[] }>;
+  getTransit(context: RequestContext): Promise<TransportNetwork>;
   getSiteAudit(
     communityId: string,
     context: RequestContext,

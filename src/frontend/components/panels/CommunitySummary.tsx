@@ -50,7 +50,7 @@ export function CommunitySummary({
               <span>
                 can reach care
                 <br />
-                within 45 minutes
+                within {state.objective?.targetMinutes ?? 45} minutes
               </span>
               <small>{result.targetPercent}% target</small>
             </div>

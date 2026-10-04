@@ -4,7 +4,18 @@ import type {
 } from "@/frontend/domain/contracts/providers";
 import type { CivicEvent, CivicEventPayload } from "@/frontend/domain/events";
 import type { SimulationRequest } from "@/frontend/domain/models/simulation";
-import type { CivicObjective, SimulationRun } from "@/frontend/domain/models";
+import type {
+  CivicObjective,
+  Intervention,
+  SimulationRun,
+} from "@/frontend/domain/models";
+function fixtureImpact(intervention: Intervention) {
+  if (!intervention.impact)
+    throw new Error(
+      "This proposal has no fixture evaluation. Connect a simulation provider to compute its impact.",
+    );
+  return intervention.impact;
+}
 import {
   communities,
   evidence,
@@ -16,7 +27,10 @@ import {
   services,
   siteFor,
   stops,
+  edges,
+  transportSources,
 } from "@/frontend/mocks/fixtures";
+import { communityPath } from "@/frontend/mocks/transport";
 import { schematicSceneProvider } from "@/frontend/adapters/spatial/schematicScene";
 export function delay(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -61,7 +75,7 @@ export function createMockProviders(
     communityId: request.context.community.id,
     interventionId: request.intervention.id,
     beforePercent: request.context.baseline.accessPercent,
-    afterPercent: request.intervention.impact.accessPercent,
+    afterPercent: fixtureImpact(request.intervention).accessPercent,
     affectedResidents: 0,
     status,
     mock: true,
@@ -78,7 +92,12 @@ export function createMockProviders(
       },
       async getTransit(ctx) {
         await wait(ctx);
-        return structuredClone({ routes, stops });
+        return structuredClone({
+          routes,
+          stops,
+          edges,
+          sources: transportSources,
+        });
       },
       async getSiteAudit(id, ctx) {
         requireCommunity(id);
@@ -167,7 +186,8 @@ export function createMockProviders(
       },
       async generateContingency(v, s, ctx) {
         await wait(ctx, 2);
-        const c = requireCommunity(v.communityId);
+        requireCommunity(v.communityId);
+        const path = communityPath(v.communityId, true);
         return {
           ...v,
           id: `${v.id}-contingency`,
@@ -175,21 +195,17 @@ export function createMockProviders(
           kind: "contingency",
           description:
             "Reroute the accessible feeder and retain the mobile clinic as an independent fallback.",
-          impact: { ...v.impact, accessPercent: 91, resiliencePercent: 96 },
+          impact: {
+            ...fixtureImpact(v),
+            accessPercent: 91,
+            resiliencePercent: 96,
+          },
           features: [
             {
               id: "contingency-route",
               label: "Contingency feeder",
               kind: "route",
-              geometry: {
-                type: "LineString",
-                coordinates: [
-                  c.center,
-                  [c.center[0] - 0.06, c.center[1] - 0.025],
-                  [-7.917, 52.658],
-                  [-7.813, 52.68],
-                ],
-              },
+              geometry: path.geometry,
             },
             {
               id: "contingency-clinic",
@@ -197,7 +213,7 @@ export function createMockProviders(
               kind: "facility",
               geometry: {
                 type: "Point",
-                coordinates: [c.center[0] + 0.018, c.center[1] - 0.008],
+                coordinates: path.geometry.coordinates[0],
               },
             },
           ],
@@ -223,7 +239,7 @@ export function createMockProviders(
           id: `stress-${s.id}`,
           afterPercent: Math.max(
             0,
-            v.impact.accessPercent - s.lossPercentPoints,
+            fixtureImpact(v).accessPercent - s.lossPercentPoints,
           ),
           scenarioId: s.id,
           affectedResidents: s.affectedResidents,
