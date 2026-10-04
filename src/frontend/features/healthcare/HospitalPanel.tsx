@@ -5,12 +5,13 @@ import { healthcareSources } from "@/frontend/adapters/data/healthcareSites";
 import { capitalRange, exportHospitalPlan, HOSPITAL_CAPACITIES } from "./planning";
 const number = (n: number | null | undefined) => n == null ? "Unknown" : n.toLocaleString("en-IE");
 
-export function HospitalPanel({ areas, selectedId, plan, showProposal, placement, benefits, view, contextReady, contextError, onSelect, onCapacity, onProposal, onView }: {
+export function HospitalPanel({ areas, selectedId, plan, showProposal, placement, benefits, view, contextReady, contextError, onSelect, onCapacity, onProposal, onView, onRetryContext }: {
   areas: readonly HospitalSearchArea[]; selectedId: string | null; plan: HospitalPlan;
   showProposal: boolean; placement?: HospitalPlacement; benefits?: HospitalBenefits;
   view: "site" | "benefits"; contextReady: boolean; contextError?: string;
   onSelect: (id: string | null) => void; onCapacity: (beds: HospitalCapacity) => void;
   onProposal: (show: boolean) => void; onView: (view: "site" | "benefits") => void;
+  onRetryContext: () => void;
 }) {
   const selected = areas.find((area) => area.id === selectedId);
   const placed = showProposal && placement?.status === "clear" && placement.areaId === selectedId && placement.beds === plan.beds;
@@ -22,6 +23,7 @@ export function HospitalPanel({ areas, selectedId, plan, showProposal, placement
     <div className="hospital-steps" aria-label="Planning progress">
       <span className={selected ? "done" : "active"}>1 · Select area</span><span className={placed ? "done" : selected ? "active" : ""}>2 · Check site</span><span className={placed && view === "benefits" ? "active" : ""}>3 · See benefits</span>
     </div>
+    {contextError ? <div role="alert" className="hospital-action-card"><p>{contextError}</p><Button variant="outline" onClick={onRetryContext}>Retry map context</Button></div> : null}
     {selected ? <>
       <Button variant="ghost" size="sm" onClick={() => onSelect(null)} className="hospital-back"><ArrowLeft size={14} /> Compare areas</Button>
       <h1>{selected.name}</h1><p className="hospital-subtitle">{selected.locality}</p>
@@ -30,7 +32,7 @@ export function HospitalPanel({ areas, selectedId, plan, showProposal, placement
       <div className="hospital-action-card">
         <Button size="lg" className="w-full hospital-place" disabled={checking || !contextReady} onClick={() => onProposal(blocked || !showProposal)}>
           {placed ? <ShieldCheck size={18} /> : <Building2 size={18} />}
-          {checking ? "Checking the full site…" : placed ? "Show existing context" : contextReady ? "Find a clear hospital site" : "Loading building footprints…"}<ArrowUpRight size={16} />
+          {checking ? "Checking the full site…" : placed ? "Show existing context" : contextReady ? "Find a clear hospital site" : contextError ? "Map context unavailable" : "Loading building footprints…"}<ArrowUpRight size={16} />
         </Button>
         {placed ? <><p className="hospital-clear"><ShieldCheck size={15} /> No overlap with mapped buildings</p>
           <p className="hospital-assumption-note">4 ha checked against {number(placement.checkedBuildings)} building footprints, roads, water and mapped green spaces. {placement.basis === "api" ? "Confirmed by the API." : "Verified from the captured map."} Ownership and planning remain unassessed.</p>

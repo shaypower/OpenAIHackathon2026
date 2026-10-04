@@ -256,6 +256,6 @@ async def default_accessibility_simulation() -> dict:
     return simulate()
 
 
-@router.get("/", include_in_schema=False)
+@router.get("/gis", include_in_schema=False)
 async def map_page() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "index.html")

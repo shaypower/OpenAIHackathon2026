@@ -1,6 +1,6 @@
 # Hospital placement demo — quick walkthrough
 
-Start: `bash scripts/demo.sh` → http://127.0.0.1:5173 (or set `CIVIC_DEMO_WEB_PORT=5174`).
+Start: `npm run demo` → http://127.0.0.1:8000. If occupied, use `CIVIC_DEMO_PORT=8001 npm run demo`. The compiled app, local context and API share one server; Ctrl+C stops it.
 
 1. Choose **Nenagh · Tyone**.
 2. Click **Find a clear hospital site**. The full 4 ha site is checked against 2,088 captured building footprints and mapped roads/water/green spaces. View the three proposed hospital blocks in 3D.
@@ -11,13 +11,13 @@ Start: `bash scripts/demo.sh` → http://127.0.0.1:5173 (or set `CIVIC_DEMO_WEB_
 
 Describe the result as **clear of mapped obstacles**, with proposed care capacity and measured nearby population context. Land ownership, zoning/flood approval, clinical need, patient uptake and travel-time improvements have not been established. Counts are whole Census areas selected by their centres within 3 km.
 
-Verification: all three sites independently pass the backend geometry check; 35 frontend tests, typecheck/lint/build pass. Chromium desktop/mobile walkthrough confirms placement, benefits, offline placement, no uncaught page errors and no horizontal overflow.
+Verification (2026-10-04): all three sites independently pass the backend geometry check; 38 frontend tests and 82 backend/API tests, typecheck/lint/build pass. Chromium against the single-server production build confirms all three sites, benefit overlays, an 80-bed export with three blocks and 10,578 nearby residents, dark mode, offline placement and mobile layout. Failed context loading recovers through Retry map context; a contradictory API confirmation blocks placement. No uncaught page errors or horizontal overflow.
 
 ---
 
 # 90-second synthetic demo
 
-Start from repository root: `npm install` then `npm run dev`. Open http://127.0.0.1:5173. No keys, database, agent service or Python server needed. Use a 1440px or wider projector viewport where possible.
+From the running hospital app, choose **Healthcare access** in the top navigation. For standalone development, run `npm run dev` and open http://127.0.0.1:5173. No keys, database, agent service or Python server needed. Use a 1440px or wider projector viewport where possible.
 
 1. **0–10s:** Show Ireland. Keep the supplied healthcare objective and choose **Analyse objective**. Explain that all population, journey clocks and impact are synthetic; basemap and selected route shapes are geographic context.
 2. **10–20s:** The map frames Tipperary while objective parsing, community evaluation, failures and investigation events run. Choose **Borrisoleigh**. Access is **57%**, against a **90%** coverage target and **45-minute** journey objective.

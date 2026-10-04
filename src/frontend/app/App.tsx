@@ -31,6 +31,7 @@ import { hospitalSearchAreas } from "@/frontend/adapters/data/healthcareSites";
 import { calculateHospitalPlan } from "@/frontend/features/healthcare/planning";
 import type { HospitalCapacity, HospitalPlacement, HospitalContext } from "@/frontend/domain/models/healthcare";
 import { hospitalBenefits, parseHospitalContext, screenCapturedHospital } from "@/frontend/features/healthcare/context";
+import { confirmHospitalPlacement } from "@/frontend/features/healthcare/confirmPlacement";
 const MapCanvas = lazy(() =>
   import("@/frontend/components/map/MapCanvas").then((m) => ({
     default: m.MapCanvas,
@@ -52,18 +53,28 @@ export function App({
   const [hospitalPlacement, setHospitalPlacement] = useState<HospitalPlacement>();
   const [hospitalContext, setHospitalContext] = useState<HospitalContext>();
   const [hospitalContextError, setHospitalContextError] = useState<string>();
+  const [contextAttempt, setContextAttempt] = useState(0);
   const [hospitalView, setHospitalView] = useState<"site" | "benefits">("site");
   const placementSequence = useRef(0);
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/data/hospital-context.json", { signal: controller.signal }).then((r) => {
+    fetch("/data/hospital-context.json", { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]) }).then((r) => {
       if (!r.ok) throw new Error("Hospital map context could not be loaded. Reload to retry.");
       return r.json();
-    }).then(parseHospitalContext).then(setHospitalContext).catch((error) => {
+    }).then(parseHospitalContext).then((context) => {
+      if (!controller.signal.aborted) setHospitalContext(context);
+    }).catch((error) => {
       if (!controller.signal.aborted) setHospitalContextError(error instanceof Error ? error.message : "Hospital context unavailable.");
     });
     return () => controller.abort();
-  }, []);
+  }, [contextAttempt]);
+  const retryHospitalContext = () => {
+    placementSequence.current++;
+    setHospitalContextError(undefined);
+    setHospitalPlacement(undefined);
+    setShowHospitalProposal(false);
+    setContextAttempt((value) => value + 1);
+  };
   const checkHospital = async (areaId: string, beds: HospitalCapacity) => {
     const sequence = ++placementSequence.current;
     setHospitalPlacement({ status: "checking", areaId, beds });
@@ -74,19 +85,7 @@ export function App({
     try {
       let result = screenCapturedHospital(hospitalContext, areaId, beds);
       if (result.status === "clear" && backend.status && !backend.statusError) {
-        try {
-          const response = await fetch("/api/hospitals/preview", { method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ area_id: areaId, beds, context_id: hospitalContext.osmSha256 }), signal: AbortSignal.timeout(4000) });
-          if (response.ok) {
-            const value = (await response.json()).data;
-            if (value?.placement?.status !== "clear" || value.placement.snapshotId !== hospitalContext.osmSha256
-              || value.placement.areaId !== areaId || value.placement.beds !== beds
-              || JSON.stringify(value.placement.center) !== JSON.stringify(result.center)) throw new Error("Hospital context mismatch.");
-            result = { ...result, basis: "api" };
-          } else if (response.status !== 404 && response.status < 500) {
-            result = { status: "blocked", areaId, beds, reason: "The server could not confirm this site. Refresh the app to load the current map context." };
-          }
-        } catch { /* The independently checked captured context remains available offline. */ }
+        result = await confirmHospitalPlacement(result);
       }
       if (sequence === placementSequence.current) setHospitalPlacement(result);
     } catch {
@@ -292,6 +291,7 @@ export function App({
           placement={hospitalPlacement}
           benefits={benefits} view={hospitalView} onView={setHospitalView}
           contextReady={!!hospitalContext} contextError={hospitalContextError}
+          onRetryContext={retryHospitalContext}
           onCapacity={changeHospitalCapacity} onProposal={toggleHospitalProposal}
         /> : backendOpen ? (
           <BackendPanel

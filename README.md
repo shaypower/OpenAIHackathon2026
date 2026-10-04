@@ -3,12 +3,15 @@
 ## Hospital demo — start here
 
 ```sh
-bash scripts/demo.sh
+npm run demo
 ```
 
-Open **http://127.0.0.1:5173**. Choose **Nenagh · Tyone → Find a clear hospital site → Show nearby benefits on map**.
-The launcher starts FastAPI on 8765 and the React app on 5173. If 5173 is occupied,
-use `CIVIC_DEMO_WEB_PORT=5174 bash scripts/demo.sh`.
+Open **http://127.0.0.1:8000**. Choose **Nenagh · Tyone → Find a clear hospital site → Show nearby benefits on map**.
+The launcher builds React and serves the app, captured map data and FastAPI from
+one origin. If port 8000 is occupied, use `CIVIC_DEMO_PORT=8001 npm run demo`.
+Ctrl+C stops the complete presentation server. No Vite proxy or second terminal
+is needed. The original countywide GIS map remains available at `/gis`.
+For frontend development, `npm run dev` still works with the existing Vite proxy.
 
 All three hospital options have captured OpenStreetMap buildings, roads, water and
 green-space obstacles. The complete 4 ha envelope is rechecked before placement,
