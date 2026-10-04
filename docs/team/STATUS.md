@@ -36,13 +36,13 @@ Baseline inspected 2026-10-04 (Europe/Dublin). Update only your block; C owns in
 
 ## PERSON_D
 
-- State: **READY_FOR_HANDOFF** — frontend spatial interaction slice verified; connected real-backend definition of done remains pending B/C.
-- Owner update: 2026-10-04 (Europe/Dublin), Person D. Owned paths: `src/frontend/`, DESIGN, D-owned architecture/demo/design/example docs and own status/handoff sections.
-- Delivered: validated display topology (4 paths / 26 nodes / 25 segments), selected static NTA GTFS shapes, road-conforming synthetic feeder/contingency, map and keyboard route/stop inspector with geometry provenance; play/pause/seek journey replay; restrained transitions; light/dark and offline spatial styles; unscored proposals; completed-result-only served styling; Polygon/MultiPolygon camera bounds.
-- Data mode: all population, journey clocks, interventions and impact remain synthetic. Public route geometry is separate geographic context, not real accessibility/routing/optimisation. Full mock sequence remains 57→94→68→91.
-- Checks: typecheck, lint, 18 tests, production build pass. Chromium production UI exercised desktop 1536×1024, tablet 1024×768 and mobile 390×844, replay/seek, reduced motion/manual seek, network/stop selection, export, site/focus, offline, bootstrap failure/retry and reset without late results. Evidence: `docs/design/VERIFICATION.md`, captured context, transport fixture README. Existing MapLibre bundle-size warning remains.
-- Backend boundary: civic HTTP routes, HTTP mapping/proxy, dated routing/calendars, analytical cohort semantics and server-authoritative run context are pending. No backend or other owners' files changed. Native transport runtime validation is implemented; it is not a civic HTTP adapter.
-- Next task: integrate B/C's canonical computed run/DTO samples behind providers, preserving synthetic fallback and accurate missing-value/data-mode labels. See own HANDOFFS section for exact contracts and acknowledgement pending.
+- State: **READY_FOR_HANDOFF** — C's available HTTP surface is connected and verified; complete analytical/map integration awaits A/B.
+- Owner update: 2026-10-04 (Europe/Dublin), Person D. Owned paths: `src/frontend/`, frontend Vite proxy and D-owned architecture/demo/design docs and status/handoff sections.
+- Delivered: existing connected transport/replay slice plus separate validated `BackendProvider`, status/source inspection, explicit backend objective-validation mode, nullable run readback and bounded snapshot polling. Failed fixture journeys now name and pin their last confirmed stop and offer a jump to that leg.
+- Data mode: synthetic demo remains explicitly selected; public captured route geometry is geographic context. Backend validation does not analyse or replace synthetic map results. Live C reports degraded/synthetic and baseline PLANNED; no analytical datasets or simulation engine were invented.
+- Checks: frontend typecheck, lint, **28 tests / eight files**, production build; C's **35 orchestration + nine domain tests** pass. Playwright Chromium production preview on 4174 exercised real status/sources/template validation, unsupported geography, unknown-run errors, network loss/recovery, desktop/tablet/mobile and the complete 57→94→68→91 demo. Run lifecycle UI was separately exercised with C's explicitly synthetic test fixture. Normal production walkthrough console: zero errors/warnings. Existing MapLibre chunk warning remains.
+- Backend boundary: same-origin `/api` dev/preview proxy is implemented. HTTP unknown JSON is normalized outside UI; null metrics remain unknown, no error falls back to fixture success. No analysis POST until authoritative datasets, dated demand and B's engine exist. No backend or other owners' sections changed.
+- Next task: consume A/B's validated analytical snapshots and computed runs, then map result communities/journeys/evidence/geometry behind existing providers. C's metadata/compiler/readback boundary acknowledged in D's HANDOFFS section; broader agent/simulation integration remains open.
 
 ## INTEGRATION — C coordinates
 

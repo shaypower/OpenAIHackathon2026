@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "data": {
+    "schema_version": 1,
+    "inspected_on": "2026-10-04",
+    "real_civic_datasets_ingested": 0,
+    "sources": [
+      {
+        "id": "cso-small-areas",
+        "name": "CSO Small Areas",
+        "dataset": "Tipperary boundary extract; release not selected",
+        "category": "civic",
+        "priority": 1,
+        "status": "PLANNED",
+        "data_mode": "real",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [],
+        "notes": "No extract exists in this checkout. A must verify the official dataset URL, CRS, geography vintage and licence before acquisition."
+      },
+      {
+        "id": "cso-demographics",
+        "name": "CSO demographic data",
+        "dataset": "Small Area population, age and car availability; tables not selected",
+        "category": "civic",
+        "priority": 2,
+        "status": "PLANNED",
+        "data_mode": "real",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [],
+        "notes": "No records ingested. Person counts and household car availability are different units; joint age/no-car cohort coverage must be established."
+      },
+      {
+        "id": "nta-gtfs",
+        "name": "NTA GTFS",
+        "dataset": "Dated Irish transit feed covering the demo region; feed not selected",
+        "category": "civic",
+        "priority": 3,
+        "status": "PLANNED",
+        "data_mode": "real",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [],
+        "notes": "No feed ingested. A acquires and validates tables/provenance; B interprets calendars, exceptions, timezones and connections."
+      },
+      {
+        "id": "healthcare-services",
+        "name": "Healthcare and essential services, including OSM where appropriate",
+        "dataset": "Tipperary service locations; source/query not selected",
+        "category": "civic",
+        "priority": 4,
+        "status": "PLANNED",
+        "data_mode": "real",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [],
+        "notes": "No source-backed service records ingested. A mapped facility does not establish opening hours, appointments or capacity."
+      },
+      {
+        "id": "pobal-deprivation",
+        "name": "Pobal deprivation",
+        "dataset": "Area deprivation indicators; release not selected",
+        "category": "civic",
+        "priority": 5,
+        "status": "PLANNED",
+        "data_mode": "real",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [],
+        "notes": "Deferred until base geography/demographics/transit/service slice. Check code/vintage compatibility and reuse terms."
+      },
+      {
+        "id": "tipperary-road-alerts",
+        "name": "Tipperary road alerts",
+        "dataset": "Dated road closures; source not selected",
+        "category": "civic",
+        "priority": 6,
+        "status": "PLANNED",
+        "data_mode": "real",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [],
+        "notes": "No alert feed or closure extent ingested. Current road disruption is a frontend synthetic fixture."
+      },
+      {
+        "id": "opw-flooding",
+        "name": "OPW flooding",
+        "dataset": "Flood hazard or observed extent; source/release not selected",
+        "category": "civic",
+        "priority": 7,
+        "status": "PLANNED",
+        "data_mode": "real",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [],
+        "notes": "No flood dataset ingested. Hazard maps are not live event observations; current flood scenario is synthetic."
+      },
+      {
+        "id": "naptan-optional",
+        "name": "NaPTAN (optional coverage check)",
+        "dataset": "Stop reference data; applicability not established",
+        "category": "civic",
+        "priority": null,
+        "status": "PLANNED",
+        "data_mode": "real",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [],
+        "notes": "Do not assume Irish coverage. Use authoritative Irish feed stop IDs unless geographic applicability and value are verified."
+      },
+      {
+        "id": "frontend-synthetic-v1",
+        "name": "CIVIC demo fixtures",
+        "dataset": "Synthetic Tipperary scenario v1",
+        "category": "fixture",
+        "priority": null,
+        "status": "BUNDLED",
+        "data_mode": "synthetic",
+        "source_url": null,
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": null,
+        "local_paths": [
+          "src/frontend/mocks/fixtures.ts"
+        ],
+        "notes": "Existing D-owned authored fixtures: Borrisoleigh, Roscrea, Newport; preset 57/94/68/91 workflow. Internal updatedAt is a fixture label, not public-data freshness or ingestion evidence."
+      },
+      {
+        "id": "natural-earth-offline-context",
+        "name": "Natural Earth",
+        "dataset": "Local Ireland/UK country outlines",
+        "category": "context",
+        "priority": null,
+        "status": "BUNDLED",
+        "data_mode": "real",
+        "source_url": "https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_10m_admin_0_countries.geojson",
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": "Public domain (existing architecture attribution)",
+        "local_paths": [
+          "src/frontend/mocks/land.geojson.json"
+        ],
+        "notes": "Existing bundled geographic context, documented in docs/ARCHITECTURE.md. No acquisition timestamp/release/checksum was supplied; not Small Areas, population, routes or access evidence."
+      },
+      {
+        "id": "openfreemap-context",
+        "name": "OpenFreeMap / OpenStreetMap",
+        "dataset": "Liberty online basemap style and tiles",
+        "category": "context",
+        "priority": null,
+        "status": "REMOTE_CONTEXT",
+        "data_mode": "real",
+        "source_url": "https://tiles.openfreemap.org/styles/liberty",
+        "source_updated_at": null,
+        "ingested_at": null,
+        "licence": "See provider/underlying dataset terms; existing UI preserves attribution",
+        "local_paths": [
+          "src/frontend/adapters/spatial/mapRenderer.ts"
+        ],
+        "notes": "Renderer fetches geographic context at runtime with bounded fallback. This is not backend civic ingestion or evidence of timetable/healthcare accessibility."
+      }
+    ]
+  }
+}

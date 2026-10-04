@@ -12,7 +12,7 @@ import type {
 import type { Polygon } from "geojson";
 import { transportNetwork, communityPath } from "./transport";
 export const DEFAULT_OBJECTIVE =
-  "Make primary healthcare reachable within 45 minutes for elderly residents without cars in rural Tipperary.";
+  "Make primary healthcare reachable within 45 minutes for elderly people without cars in rural Tipperary.";
 const source: DataSource = {
   id: "fixture-2026",
   name: "CIVIC demo fixtures",
@@ -156,7 +156,25 @@ export const edges = transportNetwork.edges;
 export const transportSources = transportNetwork.sources;
 export function journeyFor(communityId: string): Journey {
   const path = communityPath(communityId);
+  const endStop = transportNetwork.stops.find(
+    (s) => s.id === path.edges.at(-1)!.toStopId,
+  )!;
   return {
+    outcome: {
+      status: "failed",
+      legId: "transfer",
+      time: "08:17",
+      summary:
+        "The connecting service has departed. Care cannot be reached within the objective; later legs are unavailable.",
+      location: {
+        label: endStop.name,
+        coordinates: [
+          endStop.geometry.coordinates[0],
+          endStop.geometry.coordinates[1],
+        ],
+        stopId: endStop.id,
+      },
+    },
     id: `journey-${communityId}`,
     communityId,
     residentDescription: "Representative resident · age 74 · no car",

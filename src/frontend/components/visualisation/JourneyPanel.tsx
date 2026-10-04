@@ -42,6 +42,37 @@ export function JourneyPanel({
       <p className="eyebrow">Resident journey / synthetic</p>
       <h3>A day shaped by one connection</h3>
       <p className="muted">{journey.residentDescription}</p>
+      <div className="journey-outcome">
+        <p className="eyebrow">
+          {journey.outcome?.status === "completed"
+            ? "Journey arrival"
+            : "Failure / last confirmed location"}
+        </p>
+        <h3>{journey.outcome?.location?.label ?? "Location not provided"}</h3>
+        {journey.outcome?.time ? (
+          <time>{journey.outcome.time} · local time</time>
+        ) : null}
+        <p>
+          {journey.outcome?.summary ??
+            "The provider has not supplied the journey outcome location."}
+        </p>
+        {journey.outcome?.legId &&
+        journey.legs.some((l) => l.id === journey.outcome?.legId) ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              playback.seek(
+                playback.starts[
+                  journey.legs.findIndex((l) => l.id === journey.outcome?.legId)
+                ],
+              )
+            }
+          >
+            Jump to failure location
+          </Button>
+        ) : null}
+      </div>
       <div className="journey-replay">
         <div>
           <p className="eyebrow">Seekable journey / synthetic</p>
@@ -128,8 +159,16 @@ export function JourneyPanel({
       <div className="journey-failed">
         <CircleX size={18} />
         <div>
-          <strong>Civic test failed</strong>
-          <small>{targetMinutes}-minute civic objective not met</small>
+          <strong>
+            {journey.outcome?.status === "completed"
+              ? "Journey completed"
+              : "Civic test failed"}
+          </strong>
+          <small>
+            {journey.outcome?.status === "completed"
+              ? "Inspect the provider result for objective evaluation."
+              : `${targetMinutes}-minute civic objective not met`}
+          </small>
         </div>
       </div>
       <small className="muted">
