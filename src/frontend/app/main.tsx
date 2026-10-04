@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import { createMockProviders } from "@/frontend/adapters/mock/providers";
 import "@/frontend/styles/index.css";
+import { createBackendProvider } from "@/frontend/adapters/http/backendProvider";
+const backend = createBackendProvider();
 let shouldFail =
   new URLSearchParams(window.location.search).get("fail") === "once";
 const providers = createMockProviders({
@@ -14,6 +16,6 @@ const providers = createMockProviders({
 });
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App providers={providers} />
+    <App providers={providers} backendProvider={backend} />
   </StrictMode>,
 );

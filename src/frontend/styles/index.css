@@ -1930,3 +1930,206 @@ small {
     animation: none;
   }
 }
+
+.backend-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.backend-panel h2 {
+  font-size: 26px;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.backend-panel h3 {
+  font-size: 16px;
+  margin: 8px 0;
+}
+.backend-panel section {
+  border-top: 1px solid var(--border);
+  padding: 24px 0;
+}
+.backend-panel > .muted {
+  margin-bottom: 22px;
+}
+.backend-panel section p,
+.backend-panel li {
+  font-size: 12px;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.backend-panel ul,
+.backend-panel ol {
+  padding-left: 18px;
+}
+.backend-panel details {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.backend-panel summary {
+  cursor: pointer;
+  padding: 12px 0;
+}
+.backend-state {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  font-size: 12px;
+}
+.backend-state strong {
+  color: var(--amber);
+  text-transform: uppercase;
+}
+.capability-list {
+  font-size: 11px;
+  margin: 14px 0;
+}
+.capability-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+}
+.capability-list dt {
+  color: var(--muted);
+}
+.capability-list dd {
+  margin: 0;
+  font-family: monospace;
+  text-align: right;
+}
+.backend-note {
+  color: var(--muted);
+}
+.backend-error {
+  color: var(--danger);
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 12px 0;
+}
+.compiled-objective,
+.run-readback {
+  margin-top: 20px;
+  border-left: 2px solid var(--teal);
+  padding-left: 14px;
+}
+.compiled-objective > strong {
+  font-size: 32px;
+  color: var(--teal);
+}
+.run-inspection {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+.run-inspection label {
+  width: 100%;
+  font-size: 11px;
+}
+.run-inspection input {
+  width: 100%;
+  border: 1px solid var(--border);
+  padding: 10px;
+  background: var(--surface);
+  color: var(--foreground);
+  border-radius: 4px;
+}
+.backend-sources details {
+  border-bottom: 1px solid var(--border);
+}
+.backend-sources summary {
+  font-weight: 600;
+}
+.backend-sources summary small {
+  display: block;
+  font-size: 9px;
+  font-family: monospace;
+  color: var(--muted);
+}
+.backend-sources a {
+  color: var(--teal);
+  text-decoration: underline;
+}
+.backend-panel small,
+.run-readback p {
+  overflow-wrap: anywhere;
+}
+.objective-mode {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  font-size: 10px;
+}
+.objective-mode button {
+  color: var(--muted);
+  border: 0;
+  background: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.objective-mode button[aria-pressed="true"] {
+  color: var(--teal);
+  box-shadow: 0 1px var(--teal);
+}
+.journey-outcome {
+  border-left: 2px solid var(--danger);
+  padding: 12px 0 12px 14px;
+  margin: 16px 0;
+}
+.journey-outcome h3 {
+  margin: 6px 0;
+  font-size: 16px;
+}
+.journey-outcome time,
+.journey-outcome p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.journey-outcome p {
+  margin: 10px 0;
+}
+.journey-end-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--danger);
+}
+.journey-end-marker > span {
+  background: var(--surface);
+  border: 2px solid currentColor;
+  width: 28px;
+  height: 28px;
+  text-align: center;
+  line-height: 23px;
+  border-radius: 50%;
+  font-size: 22px;
+}
+.journey-end-marker strong {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 5px 8px;
+  font-size: 10px;
+  max-width: 220px;
+}
+.journey-end-marker.completed {
+  color: var(--teal);
+}
+@media (max-width: 760px) {
+  .backend-control span {
+    display: none;
+  }
+  .header-actions {
+    gap: 4px;
+  }
+}
+
+.journey-end-marker {
+  pointer-events: none;
+}

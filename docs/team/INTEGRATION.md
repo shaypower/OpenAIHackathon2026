@@ -42,14 +42,14 @@ If blocked: C may use an explicitly MOCKED facade in its own tests, not invented
 
 ## Gate 4 — C → D: HTTP and browser boundary
 
-Acceptance: actual routes appear in `/api/openapi.json`; contract examples match HTTP responses; legacy `/api/` still works; queued → running → terminal state and error readback work; source/capability labels are accurate. D validates response JSON and adapts snake_case. Polling/deadline/expiry/idempotency are tested. Development proxy or origin configuration is coordinated; current app has neither.
+Acceptance: actual routes appear in `/api/openapi.json`; contract examples match HTTP responses; legacy `/api/` still works; queued → running → terminal state and error readback work; source/capability labels are accurate. D validates response JSON and adapts snake_case. Polling/deadline/expiry/idempotency are tested. Development proxy or origin configuration is coordinated; D's pulled provider now includes a same-origin Vite development/preview proxy.
 
-Current evidence: six application paths, objective compilation (including D's default wording), truthful 503 dependency guard, run polling/replay/bounds tested with a MOCKED test-only backend. The default app registers no baseline adapter. D's native transport parser is implemented but does not parse HTTP envelopes. The gate remains incomplete until B's adapter and D's provider/proxy mapping work together.
-
-Agent follow-up adds configurable structured model compilation, nullable model-use
-receipts/tool summaries on readback, and a tested C candidate workflow library.
-Exact B adapter/D mapping changes are in AGENT_IMPLEMENTATION/HANDOFFS. No live
-model call, candidate HTTP operation or completed integration gate is implied.
+Current evidence (2026-10-04 15:20): nine application paths, canonical health/source
+responses, actual opt-in B synthetic baseline 202 → succeeded readback, C candidate
+library using B's actual simulator/ranking, and D's validated inspection provider/proxy.
+C's compiler-mode/deadline mapping patch is included. The map continues on its
+separate mock provider; browser analysis submission/candidate/stress/GeoJSON mapping
+remain incomplete. No live model call or complete end-to-end gate is claimed.
 
 If blocked: D keeps the existing mock provider. A backend failure must remain a failure; fallback is a user-visible separate mock mode, not a real run completed with fixture values.
 

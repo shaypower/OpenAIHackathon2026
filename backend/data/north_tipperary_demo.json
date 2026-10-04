@@ -1,0 +1,68 @@
+{
+  "scenario_id": "north-tipperary-health-access-demo-v1",
+  "title": "North Tipperary: 45-minute healthcare access screening",
+  "coordinate_reference_system": "OGC:CRS84 (longitude, latitude)",
+  "model_notes": {
+    "purpose": "Demonstrate an auditable population-to-network-to-service accessibility calculation and compare an indicative feeder intervention under a road-closure stress test.",
+    "population": "Every demand count and point is synthetic. Points stand for named localities, not CSO Small Areas or surveyed population centroids.",
+    "services": "Healthcare hubs are placeholders near named towns, not verified GP practices or opening hours.",
+    "network": "Minutes are hand-entered scenario assumptions. Baseline edges approximate a generalized weekday 09:00 journey and do not come from NTA GTFS, a routable road graph or an observed journey.",
+    "intervention": "Proposed feeder links are straight-line map schematics with assumed journey minutes. No route feasibility, fleet, budget, timetable, capacity or return-trip assessment is included.",
+    "flood": "Closed links are hypothetical stress-test closures and do not represent OPW mapped flood extents or a forecast.",
+    "interpretation": "Use only to exercise the platform. Do not use these outputs to make funding, siting or public-service decisions."
+  },
+  "demand_zones": [
+    { "id": "DZ-SILVERMINES", "label": "Silvermines area", "node_id": "D-SILVERMINES", "residents_65_plus_without_car": 19 },
+    { "id": "DZ-PORTROE", "label": "Portroe area", "node_id": "D-PORTROE", "residents_65_plus_without_car": 14 },
+    { "id": "DZ-BORRISOLEIGH", "label": "Borrisoleigh area", "node_id": "D-BORRISOLEIGH", "residents_65_plus_without_car": 26 },
+    { "id": "DZ-UPPERCHURCH", "label": "Upperchurch area", "node_id": "D-UPPERCHURCH", "residents_65_plus_without_car": 17 },
+    { "id": "DZ-TOOMEVARA", "label": "Toomevara area", "node_id": "D-TOOMEVARA", "residents_65_plus_without_car": 21 },
+    { "id": "DZ-PUCKANE", "label": "Puckane area", "node_id": "D-PUCKANE", "residents_65_plus_without_car": 13 }
+  ],
+  "network": {
+    "nodes": [
+      { "id": "D-SILVERMINES", "kind": "demand_zone", "coordinates": [-8.212, 52.756] },
+      { "id": "D-PORTROE", "kind": "demand_zone", "coordinates": [-8.325, 52.853] },
+      { "id": "D-BORRISOLEIGH", "kind": "demand_zone", "coordinates": [-7.951, 52.75] },
+      { "id": "D-UPPERCHURCH", "kind": "demand_zone", "coordinates": [-7.9, 52.68] },
+      { "id": "D-TOOMEVARA", "kind": "demand_zone", "coordinates": [-8.062, 52.87] },
+      { "id": "D-PUCKANE", "kind": "demand_zone", "coordinates": [-8.235, 52.851] },
+      { "id": "S-SILVERMINES", "kind": "public_transport_stop", "label": "Feeder stop · Silvermines", "coordinates": [-8.215, 52.759] },
+      { "id": "S-PORTROE", "kind": "public_transport_stop", "label": "Feeder stop · Portroe", "coordinates": [-8.322, 52.856] },
+      { "id": "S-BORRISOLEIGH", "kind": "public_transport_stop", "label": "Feeder stop · Borrisoleigh", "coordinates": [-7.948, 52.753] },
+      { "id": "S-UPPERCHURCH", "kind": "public_transport_stop", "label": "Feeder stop · Upperchurch", "coordinates": [-7.897, 52.683] },
+      { "id": "S-TOOMEVARA", "kind": "public_transport_stop", "label": "Feeder stop · Toomevara", "coordinates": [-8.059, 52.873] },
+      { "id": "S-PUCKANE", "kind": "public_transport_stop", "label": "Feeder stop · Puckane", "coordinates": [-8.232, 52.854] },
+      { "id": "H-NENAGH", "kind": "healthcare_hub", "label": "Healthcare hub · Nenagh (placeholder)", "coordinates": [-8.196, 52.862] },
+      { "id": "H-THURLES", "kind": "healthcare_hub", "label": "Healthcare hub · Thurles (placeholder)", "coordinates": [-7.814, 52.681] }
+    ],
+    "edges": [
+      { "id": "walk-silvermines", "from": "D-SILVERMINES", "to": "S-SILVERMINES", "minutes": 7, "kind": "walk_access", "label": "Walk to feeder stop" },
+      { "id": "walk-portroe", "from": "D-PORTROE", "to": "S-PORTROE", "minutes": 6, "kind": "walk_access", "label": "Walk to feeder stop" },
+      { "id": "walk-borrisoleigh", "from": "D-BORRISOLEIGH", "to": "S-BORRISOLEIGH", "minutes": 6, "kind": "walk_access", "label": "Walk to feeder stop" },
+      { "id": "walk-upperchurch", "from": "D-UPPERCHURCH", "to": "S-UPPERCHURCH", "minutes": 6, "kind": "walk_access", "label": "Walk to feeder stop" },
+      { "id": "walk-toomevara", "from": "D-TOOMEVARA", "to": "S-TOOMEVARA", "minutes": 5, "kind": "walk_access", "label": "Walk to feeder stop" },
+      { "id": "walk-puckane", "from": "D-PUCKANE", "to": "S-PUCKANE", "minutes": 5, "kind": "walk_access", "label": "Walk to feeder stop" },
+      { "id": "bus-silvermines-nenagh", "from": "S-SILVERMINES", "to": "H-NENAGH", "minutes": 42, "kind": "baseline_transit", "label": "Assumed baseline journey · Silvermines–Nenagh" },
+      { "id": "bus-portroe-nenagh", "from": "S-PORTROE", "to": "H-NENAGH", "minutes": 35, "kind": "baseline_transit", "label": "Assumed baseline journey · Portroe–Nenagh" },
+      { "id": "bus-borrisoleigh-thurles", "from": "S-BORRISOLEIGH", "to": "H-THURLES", "minutes": 45, "kind": "baseline_transit", "label": "Assumed baseline journey · Borrisoleigh–Thurles" },
+      { "id": "bus-upperchurch-thurles", "from": "S-UPPERCHURCH", "to": "H-THURLES", "minutes": 52, "kind": "baseline_transit", "label": "Assumed baseline journey · Upperchurch–Thurles" },
+      { "id": "bus-toomevara-nenagh", "from": "S-TOOMEVARA", "to": "H-NENAGH", "minutes": 39, "kind": "baseline_transit", "label": "Assumed baseline journey · Toomevara–Nenagh" },
+      { "id": "bus-puckane-nenagh", "from": "S-PUCKANE", "to": "H-NENAGH", "minutes": 23, "kind": "baseline_transit", "label": "Assumed baseline journey · Puckane–Nenagh" }
+    ]
+  },
+  "intervention": {
+    "id": "pilot-feeder-links",
+    "label": "Candidate demand-responsive feeder links (schematic)",
+    "edges": [
+      { "id": "new-silvermines-nenagh", "from": "S-SILVERMINES", "to": "H-NENAGH", "minutes": 25, "kind": "proposed_feeder", "label": "Proposed feeder · Silvermines–Nenagh" },
+      { "id": "new-borrisoleigh-thurles", "from": "S-BORRISOLEIGH", "to": "H-THURLES", "minutes": 33, "kind": "proposed_feeder", "label": "Proposed feeder · Borrisoleigh–Thurles" },
+      { "id": "new-upperchurch-thurles", "from": "S-UPPERCHURCH", "to": "H-THURLES", "minutes": 34, "kind": "proposed_feeder", "label": "Proposed feeder · Upperchurch–Thurles" }
+    ]
+  },
+  "stress_test": {
+    "id": "illustrative-road-closures",
+    "label": "Hypothetical flood-related road closures",
+    "closed_edge_ids": ["bus-silvermines-nenagh", "bus-borrisoleigh-thurles", "bus-upperchurch-thurles"]
+  }
+}

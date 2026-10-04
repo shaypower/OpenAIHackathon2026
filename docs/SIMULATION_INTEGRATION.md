@@ -1,44 +1,37 @@
 # Simulation integration: implemented vs planned
 
-## Endpoints that exist
+## Endpoints and frontend integration now
 
-Verified against the running FastAPI app on 2026-10-04:
+C's application routes were inspected and exercised on 2026-10-04. The canonical wire contracts remain in [team/API_CONTRACTS.md](team/API_CONTRACTS.md).
 
-| Route | Current behavior |
-| --- | --- |
-| `GET /api/` | Health: `{"status":"ok"}` |
-| `GET /api/docs` | Swagger UI |
-| `GET /api/openapi.json` | OpenAPI; only `/api/` is an application operation |
-| `GET /redoc` | FastAPI's default alternate documentation |
-| `GET /docs/oauth2-redirect` | FastAPI's default documentation helper |
+| Endpoint | Backend behavior | Frontend connection |
+| --- | --- | --- |
+| `GET /api/` | Health | Available for server checks |
+| `GET /api/status` | Degraded mode, capability/limit/store metadata | Connected backend inspector |
+| `GET /api/sources` | Validated inventory; planned/context/fixture labels and unknown fields retained | Connected inventory inspector |
+| `POST /api/objectives/validate` | Deterministic template parser; no model or evaluation | Connected **Backend validation** command mode |
+| `POST /api/objectives/analyse` | Guard implemented; default production returns 503 `simulation_unavailable` | Not submitted: A/B's authoritative snapshot/config/departure inputs are not available |
+| `GET /api/runs/{run_id}` | Pinned readback; unknown/expired/restarted run returns 404 | Connected run inspection and bounded polling; default server has no accepted runs |
+| `GET /api/docs`, `GET /api/openapi.json` | Actual schema/docs | Available for developers |
 
-There are **no civic analysis, agent, routing or simulation HTTP endpoints yet**. The UI is served separately on port 5173. All civic operations use `createMockProviders()` directly in the browser. The basemap uses external tile/style requests; civic fixtures do not.
+Community/service/transport/GeoJSON, candidate/simulation/stress endpoints remain planned. No model calls, real routing or simulation execution have been activated. The synthetic vertical demo continues using `createMockProviders()` explicitly; backend errors never silently switch an operation into replay mode.
 
-The transport remains an adapter choice. The team's [API contracts](team/API_CONTRACTS.md) now specify the following **planned** REST boundary; none of these routes is registered yet. Keep that document as the wire-contract source rather than maintaining a competing API schema here.
+`domain/contracts/backend.ts` defines a separate `BackendProvider`, injected at `app/main.tsx`. `adapters/http/backendProvider.ts` owns same-origin `/api` fetch, eight-second request limits, cancellation and structured error normalization. `backendMapping.ts` validates versioned unknown responses and maps only inspection fields into `domain/models/backend.ts`; snake_case DTOs do not enter components. It rejects contradictory cohort percentages/lifecycle metrics and preserves null coverage/freshness/licence values. A compiled goal is not coerced into the demo's 90% coverage target or marked analytically verified.
 
-| Frontend capability | Planned team REST operation |
-| --- | --- |
-| Capability/source inventory | `GET /api/status`, `GET /api/sources` |
-| Communities | `GET /api/communities`, `GET /api/communities/{id}` |
-| Services / display transit | `GET /api/services`, `GET /api/transport` |
-| Submit objective | `POST /api/objectives/analyse` |
-| Retrieve run / map results | `GET /api/runs/{run_id}`, `GET /api/runs/{run_id}/geojson` |
-| Generate interventions / contingency | `POST /api/interventions/generate` |
-| Simulate | `POST /api/simulations/run` |
-| Stress test | `POST /api/stress-tests/run`; `GET /api/stress-scenarios` |
-| Accessibility / journeys / investigation | Read from the selected run snapshot |
-| Digital twin | Keep local schematic provider; initial backend slice has no site endpoint |
+`features/backend/useBackend.ts` probes status/sources independently, retains last-good metadata on partial refresh failure, and manages validation separately from the mock workspace. `watchRun.ts` polls active run snapshots every second, stops at a terminal state/error or 30-second observation deadline, and preserves the last snapshot on failure. Stop watching/reset abort browser observation only; no server cancellation is claimed. Full map-result/provenance/journey mapping awaits actual A/B payloads; run readback is an inspection projection, not a complete analytical snapshot validator.
 
-The planned long-running operations return a queued run ID and use polling initially. SSE is a later extension, not a present endpoint. The adapter turns validated wire DTOs/events into the current domain models. Request tracing/idempotency/cancellation belong to the application/transport; database documents and model SDK objects do not enter React.
+Vite dev and preview proxy `/api` to `http://127.0.0.1:8000`; override the server-only target with `CIVIC_API_TARGET`. No backend CORS changes or browser credentials are needed locally. A deployed host must supply an equivalent same-origin reverse proxy. See [DEMO.md](DEMO.md) for the two-terminal start and interaction path.
+
+The captured status/sources/validation fixtures under `src/frontend/mocks/backend/` came from C's running API. The run example is **C's test-only synthetic backend**, never registered by the production app. Adapter/polling tests and the browser intercepted fixture verify rendering/lifecycle behavior without claiming B has delivered a simulator.
 
 ## Models and ownership
 
-Frontend presentation contracts: `src/frontend/domain/models/index.ts`. Provider contracts: `src/frontend/domain/contracts/providers.ts`. Agent/simulation input envelope: `src/frontend/domain/models/simulation.ts`.
+Frontend presentation contracts: `src/frontend/domain/models/index.ts`; backend inspection models: `domain/models/backend.ts`. Provider contracts: `src/frontend/domain/contracts/providers.ts`. Agent/simulation input envelope: `src/frontend/domain/models/simulation.ts`.
 
 | Group | Models / purpose |
 | --- | --- |
 | Goal and population | `CivicObjective`, `Community`, `PopulationProfile`: goal, geography and population summaries |
-| Network and journey | `ServiceLocation`, `TransportNetwork`, `TransitRoute`, `TransitStop`, `TransitEdge`, `TransportSource`, `Journey`, `JourneyLeg`: services, display network and example trip |
+| Network and journey | `JourneyOutcome` identifies the provider-supplied failure/arrival location. `ServiceLocation`, `TransportNetwork`, `TransitRoute`, `TransitStop`, `TransitEdge`, `TransportSource`, `Journey`, `JourneyLeg`: services, display network and example trip |
 | Findings | `AccessibilityResult`, `FailureReason`, `Investigation`: baseline failure and explanation |
 | Credibility | `Evidence`, `DataSource`: source/dataset/freshness/confidence/verification and synthetic labeling |
 | Planning | `Intervention`, `InterventionImpact`, `SpatialFeature`: proposed change, preview impacts and map geometry |
@@ -137,4 +130,4 @@ UI: http://127.0.0.1:5173. API health: http://127.0.0.1:8000/api/. API docs: htt
 
 Run the default objective → choose Borrisoleigh → inspect Journey → inspect Evidence → return to Overview → Generate interventions → choose the 94% combined option → Apply → Export context. Stress test → Flood → Export context → Generate contingency → Export context → Enter site. Expected mock access: **57% → 94% → 68% → 91%**. The downloaded JSON is the integration artifact, not proof of real routing or AI execution.
 
-Transport capture/provenance and adapter invariants: [fixture notes](../src/frontend/mocks/transport/README.md). Runtime transport validation exists; civic HTTP adapters, API proxy/CORS, backend run polling and server-side context authority remain pending C/B deliverables.
+Transport capture/provenance and adapter invariants: [fixture notes](../src/frontend/mocks/transport/README.md). Transport runtime validation and C metadata/validation/readback HTTP adapters, proxy and observation polling are implemented. Analytical map adapters and server-authoritative evaluation still await C/B/A inputs.

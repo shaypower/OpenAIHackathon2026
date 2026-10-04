@@ -7,6 +7,7 @@ import {
   LoaderCircle,
   Moon,
   Sun,
+  Plug,
 } from "lucide-react";
 import type { FrontendProviders } from "@/frontend/domain/contracts/providers";
 import type { LayerVisibility } from "@/frontend/adapters/spatial/mapFeatures";
@@ -19,18 +20,32 @@ import { MapOverlays } from "@/frontend/components/map/MapOverlays";
 import { SiteTwinViewer } from "@/frontend/features/digital-twin/SiteTwinViewer";
 import { useTheme } from "@/frontend/hooks/useTheme";
 import { useJourneyPlayback } from "@/frontend/features/journeys/useJourneyPlayback";
+import type { BackendProvider } from "@/frontend/domain/contracts/backend";
+import { useBackend } from "@/frontend/features/backend/useBackend";
+import { BackendPanel } from "@/frontend/features/backend/BackendPanel";
 const MapCanvas = lazy(() =>
   import("@/frontend/components/map/MapCanvas").then((m) => ({
     default: m.MapCanvas,
   })),
 );
-export function App({ providers }: { providers: FrontendProviders }) {
+export function App({
+  providers,
+  backendProvider,
+}: {
+  providers: FrontendProviders;
+  backendProvider: BackendProvider;
+}) {
+  const backend = useBackend(backendProvider);
+  const [backendOpen, setBackendOpen] = useState(false);
+  const [objectiveMode, setObjectiveMode] = useState<"demo" | "backend">(
+    "demo",
+  );
   const workspace = useWorkspace(providers);
   const { state } = workspace;
   const { theme, toggleTheme } = useTheme();
   const playback = useJourneyPlayback(
     state.journey,
-    state.view === "journey" && !isBusy(state.phase),
+    state.view === "journey" && !backendOpen && !isBusy(state.phase),
   );
   const [layers, setLayers] = useState<LayerVisibility>({
     healthcare: true,
@@ -51,6 +66,8 @@ export function App({ providers }: { providers: FrontendProviders }) {
   );
   const reset = () => {
     workspace.reset();
+    backend.reset();
+    setBackendOpen(false);
     setCamera("region");
     setStressOpen(false);
     setLayers({
@@ -59,6 +76,15 @@ export function App({ providers }: { providers: FrontendProviders }) {
       transport: true,
       failures: true,
     });
+  };
+  const changeMode = (mode: "demo" | "backend") => {
+    if (mode === objectiveMode) {
+      setBackendOpen(mode === "backend");
+      return;
+    }
+    reset();
+    setObjectiveMode(mode);
+    setBackendOpen(mode === "backend");
   };
   return (
     <main className="app-shell" data-theme={theme}>
@@ -85,8 +111,27 @@ export function App({ providers }: { providers: FrontendProviders }) {
         <div className="header-actions">
           <span className="dataset-state">
             <i />
-            Synthetic demo
+            {objectiveMode === "demo" ? "Synthetic demo" : "Synthetic map"}
           </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="backend-control"
+            aria-label="Inspect backend integration"
+            onClick={() => setBackendOpen((v) => !v)}
+          >
+            <Plug size={15} />
+            <span>
+              API ·{" "}
+              {backend.checking
+                ? "checking"
+                : backend.statusError
+                  ? "offline"
+                  : backend.status
+                    ? "connected"
+                    : "offline"}
+            </span>
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -143,13 +188,21 @@ export function App({ providers }: { providers: FrontendProviders }) {
             </div>
           ) : null}
         </section>
-        <ContextPanel
-          workspace={workspace}
-          scenarios={scenarios}
-          stressOpen={stressOpen}
-          onStressOpen={() => setStressOpen((v) => !v)}
-          playback={playback}
-        />
+        {backendOpen ? (
+          <BackendPanel
+            backend={backend}
+            onClose={() => setBackendOpen(false)}
+            onValidate={() => changeMode("backend")}
+          />
+        ) : (
+          <ContextPanel
+            workspace={workspace}
+            scenarios={scenarios}
+            stressOpen={stressOpen}
+            onStressOpen={() => setStressOpen((v) => !v)}
+            playback={playback}
+          />
+        )}
       </div>
       {state.error ? (
         <div className="error-banner" role="alert">
@@ -163,10 +216,23 @@ export function App({ providers }: { providers: FrontendProviders }) {
       ) : null}
       <ObjectiveBar
         phase={state.phase}
+        mode={objectiveMode}
+        onModeChange={changeMode}
+        validating={backend.validating}
+        validationState={
+          backend.validationError
+            ? "Validation failed"
+            : backend.validation
+              ? "Validated · not evaluated"
+              : "Ready for backend validation"
+        }
         onSubmit={(text) => {
           setCamera("region");
           setStressOpen(false);
-          void workspace.submit(text);
+          if (objectiveMode === "backend") {
+            setBackendOpen(true);
+            void backend.validate(text);
+          } else void workspace.submit(text);
         }}
         onReset={reset}
       />

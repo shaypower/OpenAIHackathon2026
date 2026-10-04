@@ -8,16 +8,62 @@ export function ObjectiveBar({
   phase,
   onSubmit,
   onReset,
+  mode,
+  onModeChange,
+  validating,
+  validationState,
 }: {
   phase: Phase;
   onSubmit: (text: string) => void;
   onReset: () => void;
+  mode: "demo" | "backend";
+  onModeChange: (mode: "demo" | "backend") => void;
+  validating: boolean;
+  validationState: string;
 }) {
   const [text, setText] = useState(DEFAULT_OBJECTIVE);
   const [invalid, setInvalid] = useState(false);
-  const busy = isBusy(phase);
+  const busy = isBusy(phase) || validating;
   return (
     <div className="objective-dock">
+      <div
+        className="objective-mode"
+        role="group"
+        aria-label="Objective execution mode"
+      >
+        <button
+          type="button"
+          aria-pressed={mode === "demo"}
+          disabled={busy}
+          onClick={() => {
+            setText(DEFAULT_OBJECTIVE);
+            onModeChange("demo");
+          }}
+        >
+          Synthetic demo
+        </button>
+        <button
+          type="button"
+          aria-pressed={mode === "backend"}
+          disabled={busy}
+          onClick={() => onModeChange("backend")}
+        >
+          Backend validation
+        </button>
+        {mode === "backend" ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              setText(
+                "Make primary healthcare reachable within 45 minutes for elderly people without cars in rural Tipperary.",
+              )
+            }
+          >
+            Use supported example
+          </button>
+        ) : null}
+      </div>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -53,7 +99,11 @@ export function ObjectiveBar({
           ) : (
             <ArrowRight data-icon="inline-start" />
           )}
-          {busy ? "Working…" : "Analyse objective"}
+          {busy
+            ? "Working…"
+            : mode === "backend"
+              ? "Validate objective"
+              : "Analyse objective"}
         </Button>
         {busy ? (
           <Button
@@ -71,10 +121,16 @@ export function ObjectiveBar({
         <span id="objective-help" role={invalid ? "alert" : undefined}>
           {invalid
             ? "Describe the objective in at least 12 characters."
-            : "Synthetic healthcare scenario · Tipperary · no live analytics"}
+            : mode === "backend"
+              ? "Backend template validation only · no accessibility evaluation"
+              : "Synthetic healthcare scenario · fixed 45-minute replay · no live analytics"}
         </span>
         <span role="status" aria-live="polite">
-          {phaseLabel(phase)}
+          {mode === "backend"
+            ? validating
+              ? "Validating objective"
+              : validationState
+            : phaseLabel(phase)}
         </span>
       </div>
     </div>

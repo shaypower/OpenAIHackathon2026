@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "data": {
+    "status": "degraded",
+    "data_mode": "synthetic",
+    "capabilities": [
+      {
+        "name": "status",
+        "status": "IMPLEMENTED"
+      },
+      {
+        "name": "sources",
+        "status": "IMPLEMENTED"
+      },
+      {
+        "name": "communities",
+        "status": "PLANNED"
+      },
+      {
+        "name": "objective_compilation",
+        "status": "IMPLEMENTED"
+      },
+      {
+        "name": "baseline",
+        "status": "PLANNED"
+      },
+      {
+        "name": "run_readback",
+        "status": "IMPLEMENTED"
+      },
+      {
+        "name": "run_geojson",
+        "status": "PLANNED"
+      },
+      {
+        "name": "candidate_generation",
+        "status": "PLANNED"
+      },
+      {
+        "name": "candidate_simulation",
+        "status": "PLANNED"
+      },
+      {
+        "name": "stress_testing",
+        "status": "PLANNED"
+      }
+    ],
+    "supported_regions": [],
+    "supported_intervention_kinds": [],
+    "limits": {
+      "max_active_runs_per_session": 1,
+      "max_tool_actions": 12,
+      "max_candidates": 20,
+      "max_refinements": 1,
+      "run_deadline_seconds": 30.0
+    },
+    "run_store": {
+      "storage": "memory",
+      "durable": false,
+      "ttl_seconds": 3600,
+      "max_runs": 100,
+      "restart_behavior": "All runs and idempotency records are lost on restart, expiry or eviction; use one worker."
+    },
+    "limitations": [
+      "The parser supports only the documented primary-healthcare template in Tipperary.",
+      "Source inventory metadata does not establish analytical readiness.",
+      "The active-run limit applies to this entire local server; user/session isolation is not implemented.",
+      "Candidate/refinement budgets exist, but candidate generation and simulation are unavailable.",
+      "Tool deadlines require cooperative async adapters; CPU-bound routing needs isolation by B.",
+      "No backend analysis dataset or simulation tool is connected; the default demo mode is synthetic."
+    ]
+  }
+}

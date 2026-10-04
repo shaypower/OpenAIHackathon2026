@@ -54,8 +54,9 @@ def get_status(orchestrator: Annotated[Orchestrator, Depends(get_orchestrator)])
              if orchestrator.compiler.mode == "deterministic_template" else
              "OpenAI structured objective compilation is configured; credentials/model availability are checked on use."),
             "Source inventory metadata does not establish analytical readiness.",
+            "The optional synthetic baseline uses an explicitly illustrative miniature fixture; the real Tipperary snapshot lacks an evidenced target cohort, services, validated walk links, opening hours and a bounded GTFS feed.",
             "The active-run limit applies to this entire local server; user/session isolation is not implemented.",
             "Candidate/refinement budgets exist, but candidate generation and simulation are unavailable.",
-            "Tool deadlines require cooperative async adapters; CPU-bound routing needs isolation by B.",
+            "The opt-in synthetic transport adapter isolates each routing calculation in a cancellable subprocess.",
         ] + (["No backend analysis dataset or simulation tool is connected; the default demo mode is synthetic."] if not backend else []),
     ))

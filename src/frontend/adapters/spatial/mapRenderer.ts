@@ -344,6 +344,26 @@ export function createMapRenderer(
           .addTo(map),
       );
     }
+    const outcome =
+      next.state.view === "journey" ? next.state.journey?.outcome : undefined;
+    if (outcome?.location) {
+      const element = document.createElement("div");
+      element.className = `journey-end-marker ${outcome.status}`;
+      element.setAttribute(
+        "aria-label",
+        `Journey ${outcome.status} at ${outcome.location.label}`,
+      );
+      const pin = document.createElement("span");
+      pin.textContent = outcome.status === "completed" ? "✓" : "×";
+      const label = document.createElement("strong");
+      label.textContent = `${outcome.status === "completed" ? "Arrival" : "Failure"} · ${outcome.location.label}`;
+      element.append(label, pin);
+      labels.push(
+        new Marker({ element, anchor: "bottom", offset: [0, 14] })
+          .setLngLat(outcome.location.coordinates)
+          .addTo(map),
+      );
+    }
     const patchCamera = next.state.simulation
       ? (next.state.intervention?.id ?? "")
       : "";
@@ -393,7 +413,8 @@ export function createMapRenderer(
         map.fitBounds(geometryBounds(focusedGeometry), {
           padding: {
             left: mobile ? 35 : 240,
-            right: 45,
+            right:
+              next.state.view === "journey" && outcome?.location ? 130 : 45,
             top: 70,
             bottom: 90,
           },

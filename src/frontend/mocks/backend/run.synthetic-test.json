@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "data": {
+    "run": {
+      "schema_version": 1,
+      "id": "run-e1553a2a-19d0-48e4-b045-0996accf8dcd",
+      "objective": {
+        "id": "objective-ce95bebd-7215-4d9a-9ea4-33db6e66acda",
+        "text": "Make primary healthcare reachable within 45 minutes for elderly people without cars in rural Tipperary.",
+        "domain": "healthcare",
+        "target_service": "primary_care",
+        "geography": "rural Tipperary",
+        "region_id": "tipperary",
+        "population": {
+          "min_age": 65,
+          "car_access": false
+        },
+        "constraint": {
+          "maximum_journey_minutes": 45.0,
+          "target_access_percent": null
+        },
+        "objective": "maximize_accessibility"
+      },
+      "kind": "baseline",
+      "status": "succeeded",
+      "phase": "completed",
+      "data_mode": "synthetic",
+      "created_at": "2026-10-04T13:45:00.811708Z",
+      "updated_at": "2026-10-04T13:45:00.812246Z",
+      "departure_at": "2026-10-05T07:00:00+01:00",
+      "timezone": "Europe/Dublin",
+      "input_dataset_ids": [
+        "synthetic-small-areas-v1",
+        "synthetic-transit-v1"
+      ],
+      "demand_config_id": "synthetic-demand-v1",
+      "engine_version": "test-stub-v1",
+      "baseline_run_id": null,
+      "intervention_id": null,
+      "scenario_id": null,
+      "before": {
+        "cohort_residents": 10,
+        "reachable_residents": 4,
+        "access_percent": 40.0,
+        "weighted_population_gaining_access": 0.0,
+        "additional_vehicle_minutes": null,
+        "additional_distance_km": null,
+        "number_of_changes": 0,
+        "indicative_cost_eur_week": null
+      },
+      "after": null,
+      "accessibility": [
+        {
+          "community_id": "test-community",
+          "cohort_residents": 10,
+          "reachable_residents": 4,
+          "access_percent": 40.0,
+          "weighted_demand": 10.0,
+          "journey_ids": [
+            "test-journey"
+          ],
+          "failures": [],
+          "data_mode": "synthetic"
+        }
+      ],
+      "journeys": [
+        {
+          "id": "test-journey",
+          "community_id": "test-community",
+          "service_id": "test-clinic",
+          "departure_at": "2026-10-05T07:00:00+01:00",
+          "timezone": "Europe/Dublin",
+          "legs": [
+            {
+              "id": "test-leg",
+              "mode": "walk",
+              "label": "MOCKED test journey",
+              "start_at": "2026-10-05T07:00:00+01:00",
+              "end_at": "2026-10-05T07:20:00+01:00",
+              "duration_minutes": 20.0,
+              "status": "feasible",
+              "geometry": null,
+              "evidence_ids": [
+                "test-evidence"
+              ]
+            }
+          ],
+          "total_minutes": 20.0,
+          "feasible": true,
+          "data_mode": "synthetic"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "test-evidence",
+          "claim": "MOCKED result for lifecycle tests; no routing was calculated.",
+          "provenance_ids": [
+            "test-provenance"
+          ],
+          "verification": "synthetic"
+        }
+      ],
+      "provenance": [
+        {
+          "id": "test-provenance",
+          "source": "Authored orchestration test fixture",
+          "dataset": "synthetic-small-areas-v1",
+          "source_url": "https://example.org/test-fixture",
+          "source_updated_at": null,
+          "ingested_at": "2026-10-04T12:00:00Z",
+          "licence": "Authored synthetic test fixture",
+          "data_mode": "synthetic",
+          "record_id": null
+        }
+      ],
+      "error_code": null
+    },
+    "assumptions": [
+      "Interpreted elderly people as residents aged 65 and older."
+    ],
+    "limitations": [
+      "Runs and replay records are process-local and lost on restart, expiry or eviction.",
+      "MOCKED test backend; no transport calculation."
+    ],
+    "ranking": [],
+    "tool_trace": [
+      {
+        "action_id": "action-0a62f5b1-6ab5-4ea3-a5c1-d793d9222b0c",
+        "tool": "run_baseline",
+        "status": "succeeded",
+        "input_refs": [
+          "objective-ce95bebd-7215-4d9a-9ea4-33db6e66acda",
+          "synthetic-small-areas-v1",
+          "synthetic-transit-v1",
+          "synthetic-demand-v1"
+        ],
+        "output_ref": "run-e1553a2a-19d0-48e4-b045-0996accf8dcd",
+        "started_at": "2026-10-04T13:45:00.811908Z",
+        "ended_at": "2026-10-04T13:45:00.811996Z",
+        "error_code": null
+      }
+    ]
+  }
+}

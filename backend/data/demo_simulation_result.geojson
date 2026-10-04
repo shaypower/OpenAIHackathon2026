@@ -1,0 +1,748 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.212,
+            52.756
+          ],
+          [
+            -8.215,
+            52.759
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "walk-silvermines",
+        "label": "Walk to feeder stop",
+        "route_kind": "walk_access",
+        "minutes": 7,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.325,
+            52.853
+          ],
+          [
+            -8.322,
+            52.856
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "walk-portroe",
+        "label": "Walk to feeder stop",
+        "route_kind": "walk_access",
+        "minutes": 6,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -7.951,
+            52.75
+          ],
+          [
+            -7.948,
+            52.753
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "walk-borrisoleigh",
+        "label": "Walk to feeder stop",
+        "route_kind": "walk_access",
+        "minutes": 6,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -7.9,
+            52.68
+          ],
+          [
+            -7.897,
+            52.683
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "walk-upperchurch",
+        "label": "Walk to feeder stop",
+        "route_kind": "walk_access",
+        "minutes": 6,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.062,
+            52.87
+          ],
+          [
+            -8.059,
+            52.873
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "walk-toomevara",
+        "label": "Walk to feeder stop",
+        "route_kind": "walk_access",
+        "minutes": 5,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.235,
+            52.851
+          ],
+          [
+            -8.232,
+            52.854
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "walk-puckane",
+        "label": "Walk to feeder stop",
+        "route_kind": "walk_access",
+        "minutes": 5,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.215,
+            52.759
+          ],
+          [
+            -8.196,
+            52.862
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "bus-silvermines-nenagh",
+        "label": "Assumed baseline journey \u00b7 Silvermines\u2013Nenagh",
+        "route_kind": "baseline_transit",
+        "minutes": 42,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.322,
+            52.856
+          ],
+          [
+            -8.196,
+            52.862
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "bus-portroe-nenagh",
+        "label": "Assumed baseline journey \u00b7 Portroe\u2013Nenagh",
+        "route_kind": "baseline_transit",
+        "minutes": 35,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -7.948,
+            52.753
+          ],
+          [
+            -7.814,
+            52.681
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "bus-borrisoleigh-thurles",
+        "label": "Assumed baseline journey \u00b7 Borrisoleigh\u2013Thurles",
+        "route_kind": "baseline_transit",
+        "minutes": 45,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -7.897,
+            52.683
+          ],
+          [
+            -7.814,
+            52.681
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "bus-upperchurch-thurles",
+        "label": "Assumed baseline journey \u00b7 Upperchurch\u2013Thurles",
+        "route_kind": "baseline_transit",
+        "minutes": 52,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.059,
+            52.873
+          ],
+          [
+            -8.196,
+            52.862
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "bus-toomevara-nenagh",
+        "label": "Assumed baseline journey \u00b7 Toomevara\u2013Nenagh",
+        "route_kind": "baseline_transit",
+        "minutes": 39,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.232,
+            52.854
+          ],
+          [
+            -8.196,
+            52.862
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "bus-puckane-nenagh",
+        "label": "Assumed baseline journey \u00b7 Puckane\u2013Nenagh",
+        "route_kind": "baseline_transit",
+        "minutes": 23,
+        "is_intervention": false,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -8.215,
+            52.759
+          ],
+          [
+            -8.196,
+            52.862
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "new-silvermines-nenagh",
+        "label": "Proposed feeder \u00b7 Silvermines\u2013Nenagh",
+        "route_kind": "proposed_feeder",
+        "minutes": 25,
+        "is_intervention": true,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -7.948,
+            52.753
+          ],
+          [
+            -7.814,
+            52.681
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "new-borrisoleigh-thurles",
+        "label": "Proposed feeder \u00b7 Borrisoleigh\u2013Thurles",
+        "route_kind": "proposed_feeder",
+        "minutes": 33,
+        "is_intervention": true,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -7.897,
+            52.683
+          ],
+          [
+            -7.814,
+            52.681
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route",
+        "id": "new-upperchurch-thurles",
+        "label": "Proposed feeder \u00b7 Upperchurch\u2013Thurles",
+        "route_kind": "proposed_feeder",
+        "minutes": 34,
+        "is_intervention": true,
+        "closed_in_active_stress_test": false,
+        "schematic": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.212,
+          52.756
+        ]
+      },
+      "properties": {
+        "feature_type": "demand_zone",
+        "id": "DZ-SILVERMINES",
+        "label": "Silvermines area",
+        "population_65_plus_without_car": 19,
+        "travel_minutes": {
+          "baseline": 49.0,
+          "flood_baseline": null,
+          "flood_intervention": 32.0,
+          "intervention": 32.0
+        },
+        "selected_mode": "intervention",
+        "selected_minutes": 32.0,
+        "within_target": true,
+        "newly_reached_people": 19,
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.325,
+          52.853
+        ]
+      },
+      "properties": {
+        "feature_type": "demand_zone",
+        "id": "DZ-PORTROE",
+        "label": "Portroe area",
+        "population_65_plus_without_car": 14,
+        "travel_minutes": {
+          "baseline": 41.0,
+          "flood_baseline": 41.0,
+          "flood_intervention": 41.0,
+          "intervention": 41.0
+        },
+        "selected_mode": "intervention",
+        "selected_minutes": 41.0,
+        "within_target": true,
+        "newly_reached_people": 0,
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.951,
+          52.75
+        ]
+      },
+      "properties": {
+        "feature_type": "demand_zone",
+        "id": "DZ-BORRISOLEIGH",
+        "label": "Borrisoleigh area",
+        "population_65_plus_without_car": 26,
+        "travel_minutes": {
+          "baseline": 51.0,
+          "flood_baseline": null,
+          "flood_intervention": 39.0,
+          "intervention": 39.0
+        },
+        "selected_mode": "intervention",
+        "selected_minutes": 39.0,
+        "within_target": true,
+        "newly_reached_people": 26,
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9,
+          52.68
+        ]
+      },
+      "properties": {
+        "feature_type": "demand_zone",
+        "id": "DZ-UPPERCHURCH",
+        "label": "Upperchurch area",
+        "population_65_plus_without_car": 17,
+        "travel_minutes": {
+          "baseline": 58.0,
+          "flood_baseline": null,
+          "flood_intervention": 40.0,
+          "intervention": 40.0
+        },
+        "selected_mode": "intervention",
+        "selected_minutes": 40.0,
+        "within_target": true,
+        "newly_reached_people": 17,
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.062,
+          52.87
+        ]
+      },
+      "properties": {
+        "feature_type": "demand_zone",
+        "id": "DZ-TOOMEVARA",
+        "label": "Toomevara area",
+        "population_65_plus_without_car": 21,
+        "travel_minutes": {
+          "baseline": 44.0,
+          "flood_baseline": 44.0,
+          "flood_intervention": 44.0,
+          "intervention": 44.0
+        },
+        "selected_mode": "intervention",
+        "selected_minutes": 44.0,
+        "within_target": true,
+        "newly_reached_people": 0,
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.235,
+          52.851
+        ]
+      },
+      "properties": {
+        "feature_type": "demand_zone",
+        "id": "DZ-PUCKANE",
+        "label": "Puckane area",
+        "population_65_plus_without_car": 13,
+        "travel_minutes": {
+          "baseline": 28.0,
+          "flood_baseline": 28.0,
+          "flood_intervention": 28.0,
+          "intervention": 28.0
+        },
+        "selected_mode": "intervention",
+        "selected_minutes": 28.0,
+        "within_target": true,
+        "newly_reached_people": 0,
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.215,
+          52.759
+        ]
+      },
+      "properties": {
+        "feature_type": "public_transport_stop",
+        "id": "S-SILVERMINES",
+        "label": "Feeder stop \u00b7 Silvermines",
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.322,
+          52.856
+        ]
+      },
+      "properties": {
+        "feature_type": "public_transport_stop",
+        "id": "S-PORTROE",
+        "label": "Feeder stop \u00b7 Portroe",
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.948,
+          52.753
+        ]
+      },
+      "properties": {
+        "feature_type": "public_transport_stop",
+        "id": "S-BORRISOLEIGH",
+        "label": "Feeder stop \u00b7 Borrisoleigh",
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.897,
+          52.683
+        ]
+      },
+      "properties": {
+        "feature_type": "public_transport_stop",
+        "id": "S-UPPERCHURCH",
+        "label": "Feeder stop \u00b7 Upperchurch",
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.059,
+          52.873
+        ]
+      },
+      "properties": {
+        "feature_type": "public_transport_stop",
+        "id": "S-TOOMEVARA",
+        "label": "Feeder stop \u00b7 Toomevara",
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.232,
+          52.854
+        ]
+      },
+      "properties": {
+        "feature_type": "public_transport_stop",
+        "id": "S-PUCKANE",
+        "label": "Feeder stop \u00b7 Puckane",
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.196,
+          52.862
+        ]
+      },
+      "properties": {
+        "feature_type": "healthcare_hub",
+        "id": "H-NENAGH",
+        "label": "Healthcare hub \u00b7 Nenagh (placeholder)",
+        "input_quality": "illustrative_demo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.814,
+          52.681
+        ]
+      },
+      "properties": {
+        "feature_type": "healthcare_hub",
+        "id": "H-THURLES",
+        "label": "Healthcare hub \u00b7 Thurles (placeholder)",
+        "input_quality": "illustrative_demo"
+      }
+    }
+  ],
+  "metadata": {
+    "scenario_id": "north-tipperary-health-access-demo-v1",
+    "scenario_title": "North Tipperary: 45-minute healthcare access screening",
+    "active_mode": "intervention",
+    "model": {
+      "purpose": "Demonstrate an auditable population-to-network-to-service accessibility calculation and compare an indicative feeder intervention under a road-closure stress test.",
+      "population": "Every demand count and point is synthetic. Points stand for named localities, not CSO Small Areas or surveyed population centroids.",
+      "services": "Healthcare hubs are placeholders near named towns, not verified GP practices or opening hours.",
+      "network": "Minutes are hand-entered scenario assumptions. Baseline edges approximate a generalized weekday 09:00 journey and do not come from NTA GTFS, a routable road graph or an observed journey.",
+      "intervention": "Proposed feeder links are straight-line map schematics with assumed journey minutes. No route feasibility, fleet, budget, timetable, capacity or return-trip assessment is included.",
+      "flood": "Closed links are hypothetical stress-test closures and do not represent OPW mapped flood extents or a forecast.",
+      "interpretation": "Use only to exercise the platform. Do not use these outputs to make funding, siting or public-service decisions."
+    },
+    "data_status": "Illustrative synthetic inputs; no CSO, NTA, NaPTAN, Pobal, OPW, LiDAR or Tipperary Council records were loaded.",
+    "summaries": {
+      "baseline": {
+        "population_65_plus_without_car": 110,
+        "reached_within_target": 48,
+        "outside_target": 62,
+        "coverage_pct": 43.6,
+        "mean_minutes_among_reached": 38.8,
+        "target_minutes": 45
+      },
+      "flood_baseline": {
+        "population_65_plus_without_car": 110,
+        "reached_within_target": 48,
+        "outside_target": 62,
+        "coverage_pct": 43.6,
+        "mean_minutes_among_reached": 38.8,
+        "target_minutes": 45
+      },
+      "flood_intervention": {
+        "population_65_plus_without_car": 110,
+        "reached_within_target": 110,
+        "outside_target": 0,
+        "coverage_pct": 100.0,
+        "mean_minutes_among_reached": 37.9,
+        "target_minutes": 45
+      },
+      "intervention": {
+        "population_65_plus_without_car": 110,
+        "reached_within_target": 110,
+        "outside_target": 0,
+        "coverage_pct": 100.0,
+        "mean_minutes_among_reached": 37.9,
+        "target_minutes": 45
+      }
+    },
+    "selected_summary": {
+      "population_65_plus_without_car": 110,
+      "reached_within_target": 110,
+      "outside_target": 0,
+      "coverage_pct": 100.0,
+      "mean_minutes_among_reached": 37.9,
+      "target_minutes": 45
+    },
+    "comparison_mode": "baseline",
+    "change_vs_comparison": {
+      "additional_people_reached": 62,
+      "coverage_change_percentage_points": 56.4
+    },
+    "areas_outside_target": []
+  }
+}

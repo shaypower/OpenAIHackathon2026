@@ -45,11 +45,11 @@ Deterministic `Journey`, `AccessibilityResult`, `SimulationMetrics`, `MapFeature
 
 ## API / CONTRACTS YOU MUST RESPECT
 
-Use `backend.domain.models` and [API_CONTRACTS](API_CONTRACTS.md); implementation functions are planned there, not present yet. B's public facade lives in `backend/simulation/service.py` when created. It accepts validated values and returns domain DTOs; C assigns run IDs, owns lifecycle/persistence and invokes it. No FastAPI, LLM SDK or React imports in routing/optimisation code. Schema-valid change types are **not** evidence of engine support; unsupported kinds fail explicitly.
+Use `backend.domain.models` and [API_CONTRACTS](API_CONTRACTS.md). B's public facade is `backend/simulation/service.py`; it accepts validated values and returns domain DTOs. C assigns run IDs, owns lifecycle/persistence and invokes it. No FastAPI, LLM SDK or React imports in routing/optimisation code. Schema-valid change types are **not** evidence of engine support; unsupported kinds fail explicitly.
 
 | Intervention | Contract / execution at handoff setup |
 | --- | --- |
-| TimetableChange | Schema exists; deterministic support PLANNED; first slice |
+| TimetableChange | Schema exists; deterministic support implemented for bounded single-trip shifts |
 | FeederService | Schema exists; deterministic support PLANNED |
 | MobileService | Schema exists; deterministic support PLANNED |
 | AdditionalDeparture | Schema and execution PLANNED |
@@ -77,4 +77,17 @@ Only your modules, tiny labelled fixtures, transport tests and owned status/hand
 
 ## KNOWN BLOCKERS / FALLBACKS
 
-No real GTFS, joint demand, service opening data or Python simulation exists here. Start with dated synthetic inputs; mark every resulting run synthetic. Unknown cost, walking topology or capacity limits the claim. Keep candidate search small (initial cap 20, one stress scenario per selected candidate) and preserve baseline snapshots. The pasted 29-feature CLI is not available; do not claim it passes.
+No real GTFS, joint demand, or civic opening-hours data exists here. The dated test fixture carries explicit synthetic hours and walking links; every resulting run is synthetic. Unknown cost and capacity limit the claim. Keep candidate search small (cap 20) and preserve baseline snapshots. Windows requires the `tzdata` package for IANA `ZoneInfo` support; request C to add it to backend requirements. The pasted 29-feature CLI is not available; do not claim it passes.
+
+## IMPLEMENTATION UPDATE — 2026-10-04
+
+- State: READY_FOR_HANDOFF for the synthetic deterministic transport slice.
+- Added GTFS reader, validated snapshot builder/loader, cohort demand, time-dependent walk/transit routing, bounded timetable candidate search, candidate preservation checks, deterministic ranking, and explicit-edge/service closure reruns.
+- Supported change: one `TimetableChange` per intervention, ±30 minutes. `FeederService` and `MobileService` remain unsupported and return an explicit error.
+- Transport fixture: synthetic Tipperary mini-network, service date 2026-10-05, feeder arrives at interchange 08:10, connecting train departs 07:55, minimum transfer 5 minutes. Shift +20 reaches the equality boundary and recomputes 100 additional cohort residents into access. Closing `ride:connection-trip:1` reruns the graph and reduces reachability from 130 to 10 residents.
+- Checks observed: 12 transport tests and 9 shared DTO tests pass; Python compile check passes. The tests ran with Python 3.14, Pydantic, and `tzdata`.
+- Limits: synthetic data only; no vehicle block/interlining, capacity, operational cost, real road network, GTFS shapes, or polygon-to-edge spatial intersection. Missing costs and added vehicle minutes remain null. The processed-snapshot loader verifies manifest file hashes; A must supply validated cohort and service-hour fields.
+- Integration update (2026-10-04): `backend/simulation/c_backend.py` now connects the mini fixture to C's baseline seam. Set `CIVIC_ENABLE_SYNTHETIC_BASELINE=1` to register it; default app behavior remains backend-unavailable. The opt-in baseline accepts the two synthetic dataset IDs and synthetic demand config. `/api/status` labels it synthetic-only and lists current real snapshot gaps. A's incomplete snapshot reports `missing_cohort` with the marginal-data reason before identifying its missing transport inputs. `tzdata` is in `backend/requirements.txt`.
+- Integration limits: no real-data run is enabled. A's cohort is unknown and the raw feed is not present in this checkout; service locations, walk graph and hours are also absent. C's 30-second timeout cannot interrupt synchronous routing.
+- Validation attempt: transport suite not run because offline `uv` could not find the requested Python 3.14 interpreter (`C:\Users\eschm\.local\bin\python3.14.exe`); no dependency download attempted.
+- Next: C reviews/accepts the adapter; A provides evidenced joint cohort, facilities, walk links, hours and bounded GTFS inputs.

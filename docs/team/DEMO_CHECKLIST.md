@@ -67,3 +67,18 @@ Date: 2026-10-04, Europe/Dublin. This section is populated only after actual che
   six application paths remain. Nullable summary/model-use receipt fields are
   documented for D. Production B adapters/browser/stress integration gates remain
   unchecked. Temporary API server stopped.
+
+## C integration verification — 2026-10-04 15:20 Europe/Dublin
+
+- Team A/B/D pull through `70dc391` retained; nine OpenAPI application paths.
+- Actual synthetic baseline: explicit opt-in, dated 90-minute README request,
+  HTTP 202 acceptance then succeeded 30/130 readback with actual trace/summary.
+- Actual agent library: B generates/evaluates/ranks nine bounded shifts, selects
+  +20 minutes and recomputes 130/130 under the 90-minute objective. Unknown costs
+  stay null. This is a library check, not a candidate HTTP/browser map check.
+- Source envelope reports six ingested records; A's snapshot tests pass. The real
+  joint cohort and service/transport inputs remain insufficient for analysis.
+- 103 backend tests, frontend typecheck/lint/29 tests/build pass; compiler-mode
+  mapping accepts the optional configured model compiler without a paid call.
+- Temporary local API server stopped. Full browser analyse/candidate/stress/GeoJSON
+  flow remains pending; D's inspection panel/proxy and separate mock map are retained.

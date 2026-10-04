@@ -11,7 +11,7 @@ from backend.api.sources import get_inventory_path
 from backend.main import create_app
 from backend.agents.objectives import TemplateCompiler
 
-app = create_app(compiler=TemplateCompiler())
+app = create_app(compiler=TemplateCompiler(), backend=None)
 
 
 class BootstrapAPITests(unittest.TestCase):
@@ -53,6 +53,8 @@ class BootstrapAPITests(unittest.TestCase):
         self.assertEqual(set(schema["paths"]), {
             "/api/", "/api/status", "/api/sources", "/api/objectives/validate",
             "/api/objectives/analyse", "/api/runs/{run_id}",
+            "/api/data/tipperary/{filename}", "/api/simulations/accessibility",
+            "/api/simulations/accessibility/demo",
         })
         source_schema = schema["paths"]["/api/sources"]["get"]["responses"]
         self.assertIn("503", source_schema)
@@ -85,16 +87,17 @@ class BootstrapAPITests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"schema_version": 1, "data": self.inventory})
         sources = response.json()["data"]["sources"]
-        self.assertEqual({item["status"] for item in sources}, {"PLANNED", "BUNDLED", "REMOTE_CONTEXT"})
+        self.assertEqual({item["status"] for item in sources}, {"PLANNED", "BUNDLED", "REMOTE_CONTEXT", "INGESTED"})
 
     def test_source_updates_and_failure_labels_are_not_cached_or_promoted(self):
         self.client.get("/api/sources")
         self.inventory["sources"][0]["status"] = "FAILED"
+        self.inventory["real_civic_datasets_ingested"] -= 1
         self.inventory["sources"][0]["notes"] = "Acquisition failed; no records ingested."
         self.write_inventory()
         data = self.client.get("/api/sources").json()["data"]
         self.assertEqual(data, self.inventory)
-        self.assertEqual(data["real_civic_datasets_ingested"], 0)
+        self.assertEqual(data["real_civic_datasets_ingested"], self.inventory["real_civic_datasets_ingested"])
 
     def test_missing_inventory_has_recoverable_error_and_status_still_works(self):
         self.path.unlink()
@@ -109,7 +112,7 @@ class BootstrapAPITests(unittest.TestCase):
                 self.assert_inventory_error("invalid_source_inventory")
 
     def test_inconsistent_ingestion_count_is_rejected(self):
-        self.inventory["real_civic_datasets_ingested"] = 1
+        self.inventory["real_civic_datasets_ingested"] += 1
         self.write_inventory()
         self.assert_inventory_error("invalid_source_inventory")
 
@@ -119,9 +122,9 @@ class BootstrapAPITests(unittest.TestCase):
         self.assert_inventory_error("invalid_source_inventory")
 
     def test_ingested_source_needs_metadata_without_changing_backend_readiness(self):
-        source = self.inventory["sources"][0]
+        source = next(source for source in self.inventory["sources"] if source["category"] == "civic" and source["status"] == "PLANNED")
         source["status"] = "INGESTED"
-        self.inventory["real_civic_datasets_ingested"] = 1
+        self.inventory["real_civic_datasets_ingested"] += 1
         self.write_inventory()
         self.assert_inventory_error("invalid_source_inventory")
 

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "data": {
+    "objective": {
+      "id": "objective-6e799189-a0f8-4484-a068-4a8aeb31aca5",
+      "text": "Make primary healthcare reachable within 30 minutes for elderly people without cars in rural Tipperary.",
+      "domain": "healthcare",
+      "target_service": "primary_care",
+      "geography": "rural Tipperary",
+      "region_id": "tipperary",
+      "population": {
+        "min_age": 65,
+        "car_access": false
+      },
+      "constraint": {
+        "maximum_journey_minutes": 30.0,
+        "target_access_percent": null
+      },
+      "objective": "maximize_accessibility"
+    },
+    "assumptions": [
+      "Interpreted elderly people as residents aged 65 and older."
+    ],
+    "parser_mode": "deterministic_template",
+    "evaluable": false,
+    "limitations": [
+      "Deterministic template parser: primary healthcare for elderly people without cars in Tipperary only.",
+      "Compilation does not validate dataset/cohort availability or calculate accessibility."
+    ]
+  }
+}

@@ -33,3 +33,24 @@ Choose **Transport network**. Select **391** or **854** to fit the captured NTA 
 Use the header moon/sun control for light/dark mode. In Journey, **Play / Pause**, **Restart**, the elapsed slider and leg buttons share one clock; the UI runs at 12 simulated minutes per real second. Hidden tabs/navigation pause it. Reduced-motion mode disables automatic replay but permits manual seek. A candidate shows **Proposal preview · not simulated** and never marks the catchment served before simulation.
 
 Current verification (2026-10-04): production Chromium walkthrough includes connected network inspection, replay, 57→94→68→91, exports, site current/proposed, focus restoration, light/dark, offline, reset and reduced motion. Desktop 1536×1024, tablet 1024×768, mobile 390×844. See [design verification](design/VERIFICATION.md). Real HTTP integration remains pending; the optional backend health server is not needed by this demo.
+
+## C's connected frontend slice
+
+The synthetic demo still runs without Python/API keys. To inspect C's actual service, use two terminals from repository root:
+
+```sh
+# Existing backend environment; use the project's documented setup if needed.
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+# Second terminal
+npm run dev
+```
+
+Vite proxies `/api` at the frontend origin in both dev and preview. If the API uses another port, start Vite with `CIVIC_API_TARGET=http://127.0.0.1:8765 npm run dev`. For deployment configure the same-origin reverse proxy; Vite's development proxy is not a hosted backend. Port conflicts cause Vite to advertise another frontend port; use the printed URL.
+
+1. Choose the header **API** control. Inspect degraded/synthetic mode, capability states and the source inventory. Null freshness is Unknown; PLANNED public datasets are not ingested.
+2. Select **Backend validation**, enter `Make primary healthcare reachable within 30 minutes for elderly people without cars in rural Tipperary.`, then **Validate objective**. Expect **30 min**, coverage **Not specified**, assumptions and **Validated · not evaluated**. No run or mock map score is produced.
+3. Change Tipperary to Dublin. Expect the real server's unsupported-geography error. Disconnect/fail the API: expect a recoverable request error, never fixture analysis. Retry after recovery. **Use supported example** restores the supported grammar.
+4. Enter an existing ID in **Run ID → Inspect run**. The default server has none: expect `Run is unknown, expired, evicted or lost after restart.` Once B is registered, active readbacks poll every second, for at most 30 seconds. **Stop watching** stops observation, not server execution. Readback metrics do not replace synthetic map results.
+5. Choose **Synthetic demo** to restore the fixed example and the existing demo workflow. **Inspect journey → Jump to failure location** selects the 08:17 missed-connection leg and pins **Thurles Station**; Roscrea's last confirmed station is **Nenagh Station**. Unavailable healthcare legs never imply arrival at a clinic.
+
+Current checks: 28 frontend tests, typecheck/lint/build; C's 35 orchestration and nine domain tests. Chromium production preview at 4174 exercised validation, unsupported/unknown-run errors, partial API loss/retry, test-only run polling, desktop/tablet/mobile, explicit mode/reset and the complete mock demo. Expected 422/404/injected connection-failure request messages are distinguished from uncaught runtime errors. Normal production console has zero errors/warnings. MapLibre's existing build-size warning remains.

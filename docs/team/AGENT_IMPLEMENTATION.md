@@ -6,9 +6,9 @@
 | --- | --- | --- |
 | Template compiler | `backend/agents/objectives.py` | Default; no key/model required |
 | Structured model compiler | `model_compiler.py`, `openai_provider.py`, `config.py` | Explicit OpenAI mode; injected-response/SDK transport checks pass; live model call unverified |
-| Lifecycle/typed baseline tool | `backend/orchestration/` | Implemented; no production B adapter; default analysis returns 503 |
+| Lifecycle/typed baseline tool | `backend/orchestration/` | Implemented; opt-in B synthetic adapter; default analysis returns 503 |
 | Failure/evidence summary | `backend/agents/reporting.py` | Successful run readback copies recorded tool facts; null while active/failed/cancelled |
-| Candidate evaluation/ranking/refinement | `backend/agents/workflow.py` | Implemented library with test-only MOCKED tools; production adapter and candidate HTTP operations pending |
+| Candidate evaluation/ranking/refinement | `backend/agents/workflow.py` | Implemented library with B synthetic tools and test-only mocks; candidate HTTP operations pending |
 
 The UI remains on D's mock providers. A's ingestion and B's routing calculations
 are separate dependencies.
@@ -131,10 +131,35 @@ evaluations/ranking, selected evaluated ID, limitations and typed artifacts
 resolving successful trace output refs. Empty proposals/no unmet cohort returns
 no fabricated selection. Failure/timeout produces no successful workflow outcome.
 
-This is C's proposed seam, not B's delivered facade. The library does not register
-in production, persist candidate child runs or mount candidate/simulation/stress
-endpoints. Those still require B/C integration; stress execution and graph-level
-failure inspection remain pending.
+`backend/orchestration/transport_adapter.py` now maps B's actual synthetic
+facade to this seam. The app registers it for baseline only when
+`CIVIC_ENABLE_SYNTHETIC_BASELINE=1`. It runs calculations in cancellable
+subprocesses and verifies rebuilt candidate baselines against the pinned record.
+Candidate methods are available to this library; they do not persist child runs
+or mount candidate/simulation/stress endpoints. Stress execution and graph-level
+failure inspection still need composition. B's ranking includes null operational
+costs and bounded text explaining the policy; C preserves those components.
+
+## Synthetic B integration
+
+Start with `CIVIC_ENABLE_SYNTHETIC_BASELINE=1 python -m uvicorn backend.main:app --reload`.
+Use the [README example](../../README.md) for both synthetic dataset IDs,
+`synthetic-demand-v1` and dated Europe/Dublin departure. These IDs deliberately
+map to B's miniature fixture, never A's real analytical snapshot.
+
+The original B integration's dataclass demand-copy operation was incompatible
+with the shared Pydantic model. C's worker uses `model_copy` and keeps calculations
+in B's functions. 90-minute baseline: 30/130; 45-minute baseline: 10/130.
+The actual candidate library, with nine candidates, preserves B's rank and chooses
++20 minutes, recomputing 130/130 for the 90-minute objective. Reserve one action
+for baseline plus 11 for the library (or share the same execution context).
+Each candidate subprocess also rebuilds the same deterministic fixture baseline;
+that work is part of the named tool action and its deadline.
+
+Candidate HTTP/persistence, stress/GeoJSON and full browser map integration are
+still future work. The browser panel can validate objectives and inspect a supplied
+run ID; its civic map still uses the separate mock provider. Real analysis remains
+blocked on the unobserved joint cohort and missing validated transport/service inputs.
 
 ## D readback change
 

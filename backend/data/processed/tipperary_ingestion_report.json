@@ -1,0 +1,159 @@
+{
+  "county": "Tipperary",
+  "small_area_count": 640,
+  "census_boundary_join_unmatched": 0,
+  "rejected_records": 0,
+  "missingness": {
+    "population_65_plus_residents": 0,
+    "no_car_households": 0,
+    "target_cohort_residents": 640,
+    "services": 640,
+    "scheduled_journeys": 640
+  },
+  "census_population_2022": 167895,
+  "population_65_plus_2022": 29356,
+  "households_no_car_2022": 6921,
+  "private_households_car_availability_total_2022": 62056,
+  "no_car_household_share": 0.111528,
+  "older_no_car_population_estimate": 3223.0,
+  "older_no_car_estimate_note": "Exploratory ecological proxy only; not included as target-cohort residents in the normalized Community snapshot because age and car ownership are separate marginals.",
+  "pobal_unmatched_small_areas": 0,
+  "cso_gp_median_distance_populated_areas": 640,
+  "cso_gp_person_median_distance_min_km": 0.0,
+  "cso_gp_person_median_distance_max_km": 17.3,
+  "cso_gp_person_median_distance_median_of_small_area_medians_km": 2.45,
+  "naptan_stops_in_area": 374,
+  "naptan_active_stops_in_area": 374,
+  "gtfs_stops_in_area": 286,
+  "gtfs_stops_matched_to_active_naptan": 286,
+  "gtfs_validation": {
+    "feed_sha256": "e3915c7dd1ecce224a6cc177e7005698aa51785c358e5aa50249eb5446fe1430",
+    "table_row_counts": {
+      "stops.txt": 14155,
+      "routes.txt": 805,
+      "trips.txt": 267335,
+      "stop_times.txt": 8438017,
+      "calendar.txt": 289,
+      "calendar_dates.txt": 1927
+    },
+    "unique_stop_ids": 14155,
+    "unique_route_ids": 805,
+    "unique_trip_ids": 267335,
+    "service_date_min": "20261002",
+    "service_date_max": "20271003",
+    "foreign_key_and_format_errors": {},
+    "structurally_valid": true,
+    "note": "Structural feed check only; does not calculate or validate journeys, transfer feasibility, stop-time chronology, or passenger access."
+  },
+  "screening_candidate_method": "Top Small Areas by estimated older_no_car_population × CSO 2026 all-person median GP distance; ecological and descriptive only.",
+  "initial_screening_candidates": [
+    {
+      "sa_code": "217087003",
+      "electoral_division": "HOLYCROSS",
+      "urban_rural_category": "5. Rural areas with moderate urban influence",
+      "estimated_older_no_car_population": 22.8,
+      "cso_median_gp_distance_km_all_persons": 6.1,
+      "screening_exposure_person_km": 139.1,
+      "pobal_ed_category": "Marginally Above Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217031002",
+      "electoral_division": "BORRISOLEIGH",
+      "urban_rural_category": "6. Highly rural/remote areas",
+      "estimated_older_no_car_population": 12.6,
+      "cso_median_gp_distance_km_all_persons": 10.2,
+      "screening_exposure_person_km": 128.5,
+      "pobal_ed_category": "Marginally Below Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217006005",
+      "electoral_division": "ARDFINNAN",
+      "urban_rural_category": "6. Highly rural/remote areas",
+      "estimated_older_no_car_population": 10.3,
+      "cso_median_gp_distance_km_all_persons": 9.7,
+      "screening_exposure_person_km": 99.9,
+      "pobal_ed_category": "Marginally Below Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217121002/03/217121004",
+      "electoral_division": "LITTLETON",
+      "urban_rural_category": "6. Highly rural/remote areas",
+      "estimated_older_no_car_population": 9.9,
+      "cso_median_gp_distance_km_all_persons": 8.4,
+      "screening_exposure_person_km": 83.2,
+      "pobal_ed_category": "Disadvantaged",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217048005",
+      "electoral_division": "CLOGHEEN",
+      "urban_rural_category": "6. Highly rural/remote areas",
+      "estimated_older_no_car_population": 10.5,
+      "cso_median_gp_distance_km_all_persons": 7.7,
+      "screening_exposure_person_km": 80.9,
+      "pobal_ed_category": "Marginally Below Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217158003",
+      "electoral_division": "TEMPLETOUHY",
+      "urban_rural_category": "6. Highly rural/remote areas",
+      "estimated_older_no_car_population": 9.0,
+      "cso_median_gp_distance_km_all_persons": 8.2,
+      "screening_exposure_person_km": 73.8,
+      "pobal_ed_category": "Marginally Below Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217031003",
+      "electoral_division": "BORRISOLEIGH",
+      "urban_rural_category": "5. Rural areas with moderate urban influence",
+      "estimated_older_no_car_population": 6.6,
+      "cso_median_gp_distance_km_all_persons": 10.4,
+      "screening_exposure_person_km": 68.6,
+      "pobal_ed_category": "Marginally Below Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217048004",
+      "electoral_division": "CLOGHEEN",
+      "urban_rural_category": "6. Highly rural/remote areas",
+      "estimated_older_no_car_population": 9.3,
+      "cso_median_gp_distance_km_all_persons": 7.3,
+      "screening_exposure_person_km": 67.9,
+      "pobal_ed_category": "Marginally Below Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217088001",
+      "electoral_division": "INCH",
+      "urban_rural_category": "4. Rural areas with high urban influence",
+      "estimated_older_no_car_population": 7.0,
+      "cso_median_gp_distance_km_all_persons": 8.9,
+      "screening_exposure_person_km": 62.3,
+      "pobal_ed_category": "Marginally Below Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    },
+    {
+      "sa_code": "217064001",
+      "electoral_division": "CURRAHEEN",
+      "urban_rural_category": "5. Rural areas with moderate urban influence",
+      "estimated_older_no_car_population": 6.7,
+      "cso_median_gp_distance_km_all_persons": 9.2,
+      "screening_exposure_person_km": 61.6,
+      "pobal_ed_category": "Marginally Below Average",
+      "interpretation": "Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance."
+    }
+  ],
+  "processed_files": [
+    "tipperary_census_access_screen.geojson",
+    "tipperary_census_access_screen.csv",
+    "tipperary_screening_candidates.geojson",
+    "tipperary_screening_candidates.csv",
+    "tipperary_naptan_stops.geojson",
+    "tipperary_gtfs_stops.geojson"
+  ]
+}

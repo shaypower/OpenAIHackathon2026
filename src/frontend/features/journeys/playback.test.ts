@@ -7,6 +7,21 @@ import {
 } from "./playback";
 import { journeyFor } from "@/frontend/mocks/fixtures";
 describe("one journey replay clock", () => {
+  it("pins each failure to the provider's actual arrival stop and replay position", () => {
+    for (const id of ["borrisoleigh", "roscrea", "newport"]) {
+      const journey = journeyFor(id),
+        prepared = prepareJourney(journey);
+      const index = journey.legs.findIndex(
+        (l) => l.id === journey.outcome?.legId,
+      );
+      expect(journey.outcome?.status).toBe("failed");
+      expect(journey.outcome?.location?.label).toMatch(/Station/);
+      expect(prepared.frame(prepared.starts[index])?.position).toEqual(
+        journey.outcome?.location?.coordinates,
+      );
+      expect(journey.outcome?.time).toBe(journey.legs[index].startTime);
+    }
+  });
   it("formats the actual fixture elapsed clock rather than a frozen leg departure", () => {
     expect(journeyClock("07:18", 22)).toBe("07:40");
     expect(journeyClock("23:59", 62)).toBe("25:01");

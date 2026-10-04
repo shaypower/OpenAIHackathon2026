@@ -4,46 +4,47 @@ Baseline inspected 2026-10-04 (Europe/Dublin). Update only your block; C owns in
 
 ## PERSON_A
 
-- State: NOT_STARTED — public-data ingestion.
-- Exists: `backend/data/.gitkeep`; new inventory accurately records planned sources plus existing frontend fixtures/context.
-- Real civic datasets verified ingested: **0**. No CSO/NTA/Pobal/closure/flood/service extract is present.
-- First task: validate one Tipperary CSO Small Areas snapshot and matching demographic vintage.
-- Deliver to B/C: manifest + normalised community/provenance records + exact validation/loader example.
-- Blocker: official release/URL/licence/geography vintage and joint age/no-car coverage not selected/verified.
-- Last owner update: unclaimed; setup inspection only.
+- State: READY_FOR_HANDOFF — first County Tipperary public-data snapshot.
+- Exists: `backend/ingest_tipperary.py`; reproducible raw source manifest/checksums; 640-area snapshot in `backend/data/processed/tipperary-cso-2022-v1/`; full exploratory layers and QA report in `backend/data/processed/`.
+- Real civic sources acquired and processed: **6** (CSO SAPS 2022, Tailte Small Area boundaries 2022, CSO MDSI01 2026, Pobal HP 2022, NTA GTFS snapshot, NTA NaPTAN). Source inventory records exact paths and acquisition times; update dates remain null when not known.
+- Snapshot: 640 `Community` records, 2 shared `Provenance` records, 0 rejected; WGS84; age counts are persons, no-car counts are households. All 640 have `cohort_method=unknown` and `target_cohort_residents=null` because the joint age/no-car person count is not identified.
+- Checks: `python -m unittest discover -s backend/domain -p 'test_*.py'` — 9 passed; `python -m unittest discover -s backend/tests/data -p 'test_*.py'` — 4 passed. Snapshot loader verified every model, file checksum and provenance reference.
+- GTFS required tables structurally validated: 14,155 stops, 805 routes, 267,335 trips, 8,438,017 stop_times, 289 calendar rows, 1,927 calendar_dates; no detected key/format errors; calendar coverage bounds 2026-10-02 to 2027-10-03. This is not journey/transfer validation; B still needs to build and verify the time-aware graph. No healthcare location/service hours, OSM routing graph, road alerts, flood layer, LiDAR or Mapillary have been ingested.
+- Last owner update: 2026-10-04; B/C consumer acknowledgement pending in HANDOFFS.
 
 ## PERSON_B
 
-- State: NOT_STARTED — deterministic backend transport/optimisation.
-- Exists: frontend fixture simulation and new shared DTO shapes. No Python routing graph, GTFS parser, simulator/CLI or solver exists.
-- First task: dated synthetic missed-connection fixture → deterministic baseline → timetable-change simulation → graph-closure rerun.
-- Deliver to C: callable facade, supported kinds, results/errors and transport test evidence.
-- Blocker: real data pending A; independent synthetic fixture allows immediate work.
-- Last owner update: unclaimed; setup inspection only.
+- State: READY_FOR_HANDOFF — deterministic synthetic transport slice.
+- Exists: `backend/routing/gtfs.py`; `backend/simulation/service.py`; cohort weighting at `backend/accessibility/demand.py`; bounded search/ranking at `backend/optimization/`; transport tests and synthetic fixture at `backend/tests/transport/`.
+- Supported: `TimetableChange` only, one per intervention, bounded ±30-minute shift. Candidate evaluation cap is 20; ranking uses weighted access gain, change count, then stable ID while operational/cost fields are null and flagged.
+- Demonstration: 2026-10-05 07:25 Europe/Dublin baseline has 30/130 target-cohort residents reachable; +20 minutes recomputation yields 130/130; closing `ride:connection-trip:1` reruns to 10/130.
+- Checks: 12 transport tests, 9 shared DTO tests, and Python compile check passed on Python 3.14 with Pydantic and `tzdata`. Measured the three-community fixture: 12 candidate shifts generated/evaluated in 7.1 ms; 11 passed the no-loss guard and one was rejected.
+- Limits: synthetic only; no verified real feeds/population, vehicle blocks, capacity, costs, road routing, or polygon-to-edge intersection. C must add `tzdata` to backend requirements for Windows/IANA timezone support.
+- Last owner update: 2026-10-04 14:35 Europe/Dublin.
 
 ## PERSON_C
 
-- State: IN_PROGRESS — objective/run boundary READY_FOR_HANDOFF; integrated simulation remains pending B.
-- Exists: `backend/agents/objectives.py` deterministic template parser; `backend/orchestration/` memory snapshots/replay, lifecycle, budgets and typed baseline adapter seam; objective/run route models in `backend/api/`. App factory/lifespan clean up cooperative work.
-- Agent follow-up: optional OpenAI structured compiler/config/provider, bounded candidate generation/evaluation/ranking/one-refinement library, and evidence-linked tool summaries now exist under `backend/agents/`. Model generation requires explicit server key/model/prices/cost ceiling; default mode stays template. B's candidate adapter seam is proposed, not a delivered simulator.
-- D compatibility: parser accepts the actual frontend default (“elderly residents”) as well as “elderly people”; explicit bounds and cohort/region restrictions remain. Proposed `backend/api/transport_models.py` now includes display edges and geometry sources, validated against D's 4-route/26-stop/25-edge capture. `/api/transport` remains PLANNED; no snapshot reader or HTTP adapter is connected.
-- Implemented: health/status/sources, objective validation through the configured compiler, analysis validation/dependency guard, run readback with nullable `agent_summary`/`model_usage`. Baseline is UNAVAILABLE in the default app; the other six target civic routes remain PLANNED. OpenAI mode is available but not live-verified; no SSE or public cancellation exists.
-- Observed: validation 200 for the documented template with explicit maximum time and age assumption; analysis 503 `simulation_unavailable` with no run created; unknown-run 404 `run_not_found`. Status remains degraded/synthetic with empty analytical region/change lists; memory store 100 runs/3600-second TTL and executor guards 1 active run/process, 12 actions, 20 candidate reservations, one refinement, 30-second cooperative deadline.
-- Verification: 74 orchestration/API/agent/transport checks and nine domain checks pass. Model/SDK requests use injected responses/HTTP mock transport; no paid call. Agent tests reject fabricated quantitative fields, invalid scope/counts/evidence/ranking, preserve B's ordering, bound refinement/candidates/actions, cancel on deadline and protect compile/run replay. Default live HTTP health/validation/OpenAPI checked; health bytes and six application paths remain. Model provider availability and browser integration are unverified.
-- Limits: memory/run/pre-acceptance compilation replay records lost on restart/expiry/eviction; one worker; blocking CPU work needs B's bounds/isolation. Candidate library needs B's production tools and HTTP composition. Model interpretation needs review; configured prices determine local cost estimates. Frontend remains on its mock providers.
-- Deliver to D/A/B: configured parser modes, nullable model budget receipts/run summaries, compiler errors, typed candidate adapter/artifacts and proposed transport mapping in HANDOFFS/API_CONTRACTS/AGENT_IMPLEMENTATION. C reviewed D's spatial handoff; B/D acceptance of the new proposals remains pending.
-- Next: B/C agree and connect baseline/candidate adapters, D/C map the added wire fields/proxy, then verify live model use with an explicitly configured key/model/prices. Stress execution and graph-level failure inspection remain pending.
-- Last owner update: 2026-10-04 15:06 Europe/Dublin.
+- State: IN_PROGRESS — synthetic baseline and agent/tool integration VERIFIED; candidate HTTP and real-data analysis pending.
+- Composition: retained A's GIS map/data/illustrative API in `backend/api/legacy.py`; app factory composes those routes with C's canonical health/source envelopes, without duplicate paths. Nine OpenAPI application paths.
+- B integration: `SyntheticTransportAdapter` wraps B's actual synthetic facade in cancellable subprocesses. Fixes demand-config mapping without changing B's algorithms; default analysis stays 503, `CIVIC_ENABLE_SYNTHETIC_BASELINE=1` enables baseline 202/polling/readback. Mode stays synthetic and status degraded.
+- Agent: optional structured compiler, controlled proposal/evaluation/ranking/refinement library and evidence-linked summaries. B's actual tools now produce a +20-minute winning change for the 90-minute fixture objective: 30/130 baseline → 130/130, 100 newly gaining access. Unknown costs remain null and the ranking limitation is preserved. Candidate library results are not HTTP child runs.
+- D integration: pulled backend panel/provider/proxy retained; minimal paired mapping accepts both compiler modes, labels the configured compiler, and allows 12 seconds for the server's 10-second compilation deadline. Status/run HTTP requests retain 8-second timeouts. Map outcomes remain separately mocked.
+- A readback: validated inventory reports six ingested civic sources. Four A snapshot tests pass. Marginal age/person and no-car/household counts still do not identify a joint cohort; real services/hours/walking/bounded feed are missing.
+- Verification: 78 C orchestration/API/agent/transport integration tests, nine DTO tests, 12 B transport tests, four A data tests — 103 backend tests total. Frontend typecheck/lint/29 tests/build pass. Live opt-in HTTP: health exact, analysis 202 → succeeded 30/130 synthetic, sources six, OpenAPI nine paths. No paid model calls. Temporary server stopped.
+- Limits: one worker; one active run/process; 12 actions/20 candidates/one refinement/30 seconds; memory 100 runs/one-hour TTL with restart/expiry/eviction loss. No public cancellation, candidate/stress/GeoJSON HTTP operations or server-authoritative map workflow yet. Model use needs explicit server key/model/rates/cost cap.
+- Next: compose candidate child-run operations and GeoJSON from B's outputs, then D's analysis/map adapter. Keep real-data runs disabled until A/B validate the missing inputs.
+- Git integration: Person C agent slice committed as `40810f6`; team work pulled through `70dc391`. User lockfile edit preserved separately.
+- Last owner update: 2026-10-04 15:20 Europe/Dublin.
 
 ## PERSON_D
 
-- State: **READY_FOR_HANDOFF** — frontend spatial interaction slice verified; connected real-backend definition of done remains pending B/C.
-- Owner update: 2026-10-04 (Europe/Dublin), Person D. Owned paths: `src/frontend/`, DESIGN, D-owned architecture/demo/design/example docs and own status/handoff sections.
-- Delivered: validated display topology (4 paths / 26 nodes / 25 segments), selected static NTA GTFS shapes, road-conforming synthetic feeder/contingency, map and keyboard route/stop inspector with geometry provenance; play/pause/seek journey replay; restrained transitions; light/dark and offline spatial styles; unscored proposals; completed-result-only served styling; Polygon/MultiPolygon camera bounds.
-- Data mode: all population, journey clocks, interventions and impact remain synthetic. Public route geometry is separate geographic context, not real accessibility/routing/optimisation. Full mock sequence remains 57→94→68→91.
-- Checks: typecheck, lint, 18 tests, production build pass. Chromium production UI exercised desktop 1536×1024, tablet 1024×768 and mobile 390×844, replay/seek, reduced motion/manual seek, network/stop selection, export, site/focus, offline, bootstrap failure/retry and reset without late results. Evidence: `docs/design/VERIFICATION.md`, captured context, transport fixture README. Existing MapLibre bundle-size warning remains.
-- Backend boundary: civic HTTP routes, HTTP mapping/proxy, dated routing/calendars, analytical cohort semantics and server-authoritative run context are pending. No backend or other owners' files changed. Native transport runtime validation is implemented; it is not a civic HTTP adapter.
-- Next task: integrate B/C's canonical computed run/DTO samples behind providers, preserving synthetic fallback and accurate missing-value/data-mode labels. See own HANDOFFS section for exact contracts and acknowledgement pending.
+- State: **READY_FOR_HANDOFF** — C's available HTTP surface is connected and verified; complete analytical/map integration awaits A/B.
+- Owner update: 2026-10-04 (Europe/Dublin), Person D. Owned paths: `src/frontend/`, frontend Vite proxy and D-owned architecture/demo/design docs and status/handoff sections.
+- Delivered: existing connected transport/replay slice plus separate validated `BackendProvider`, status/source inspection, explicit backend objective-validation mode, nullable run readback and bounded snapshot polling. Failed fixture journeys now name and pin their last confirmed stop and offer a jump to that leg.
+- Data mode: synthetic demo remains explicitly selected; public captured route geometry is geographic context. Backend validation does not analyse or replace synthetic map results. Live C reports degraded/synthetic and baseline PLANNED; no analytical datasets or simulation engine were invented.
+- Checks: frontend typecheck, lint, **28 tests / eight files**, production build; C's **35 orchestration + nine domain tests** pass. Playwright Chromium production preview on 4174 exercised real status/sources/template validation, unsupported geography, unknown-run errors, network loss/recovery, desktop/tablet/mobile and the complete 57→94→68→91 demo. Run lifecycle UI was separately exercised with C's explicitly synthetic test fixture. Normal production walkthrough console: zero errors/warnings. Existing MapLibre chunk warning remains.
+- Backend boundary: same-origin `/api` dev/preview proxy is implemented. HTTP unknown JSON is normalized outside UI; null metrics remain unknown, no error falls back to fixture success. No analysis POST until authoritative datasets, dated demand and B's engine exist. No backend or other owners' sections changed.
+- Next task: consume A/B's validated analytical snapshots and computed runs, then map result communities/journeys/evidence/geometry behind existing providers. C's metadata/compiler/readback boundary acknowledged in D's HANDOFFS section; broader agent/simulation integration remains open.
 
 ## INTEGRATION — C coordinates
 

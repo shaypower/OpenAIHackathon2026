@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "sources": {
+    "cso_saps_2022_small_area.csv": {
+      "url": "https://www.cso.ie/en/media/csoie/census/census2022/SAPS_2022_Small_Area_UR_171024.csv",
+      "source_id": "cso-saps-2022",
+      "vintage": "Census 2022; Small Area Population Statistics",
+      "bytes": 39568437,
+      "sha256": "15f30f13a7ec638c02877b3909fba9256d218bd47b63c764312bf9ccd113e935",
+      "acquired_at": "2026-10-04T12:24:01.999574Z"
+    },
+    "cso_mdsi01_2026.json": {
+      "url": "https://ws.cso.ie/public/api.restful/PxStat.Data.Cube_API.ReadDataset/MDSI01/JSON-stat/2.0/en",
+      "source_id": "cso-mdsi01-2026",
+      "vintage": "Measuring Distance to Services in Ireland 2026, table MDSI01",
+      "bytes": 7792566,
+      "sha256": "b7deade3886bd3aabc8a4dedcc1e3548f29677f7e365073aa7b8b79a0c2c8c72",
+      "acquired_at": "2026-10-04T12:27:52.325966Z"
+    },
+    "pobal_hp_deprivation_2022.csv": {
+      "url": "https://www.pobal.ie/wp-content/uploads/2024/01/hp-deprivation-index-scores-2022.csv",
+      "source_id": "pobal-hp-2022",
+      "vintage": "Pobal HP Deprivation Index 2022; Electoral Division geography",
+      "bytes": 432836,
+      "sha256": "48288b0651c63c5ed3445c36457b116c1bc1ab7a0932b4092617c5a549e2f040",
+      "acquired_at": "2026-10-04T12:23:57.020783Z"
+    },
+    "naptan_stop_points.csv": {
+      "url": "https://www.transportforireland.ie/transitData/Data/NaPTAN_Stop_Points.csv",
+      "source_id": "naptan",
+      "vintage": "NTA NaPTAN stop-points snapshot",
+      "bytes": 3762687,
+      "sha256": "935946cb65af925c12aaf331f8278bc47e0806583e0fe969135d382c95cbf116",
+      "acquired_at": "2026-10-04T12:23:57.583759Z"
+    },
+    "nta_gtfs_all.zip": {
+      "url": "https://www.transportforireland.ie/transitData/Data/GTFS_All.zip",
+      "source_id": "nta-gtfs",
+      "vintage": "NTA / TFI all-operator static GTFS snapshot",
+      "bytes": 179594769,
+      "sha256": "e3915c7dd1ecce224a6cc177e7005698aa51785c358e5aa50249eb5446fe1430",
+      "acquired_at": "2026-10-04T12:24:14.746039Z"
+    },
+    "tipperary_cso_small_areas_2022.geojson": {
+      "url": "https://services-eu1.arcgis.com/BuS9rtTsYEV5C0xh/arcgis/rest/services/Small_Area_National_Statistical_Boundaries_2022_Ungeneralised_view/FeatureServer/0/query?where=COUNTY_ENGLISH+IN+%28%27NORTH+TIPPERARY%27%2C%27SOUTH+TIPPERARY%27%29&outFields=%2A&returnGeometry=true&outSR=4326&resultRecordCount=2000&f=geojson",
+      "source_id": "tailte-cso-small-area-boundaries-2022",
+      "vintage": "Tailte Éireann CSO Small Areas 2022, combined North and South Tipperary coverage",
+      "bytes": 19985079,
+      "sha256": "afd3032291dc827e669e3384653c810788639d7946244b4dfce78e55a28d335d",
+      "acquired_at": "2026-10-04T12:24:09.603255Z"
+    }
+  }
+}

@@ -11,16 +11,16 @@ Read your owner file, then [API contracts](API_CONTRACTS.md) and [integration or
 
 ## What is actually here
 
-Inspection date: 2026-10-04. The repository root is `OpenAIHackathon2026/`, not its parent directory.
+Inspection update: 2026-10-04 15:20 Europe/Dublin, after pulling A/B/D through `70dc391`.
 
-- `backend/main.py` composes six application paths: health (`GET /api/` still returns `{"status":"ok"}`), status, sources, objective validation, analysis guard and run readback. Analysis returns 503 until B's adapter is registered. Docs: `/api/docs`; OpenAPI: `/api/openapi.json`.
-- The working UI is React/TypeScript/Vite in **`src/frontend/`**. `frontend/` and `ai/` contain only `.gitkeep`. Preserve the map and provider interfaces already in place.
-- UI data, objective parsing, interventions, simulations and stress effects are **MOCKED in the browser**. They make no civic backend calls. The objective text does not change the preset scenario.
-- Existing fixture story: Borrisoleigh/Roscrea/Newport, Borrisoleigh **57% → 94% → flood 68% → contingency 91%**. These are illustrative values, not public findings or deterministic transport calculations.
-- The pasted description's `frontend/index.html`, `backend/simulate_demo.py`, `north_tipperary_demo.json`, `demo_simulation_result.geojson` and old 29-feature/48-of-110 story are **absent**. Do not claim to have run that CLI, import nonexistent files, or mix those figures into this UI's demo.
-- `backend/domain/models.py` now defines shared DTOs, not a simulator. `backend/data/source_inventory.json` records planned sources and existing context/fixtures; no real civic ingestion has been verified.
-- D's `f5a6f2c` adds connected display topology, geometry source metadata, replay, light/dark themes, MultiPolygon support and unscored proposals. C's parser accepts D's default objective. Proposed transport DTOs are ready for paired review; `/api/transport`, the snapshot reader and D's HTTP provider/proxy remain planned. See current STATUS/HANDOFFS for verified artifacts.
-- C's [agent implementation](AGENT_IMPLEMENTATION.md) adds an optional structured model compiler, candidate evaluation/ranking/refinement policy and tool-evidence summaries. Default mode requires no model/key. Live model use and production B/D integration remain unverified; agent/simulator tests use labelled injected tools.
+- `backend/main.py` composes nine application paths, docs/OpenAPI, A's GIS root page and static assets. Health stays `{"status":"ok"}`; C's source reader uses the canonical envelope and reports six ingested sources.
+- A's countywide processed data and validated 640-community snapshot are committed. The joint elderly/no-car cohort remains unknown; public geography/demographics are not a scheduled accessibility finding.
+- B's deterministic synthetic fixture and timetable/closure tests are implemented. C's opt-in `CIVIC_ENABLE_SYNTHETIC_BASELINE=1` connects its baseline to accepted/polled runs through killable subprocesses; default analysis returns 503.
+- C's optional OpenAI compiler, candidate workflow and B tool adapter exist. Actual synthetic candidate-library tests recompute 30/130 → 130/130 for the 90-minute fixture. Candidate HTTP/stress/GeoJSON composition and real-data runs remain pending. No paid model call has been made.
+- D's React/Vite UI in `src/frontend/` now has a backend inspection panel, validated HTTP provider, run polling and `/api` proxy. It validates objectives and inspects supplied run IDs. The map analysis still uses its separate mock fixture story: 57% → 94% → flood 68% → contingency 91%.
+- A's `frontend/index.html`, CLI and illustrative graph are retained as a separate GIS demo. They do not replace D's React workflow or B's dated solver.
+- Connected display transport DTOs remain proposed; `/api/transport` is not mounted. Display graph IDs remain distinct from B's canonical engine IDs.
+- Checks: 103 backend tests, frontend typecheck/lint/29 tests/build, live synthetic analysis acceptance/readback. See C STATUS/HANDOFFS and [agent setup](AGENT_IMPLEMENTATION.md) for configuration and remaining work.
 
 ## Editing zones
 

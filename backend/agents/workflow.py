@@ -36,7 +36,9 @@ class CandidateRank(Contract):
     intervention_id: Id
     evaluation_id: Id
     rank: Annotated[int, Field(ge=1, strict=True)]
-    score_components: dict[str, Annotated[float, Field(strict=True)]]
+    # B includes explicit unknown costs and the ranking policy/limitation.
+    # Preserve nulls and text; unknown operational cost never becomes zero.
+    score_components: dict[str, Annotated[float, Field(strict=True)] | Annotated[str, Field(strict=True, max_length=1000)] | None]
 
 
 class CandidateRanking(Contract):

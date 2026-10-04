@@ -49,3 +49,16 @@ Final viewport fix: resize now reframes the current geographic selection after M
 Rapid startup/theme switching exposed a style-loading race during the resize recheck. Renderer updates now stop at the actual style swap, including when the initial local style completed during the remote fetch. The regression is rechecked in the production browser rather than inferred from compilation.
 
 Post-fix production readback: four rapid light/dark switches during startup, 854 selection and desktop→390px resize pass; layers collapse/expand, Region state and no overflow are verified. The complete desktop 57→94→68→91 + replay + site/focus path passes again. Console: zero errors/warnings. The preview was restarted after the interrupted session and remains available at http://127.0.0.1:4173/.
+
+
+## C boundary integration and journey endpoint — 2026-10-04
+
+Production preview 4174, Playwright Chromium; backend is C's actual default FastAPI app on 8000. `backend-validation.png` and `journey-failure-endpoint.png` were captured and visually inspected. The inspector retains the map-led layout; backend metadata and compilation occupy the existing contextual panel. Backend validation and synthetic demo are explicit input modes. The failure marker's cross is anchored at the stop coordinate; the label sits above it, with camera padding to keep it visible.
+
+Live HTTP checks: degraded/synthetic status with baseline PLANNED, source inventory with zero ingested real civic datasets, supported template compilation with 30/45-minute bounds and no coverage invented, unsupported Dublin 422 and unknown-run 404. Injected connection failures preserve last known metadata, remove obsolete compilation and show errors; manual refresh/validation recovers. No backend error becomes synthetic analysis. Expected 422/404/injected connection failures produce browser failed-request messages; the normal production walkthrough has zero console errors/warnings and no uncaught exception was observed.
+
+Run lifecycle UI was separately exercised using browser interception of C's **synthetic test-only** baseline fixture: running snapshot with null metrics → completed 40% baseline with `after` not computed. Polling stopped at terminal state. This fixture was never registered as the production engine; live default simulation remains unavailable. Unit checks cover malformed schema/values, null vs zero, caller cancellation, request deadline, polling deadline and retaining the last snapshot on failure.
+
+Full production synthetic rehearsal passes: analyse → Borrisoleigh 57 → journey → jump to failure at Thurles Station 08:17 → evidence → candidate C → 94 → flood 68 / 1,421 affected → contingency 91 → site proposed/current → Escape/focus restoration → reset. Backend pane checked at 1536×1024, 1024×768 and 390×844 with no horizontal page overflow. Journey endpoint tests verify all three fixtures use the actual path stop and seeked leg, not the intended destination.
+
+Final checks: typecheck, lint, **28 frontend tests / eight files**, production build and **35 backend orchestration + nine domain checks** pass. The existing MapLibre chunk warning remains. No backend code/dependencies were changed. Authoritative analytical context, real simulation and backend-driven map projection remain pending A/B.

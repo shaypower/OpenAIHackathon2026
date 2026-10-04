@@ -95,12 +95,20 @@ export interface JourneyLeg {
   toStopId?: Id;
 }
 export type JourneySegment = JourneyLeg;
+export interface JourneyOutcome {
+  status: "failed" | "completed" | "unavailable";
+  legId?: Id;
+  time?: string;
+  summary: string;
+  location?: { label: string; coordinates: LngLat; stopId?: Id };
+}
 export interface Journey {
   id: Id;
   communityId: Id;
   residentDescription: string;
   timezone: string;
   legs: JourneyLeg[];
+  outcome?: JourneyOutcome;
   mock: boolean;
 }
 export interface Investigation {

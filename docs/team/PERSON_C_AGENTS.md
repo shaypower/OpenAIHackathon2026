@@ -22,7 +22,7 @@ A's ingestion/data or B's routing/accessibility/optimization/simulation modules;
 
 ## STEP-BY-STEP TASKS
 
-1. Preserve `GET /api/`. Add routers under `backend/api/`; `main.py` constructs the app/lifespan and composes routers/error handlers. Status/sources/run readback and template validation are IMPLEMENTED; the analysis HTTP guard exists but baseline execution is UNAVAILABLE. The other six target routes remain PLANNED. Change status only after route/readback tests pass.
+1. Preserve `GET /api/`. Add routers under `backend/api/`; `main.py` constructs the app/lifespan and composes routers/error handlers. Status/sources/run readback and template validation are IMPLEMENTED; the analysis HTTP guard exists but baseline execution is opt-in synthetic only. The other six target routes remain PLANNED. Change status only after route/readback tests pass.
 2. First expose `GET /api/status` and `GET /api/sources` over actual capability state/inventory. Readiness is not “real data ready.” Report mode and supported change kinds honestly; source planned/bundled/failed states must not become ingested through API mapping.
 3. Implement a non-model objective parser for the exact documented fixture first if useful. Label its fixed scenario behaviour explicitly. For a model compiler, use official OpenAI documentation MCP and review structured-output/tool examples before integration; never add an unused model dependency or put keys in the browser.
 4. Compile the user's text into `CivicObjective`. Preserve domain, service, geography, cohort and explicit maximum journey time. Resolve region IDs against available data. Return assumptions for defaults (date, timezone, maximum time if omitted) and a clarification/unsupported error if the requested cohort/geography cannot be evaluated; do not silently reduce every prompt to Tipperary/45 minutes.
@@ -66,7 +66,13 @@ Owned agent/tool/orchestration/API code, focused tests, reviewed shared-contract
 
 ## KNOWN BLOCKERS / FALLBACKS
 
-Status/source readers, template/optional structured model compilers, memory run store, baseline boundary, candidate workflow policy and tool summaries now exist. No production deterministic backend is connected; default compiler mode uses no model. Live OpenAI use is unverified and needs explicit server configuration. Candidate tools remain test-only MOCKED; the default app never registers them. Keep the current mock UI as fallback. Server cancellation/durability, stress execution and graph-level failure inspection remain pending. B's blocking routing must be bounded/isolated for the cooperative deadline.
+Optional structured compilation, baseline lifecycle, B synthetic tool adapters,
+candidate workflow and summaries exist. The opt-in adapter isolates routing in
+cancellable subprocesses. Real-data analysis still needs an evidenced joint cohort,
+services/hours, validated walking links and a bounded feed. OpenAI paid use needs
+explicit server key/model/rates/cost cap and has not been called live. Candidate
+child-run HTTP, stress/GeoJSON and complete browser analysis/map composition remain
+pending; the frontend mock map is a separate mode.
 
 ## CURRENT OWNER PROGRESS
 
@@ -93,3 +99,11 @@ evidence-linked summaries verified with injected/MOCKED tools. 74 orchestration/
 API/agent/transport checks and nine domain checks pass; no paid model call.
 See AGENT_IMPLEMENTATION/HANDOFFS for setup and exact B/D integration changes.
 Production baseline/candidate/stress/browser integration remains incomplete.
+
+2026-10-04 15:20 Europe/Dublin: pulled A/B/D through `70dc391`, resolved app/README
+merge conflicts and duplicate route handlers, accepted B's actual synthetic facade
+through a cancellable subprocess adapter, and corrected Pydantic demand mapping.
+Actual baseline HTTP succeeds; the candidate library selects B's computed +20-minute
+improvement. D compiler-mode/deadline mapping paired update lands with integration.
+103 backend checks, frontend typecheck/lint/29 tests/build and live HTTP pass.
+See current C STATUS/HANDOFFS and README for opt-in setup and remaining feature work.
