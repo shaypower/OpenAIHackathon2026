@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "backend" / "data"
 SCENARIO_PATH = DATA_DIR / "north_tipperary_demo.json"
+PROCESSED_DIR = DATA_DIR / "processed"
 FRONTEND_DIR = ROOT / "frontend"
 
 app = FastAPI(
@@ -247,6 +248,26 @@ async def source_inventory() -> dict:
         return json.loads((DATA_DIR / "source_inventory.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise HTTPException(status_code=500, detail=f"Source inventory could not be loaded: {exc}") from exc
+
+
+@app.get("/api/data/tipperary/{filename}", tags=["data"])
+async def tipperary_processed_data(filename: str) -> FileResponse:
+    allowed = {
+        "tipperary_census_access_screen.geojson",
+        "tipperary_census_access_screen.csv",
+        "tipperary_screening_candidates.geojson",
+        "tipperary_screening_candidates.csv",
+        "tipperary_naptan_stops.geojson",
+        "tipperary_gtfs_stops.geojson",
+        "tipperary_ingestion_report.json",
+        "source_manifest.json",
+    }
+    if filename not in allowed:
+        raise HTTPException(status_code=404, detail="Processed data file not found")
+    path = PROCESSED_DIR / filename
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Run backend.ingest_tipperary to create this output")
+    return FileResponse(path)
 
 
 @app.post("/api/simulations/accessibility", tags=["simulation"])

@@ -2,14 +2,14 @@
 
 A small, map-first proof of concept for the hackathon question: **which rural communities are outside a chosen healthcare travel-time target, and how might an intervention change that?**
 
-The runnable pilot models a 45-minute journey for older residents without a car in North Tipperary. It compares four network states:
+The repository has two distinct views. A countywide evidence map uses Census 2022 Small Areas and demographics, CSO published GP distance statistics, Pobal Electoral Division context, and TFI stop locations for all of County Tipperary. A separate pilot models a 45-minute journey for older residents without a car in a synthetic North Tipperary scenario and compares four network states:
 
 - Baseline generalized journey times.
 - Candidate rural feeder links.
 - Baseline under hypothetical flood-related link closures.
 - Candidate links under those same closures.
 
-The demo is intentionally labelled **synthetic and illustrative**. This repository does not yet contain or ingest CSO, NTA GTFS/NaPTAN, Pobal, OSM road-network, OPW, LiDAR, Mapillary or Tipperary Council datasets. Community counts, placeholder healthcare hubs, transit journey minutes and flood closures are scenario inputs, not observations or official statistics. The map uses town-area points instead of Census Small Area polygons; candidate paths are straight-line schematics. Do not use the results to select a real site or set a public timetable.
+The journey simulation is intentionally labelled **synthetic and illustrative**. The real countywide layers provide geographic and demographic context, but do not calculate scheduled door-to-door journeys. The downloaded GTFS archive has not yet been validated as a route graph; healthcare opening hours, capacity, OSM walking routes, OPW flood scenarios, LiDAR, Mapillary and local authority layers are not integrated. Exploratory screening candidates use an explicitly labelled ecological proxy and are not validated demand or accessibility findings. Do not use the simulation or screening list to select a real site or set a public timetable.
 
 ## Run the map
 
@@ -46,16 +46,15 @@ The demo graph uses fixed journey costs. It does not model GTFS departures, date
 
 ## Data inventory and next ingestion steps
 
-See [`backend/data/source_inventory.json`](backend/data/source_inventory.json) for source URLs, intended use, input format, ingestion state and layer-specific cleaning rules. The inventory currently records every listed source as `not_ingested`.
+See [`backend/data/source_inventory.json`](backend/data/source_inventory.json) for source URLs, acquisition state, licenses, paths and known limitations. The validated Person A snapshot is `backend/data/processed/tipperary-cso-2022-v1/`; acquisition checksums and timestamps are in `backend/data/processed/source_manifest.json`.
 
 Suggested order for a defensible first Tipperary run:
 
-1. Download CSO Census 2022 SAPS tables and matching Small Area boundaries; select documented older-age and motor-car-availability variables, then validate the geography join and table denominators.
-2. Obtain current GTFS and NaPTAN snapshots, validate feeds and stop identifiers, and calculate time-dependent journeys for an explicit weekday and appointment arrival window.
+1. Agree with Person B whether an explicit estimated target cohort is acceptable; the current shared snapshot leaves the age-65+/no-car intersection null because separate person and household totals do not identify it.
+2. Validate all GTFS tables and service validity with Person B, then calculate time-dependent journeys for a dated departure and appointment arrival window.
 3. Add verified GP/pharmacy/primary-care locations with source, service type, opening/access details and date; compare straight-line results with the CSO distance-to-services baseline.
-4. Join Pobal deprivation scores at the supported geography and publish the raw measure separately from any equity weighting.
-5. Add OSM walking/road connectivity, then intersect relevant OPW flood scenarios with affected road links. Add Tipperary Council datasets once each layer's metadata and refresh cadence are recorded.
-6. Use LiDAR and Mapillary only for a selected-site audit when coverage, resolution, capture date and terms are appropriate.
+4. Add OSM walking/road connectivity, then evaluate OPW flood scenarios against affected links once license and scenario metadata permit. Add Tipperary Council layers when their metadata and refresh cadence are recorded.
+5. Use LiDAR and Mapillary for a selected-site audit only when coverage, resolution, capture date and terms are appropriate.
 
 Keep native files immutable, record retrieval time, licence/terms and checksum, retain raw source IDs, and produce standardized GeoJSON (WGS84) for map exchange plus a projected metric layer for distance/area work. Never silently mix geography vintages or substitute distance for scheduled travel time.
 
@@ -90,5 +89,6 @@ editing zones, first tasks, [API contracts](docs/team/API_CONTRACTS.md),
 The current React UI uses synthetic fixtures while the FastAPI map exposes the countywide data layers.
 Shared Python DTOs are in `backend/domain/models.py`; planned public-data,
 deterministic simulation and agent/API capabilities are explicitly marked.
-No real civic dataset ingestion has been verified in this checkout. Run the
-shared contract checks with `python -m unittest discover -s backend/domain -p 'test_*.py'`.
+Real source ingestion is verified for the listed Person A layers; a time-aware
+civic accessibility service is not. Run the shared contract checks with
+`python -m unittest discover -s backend/domain -p 'test_*.py'`.

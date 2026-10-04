@@ -7,3 +7,7 @@ coverage/
 .DS_Store
 __pycache__/
 *.py[cod]
+
+# Downloaded civic source snapshots stay local and reproducible via the ingestion script.
+backend/data/raw/*
+!backend/data/raw/.gitkeep

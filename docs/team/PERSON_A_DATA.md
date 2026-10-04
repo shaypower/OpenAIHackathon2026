@@ -32,7 +32,7 @@ Optimisation cannot rank community need from fabricated population or overlappin
 5. Prove whether the **joint** age-65+/no-car cohort is available. Separate age counts and no-car household counts do not identify the intersection. If unavailable, set `cohort_method="unknown"` and `target_cohort_residents=null`; agree an explicitly estimated method with B before calculating demand.
 6. Emit a versioned processed snapshot: `manifest.json`, `communities.json`, `provenance.json`. Manifest fields are in API_CONTRACTS. Validate records with shared models. Keep source record IDs, acquisition time and licence in `Provenance`. Synthetic records use fixture provenance, never a government citation.
 7. Hand B one tiny snapshot with an exact loader example, count, missingness summary and checksum. Update inventory to ingested **only after** files, validation and provenance exist; include paths and checks. Do not change frontend mocks to imply this is live.
-8. Next ingest **NTA GTFS** with B: validate/archive `stops`, `routes`, `trips`, `stop_times`, `calendar`, `calendar_dates`; preserve feed IDs and service validity. You acquire the feed, B builds the time-aware graph. Check official/version docs before new library/API usage.
+8. Acquire **NTA GTFS** and structurally validate/archive `stops`, `routes`, `trips`, `stop_times`, `calendar`, `calendar_dates`; preserve feed IDs and service validity. A has acquired and structurally checked the current feed; B interprets calendars/timezone and builds the time-aware graph. Check official/version docs before new library/API usage.
 9. Add one healthcare/service extract using an identified public source/OSM query. Record coordinates, service category, provenance and opening-hours availability; a mapped clinic is not proof of appointment availability. Then consider Pobal, road alerts and flood inputs in that order.
 
 | Priority | Source | First acceptance evidence | Fallback |
@@ -46,7 +46,7 @@ Optimisation cannot rank community need from fabricated population or overlappin
 | 7 | OPW flooding | Distinguish hazard extent from observed/live event | Explicit synthetic stress polygon |
 | Optional | NaPTAN | First establish applicable geographic coverage | Use the authoritative Irish feed's stop IDs |
 
-Do not spend the first slice on all sources. Inventory source URLs are deliberately unresolved for planned entries; source discovery does not count as ingestion.
+The first CSO Small Areas + demographics slice is now implemented. Do not treat downloaded GTFS stops, the separate ecological screening proxy, or CSO distance-to-GP values as a validated journey-time demand model. Inventory entries are marked `INGESTED` only where the raw source, processed output, provenance/checksums, and coverage check are recorded; source-update dates remain null when not verified.
 
 ## EXPECTED INPUTS
 
@@ -62,9 +62,9 @@ Import from `backend.domain.models`. Follow [snapshot format and provenance rule
 
 ## HOW TO TEST YOUR WORK
 
-First run `python -m unittest discover -s backend/domain -p 'test_*.py'`. When you add acquisition tests, run `python -m unittest discover -s backend/tests/data -p 'test_*.py'`. Document your actual ingest command with bounded region/source options; no ingestion CLI exists yet.
+Run `python -m backend.ingest_tipperary --download` to acquire missing Tipperary inputs (60-second per-request timeout, 512 MiB per-file maximum, at most two transient retries), or `python -m backend.ingest_tipperary --process-only` to reuse local raw files. `--force-download` refreshes raw files. Run `python -m unittest discover -s backend/domain -p 'test_*.py'` and `python -m unittest discover -s backend/tests/data -p 'test_*.py'` for the shared model and snapshot loader checks.
 
-Check duplicate/missing codes, invalid ring/CRS, household-vs-person units, missing source URL/licence, invalid timestamps and mismatched vintage. Run normalisation twice on the same input: same records/IDs/checksum, apart from explicitly separated acquisition metadata. Exercise source timeout and malformed files; neither may mark a source ingested. Manually inspect a sample polygon/location against its source.
+Check duplicate/missing codes, invalid ring/CRS, household-vs-person units, missing source URL/licence, invalid timestamps and mismatched vintage. Run normalisation twice on the same input: same records/IDs/checksum, apart from the snapshot acquisition timestamp. Snapshot tests cover checksum, provenance-reference and ring-closure failures. Source timeout/retry behavior and malformed network payloads have not been exercised against a live server yet. Manually inspect a sample polygon against its source.
 
 ## DEFINITION OF DONE
 
@@ -80,4 +80,15 @@ Only your normaliser, source configuration, small permitted fixture/extract, man
 
 ## KNOWN BLOCKERS / FALLBACKS
 
-No real civic dataset or ingestion code exists here. Geographic vintages, joint demographic coverage, licence and service hours must be checked. If acquisition fails, retain an explicit planned/failed inventory state and give B a synthetic fixture with provenance. Do not call NaPTAN an Irish integration without checking coverage. Do not merge the absent 48/110 scenario into this checkout's UI story.
+The first real data snapshot is ready for B/C review; a joint age-65+/no-car person count and service hours are unavailable. GTFS has been acquired but its full schedule tables still need validation with B. If future acquisition fails, retain an explicit planned/failed inventory state and give B a synthetic fixture with fixture provenance. County NaPTAN coverage is confirmed from the official Irish TFI feed. Do not merge the absent 48/110 scenario into this checkout's UI story.
+
+## COMPLETED FIRST SLICE — 2026-10-04
+
+- Snapshot: `backend/data/processed/tipperary-cso-2022-v1/`; dataset ID `tipperary-cso-2022-v1`; 640 Census 2022 Small Areas; EPSG:4326; all normalized records use `data_mode="real"`.
+- Files: `manifest.json`, `communities.json`, `provenance.json`. Community file SHA-256: `af23f28df32e351cebb348344bb989a9eae4f35666e9a660a4a3ba7a2c28f4a7`. The manifest records per-file checksums and 0 rejected records.
+- Population totals in the joined Tipperary extract: 167,895 residents; 29,356 aged 65+; 6,921 no-car households out of 62,056 households with a car-availability response. Person and household units stay separate.
+- Unknowns: age-65+/no-car person intersection not identifiable from these marginal tables, so all 640 `target_cohort_residents` are null and `cohort_method="unknown"`; no services or scheduled journeys included.
+- Provenance: Census 2022 SAPS and Tailte Éireann 2022 boundaries; acquisition timestamps, exact input URLs, byte counts and SHA-256 hashes are recorded. Source update date is null where not established. The inventory lists licenses, versions, validation notes and local outputs.
+- Loader: `from pathlib import Path; from backend.ingest_tipperary import load_snapshot; manifest, communities, provenance = load_snapshot(Path("backend/data/processed/tipperary-cso-2022-v1"))`.
+- Validation: `python -m backend.ingest_tipperary --process-only`; `python -m unittest discover -s backend/domain -p 'test_*.py'` (9 passed); `python -m unittest discover -s backend/tests/data -p 'test_*.py'` (4 passed).
+- Exploratory layers additionally include CSO 2026 GP distances, Pobal ED context, 374 active county NaPTAN stops and 286 GTFS stops. The acquired GTFS feed passed structural checks for all six tables with 0 detected key/format errors; service coverage is 2026-10-02 to 2027-10-03. These checks do not make a time-dependent accessibility result. Calendar/timezone interpretation, journey graph construction and journey/transfer validation remain with B.

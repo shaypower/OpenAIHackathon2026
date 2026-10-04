@@ -1,0 +1,11 @@
+sa_code,electoral_division,urban_rural_category,estimated_older_no_car_population,cso_median_gp_distance_km_all_persons,screening_exposure_person_km,pobal_ed_category,interpretation
+217087003,HOLYCROSS,5. Rural areas with moderate urban influence,22.8,6.1,139.1,Marginally Above Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217031002,BORRISOLEIGH,6. Highly rural/remote areas,12.6,10.2,128.5,Marginally Below Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217006005,ARDFINNAN,6. Highly rural/remote areas,10.3,9.7,99.9,Marginally Below Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217121002/03/217121004,LITTLETON,6. Highly rural/remote areas,9.9,8.4,83.2,Disadvantaged,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217048005,CLOGHEEN,6. Highly rural/remote areas,10.5,7.7,80.9,Marginally Below Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217158003,TEMPLETOUHY,6. Highly rural/remote areas,9.0,8.2,73.8,Marginally Below Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217031003,BORRISOLEIGH,5. Rural areas with moderate urban influence,6.6,10.4,68.6,Marginally Below Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217048004,CLOGHEEN,6. Highly rural/remote areas,9.3,7.3,67.9,Marginally Below Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217088001,INCH,4. Rural areas with high urban influence,7.0,8.9,62.3,Marginally Below Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.
+217064001,CURRAHEEN,5. Rural areas with moderate urban influence,6.7,9.2,61.6,Marginally Below Average,Prioritization prompt only; combines an ecological target-population proxy with an all-person median distance.

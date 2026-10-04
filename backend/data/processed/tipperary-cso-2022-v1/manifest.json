@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "dataset_id": "tipperary-cso-2022-v1",
+  "region_id": "tipperary",
+  "geography_vintage": "Census 2022 Small Areas / Tailte Éireann 2022 boundaries",
+  "data_mode": "real",
+  "ingested_at": "2026-10-04T13:41:43.316285Z",
+  "coordinate_system": "EPSG:4326",
+  "files": {
+    "communities": {
+      "path": "communities.json",
+      "sha256": "af23f28df32e351cebb348344bb989a9eae4f35666e9a660a4a3ba7a2c28f4a7"
+    },
+    "provenance": {
+      "path": "provenance.json",
+      "sha256": "d1b34793be5052308eafffc1d7b73f09dd5445da5cbf933dfa6bd2e462987359"
+    }
+  },
+  "record_counts": {
+    "communities": 640,
+    "provenance": 2
+  },
+  "rejected_records": 0,
+  "missing_fields": [
+    "population.target_cohort_residents",
+    "services",
+    "scheduled_journeys"
+  ],
+  "cohort_method": "unknown",
+  "cohort_note": "CSO age counts and no-car household counts are separate marginals; their person-level intersection is not identified."
+}

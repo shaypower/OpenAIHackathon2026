@@ -9,6 +9,7 @@
   <style>
     :root { --ink:#18302b; --muted:#65736e; --paper:#f4f3ee; --panel:#fff; --line:#dfe4de; --green:#17684e; --green-soft:#e5f2e9; --orange:#ab4c18; --orange-soft:#fff0e4; --red:#a63732; --shadow:0 10px 30px rgba(29,52,44,.08); }
     * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
     body { margin:0; color:var(--ink); background:var(--paper); font:14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     button, select, input { font:inherit; }
     .topbar { height:74px; background:#fff; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 30px; }
@@ -86,56 +87,65 @@
   <main>
     <section class="heading">
       <div>
-        <div class="eyebrow">Accessibility simulation · demonstration data</div>
-        <h1>Can older residents reach healthcare in 45 minutes?</h1>
-        <p class="intro">Compare an illustrative baseline with candidate rural feeder links, then stress-test assumed journeys against hypothetical flood-related closures.</p>
+        <div class="eyebrow" id="eyebrow">Countywide evidence · real source layers</div>
+        <h1 id="main-title">Where do older residents face longer distances to a GP?</h1>
+        <p class="intro" id="intro">Explore Census 2022 Small Areas across all of County Tipperary alongside CSO 2026 median distance to a GP, Pobal Electoral Division context and active NaPTAN stops.</p>
       </div>
       <div class="controls">
-        <label class="control-label" for="mode">Scenario</label>
-        <select id="mode" aria-label="Choose a scenario">
-          <option value="baseline">Current baseline · demo</option>
-          <option value="intervention" selected>Candidate feeder links · demo</option>
-          <option value="flood_baseline">Flood stress · baseline</option>
-          <option value="flood_intervention">Flood stress · with feeder links</option>
+        <label class="control-label" for="view-mode">View</label>
+        <select id="view-mode" aria-label="Choose a map view">
+          <option value="county" selected>Countywide evidence</option>
+          <option value="demo">Illustrative intervention simulation</option>
         </select>
-        <label class="control-label" for="target">Target</label>
-        <input class="target-input" id="target" type="number" min="5" max="240" value="45" aria-label="Target travel time in minutes">
-        <span class="control-label">min</span>
+        <div class="controls" id="simulation-controls" hidden>
+          <label class="control-label" for="mode">Scenario</label>
+          <select id="mode" aria-label="Choose a scenario">
+            <option value="baseline">Current baseline · demo</option>
+            <option value="intervention" selected>Candidate feeder links · demo</option>
+            <option value="flood_baseline">Flood stress · baseline</option>
+            <option value="flood_intervention">Flood stress · with feeder links</option>
+          </select>
+          <label class="control-label" for="target">Target</label>
+          <input class="target-input" id="target" type="number" min="5" max="240" value="45" aria-label="Target travel time in minutes">
+          <span class="control-label">min</span>
+        </div>
       </div>
     </section>
     <section class="layout">
       <aside class="sidebar">
         <div class="card summary-card">
-          <div class="card-label">Illustrative residents aged 65+ without a car</div>
-          <div class="big-number" id="population">— <span>people in demo</span></div>
-          <div class="coverage-line"><span>Within target</span><strong id="coverage">—</strong></div>
+          <div class="card-label" id="primary-label">Residents in Census 2022 Small Areas</div>
+          <div class="big-number" id="population">— <span>County Tipperary</span></div>
+          <div class="coverage-line"><span id="coverage-label">Aged 65+</span><strong id="coverage">—</strong></div>
           <div class="bar"><i id="coverage-bar"></i></div>
-          <div class="delta" id="delta"><strong>—</strong> newly within target</div>
+          <div class="delta" id="delta">Loading county data…</div>
           <div class="status" id="status" role="status" aria-live="polite">Loading simulation…</div>
         </div>
         <div class="card area-card">
-          <div class="card-heading"><strong>Areas outside the target</strong><span class="tag" id="area-count">—</span></div>
+          <div class="card-heading"><strong id="area-heading">Initial screening candidates</strong><span class="tag" id="area-count">—</span></div>
           <ul class="area-list" id="area-list"><li>Loading areas…</li></ul>
         </div>
         <div class="card note-card">
-          <strong>Demonstration only · synthetic inputs</strong>
-          <p>Population, service locations, stops, journey times and closures are illustrative assumptions, not CSO, NTA, OPW or council records. Candidate links are schematic and have not been checked for route, schedule, cost, capacity or service feasibility.</p>
+          <strong id="note-title">Read this as a screening layer</strong>
+          <p id="note-copy">The estimated older no-car population is an ecological proxy: Small Area residents aged 65+ multiplied by the share of households with no car. CSO GP distance applies to all persons and is a distance measure, not public-transport travel time. Pobal is an Electoral Division attribute.</p>
         </div>
       </aside>
-      <section class="card map-card" aria-label="Map showing illustrative access results">
+      <section class="card map-card" aria-label="Map showing County Tipperary health access evidence">
         <div id="map"></div>
         <div class="map-overlay">
-          <div class="overlay-pill"><strong id="scenario-title">Candidate feeder links</strong><span id="target-copy">45-minute access target</span></div>
-          <div class="overlay-pill" id="map-status">Map uses illustrative locality points; no Small Area boundaries loaded.</div>
+          <div class="overlay-pill"><strong id="scenario-title">Small Areas · 2022</strong><span id="target-copy">Median GP distance · 2026</span></div>
+          <div class="overlay-pill" id="map-status">640 Census Small Areas · Tipperary countywide</div>
+          <label class="overlay-pill" id="stop-toggle"><input id="show-stops" type="checkbox" checked> Show active NaPTAN stops</label>
         </div>
         <div class="map-legend">
-          <div class="legend-title">Map key</div>
-          <div class="legend-row"><span class="legend-circle"></span> Within selected target</div>
-          <div class="legend-row"><span class="legend-circle out"></span> Outside selected target</div>
-          <div class="legend-row"><span class="legend-line"></span> Assumed baseline link</div>
-          <div class="legend-row"><span class="legend-line proposed"></span> Candidate feeder link</div>
-          <div class="legend-row"><span class="legend-square"></span> Placeholder health hub</div>
-          <div class="legend-row"><span class="legend-cross">×</span> Link closed in flood scenario</div>
+          <div class="legend-title" id="legend-title">Median distance to nearest GP</div>
+          <div id="legend-content">
+            <div class="legend-row"><i class="legend-circle" style="background:#3b8061"></i> Under 2 km</div>
+            <div class="legend-row"><i class="legend-circle" style="background:#95a84a"></i> 2 to under 5 km</div>
+            <div class="legend-row"><i class="legend-circle" style="background:#d29a3c"></i> 5 to under 8 km</div>
+            <div class="legend-row"><i class="legend-circle out"></i> 8 km or more</div>
+            <div class="legend-row"><span class="legend-square"></span> Active NaPTAN stop</div>
+          </div>
         </div>
       </section>
     </section>
@@ -146,14 +156,16 @@
   </main>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
-    const map = L.map('map', { zoomControl: true }).setView([52.805, -8.08], 10);
+    const map = L.map('map', { zoomControl: true }).setView([52.62, -7.93], 9);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
-    const routeLayer = L.geoJSON(null, { style: routeStyle, onEachFeature: routePopup }).addTo(map);
-    const markerLayer = L.geoJSON(null, { pointToLayer: pointStyle, onEachFeature: pointPopup }).addTo(map);
-    let fitted = false;
-    let timer;
+    const routeLayer = L.geoJSON(null, { style: routeStyle, onEachFeature: routePopup });
+    const markerLayer = L.geoJSON(null, { pointToLayer: pointStyle, onEachFeature: pointPopup });
+    const areaLayer = L.geoJSON(null, { style: areaStyle, onEachFeature: areaPopup });
+    const stopLayer = L.geoJSON(null, { pointToLayer: stopStyle, onEachFeature: stopPopup });
+    let countyData, countyReport, countyLoaded = false, countyFitted = false, demoFitted = false, timer;
 
     function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function setLayer(layer, visible) { if (visible && !map.hasLayer(layer)) map.addLayer(layer); if (!visible && map.hasLayer(layer)) map.removeLayer(layer); }
     function routeStyle(feature) {
       const p = feature.properties;
       if (p.closed_in_active_stress_test) return { color:'#b63d35', weight:4, dashArray:'3 7', opacity:.9 };
@@ -167,6 +179,35 @@
       if (p.feature_type === 'healthcare_hub') return L.marker(latlng, { icon:L.divIcon({ className:'', html:'<div style="width:17px;height:17px;background:#596fba;border:2px solid white;border-radius:4px;box-shadow:0 1px 4px #0005"></div>', iconSize:[17,17], iconAnchor:[8,8] }) });
       return L.circleMarker(latlng, { radius:4, color:'#fff', weight:1, fillColor:'#506b72', fillOpacity:.78 });
     }
+    function areaColor(distance) {
+      if (distance === null || distance === undefined) return '#aeb7b1';
+      if (distance >= 8) return '#c7633d';
+      if (distance >= 5) return '#d29a3c';
+      if (distance >= 2) return '#95a84a';
+      return '#3b8061';
+    }
+    function areaStyle(feature) {
+      const p = feature.properties;
+      const isCandidate = (countyReport?.initial_screening_candidates || []).some(c => c.sa_code === p.sa_code);
+      return { color:isCandidate ? '#2446a8' : '#ffffff', weight:isCandidate ? 2 : .65, fillColor:areaColor(p.cso_gp_person_median_distance_km_2026), fillOpacity:.68 };
+    }
+    function areaPopup(feature, layer) {
+      const p = feature.properties;
+      layer.bindPopup(`<div class="popup-title">Small Area ${esc(p.sa_code)}</div>
+        <div class="popup-line"><span>Electoral Division</span><b>${esc(p.ed_name)}</b></div>
+        <div class="popup-line"><span>Total population (2022)</span><b>${p.population_total}</b></div>
+        <div class="popup-line"><span>Residents aged 65+</span><b>${p.population_65_plus}</b></div>
+        <div class="popup-line"><span>Households without a car</span><b>${p.households_no_car} (${(100*p.no_car_household_share).toFixed(1)}%)</b></div>
+        <div class="popup-line"><span>Estimated older no-car residents</span><b>${Number(p.older_no_car_population_estimate).toFixed(1)}*</b></div>
+        <div class="popup-line"><span>CSO median GP distance, persons</span><b>${p.cso_gp_person_median_distance_km_2026} km</b></div>
+        <div class="popup-line"><span>Pobal ED context</span><b>${esc(p.pobal_ed_category)}</b></div>
+        <div style="margin-top:7px;font-size:10px;color:#65736e">* Area-level proxy, not a directly counted age-by-car group. GP distance is not transit time.</div>`);
+    }
+    function stopStyle(feature, latlng) { return L.circleMarker(latlng, { radius:3.5, color:'#fff', weight:1, fillColor:'#334f91', fillOpacity:.92 }); }
+    function stopPopup(feature, layer) {
+      const p = feature.properties;
+      layer.bindPopup(`<div class="popup-title">${esc(p.common_name)}</div><div>NaPTAN stop ${esc(p.atco_code)}</div><div>Status: ${esc(p.status)} · updated ${esc(p.modification_datetime)}</div>`);
+    }
     function pointPopup(feature, layer) {
       const p = feature.properties;
       let html = `<div class="popup-title">${esc(p.label)}</div>`;
@@ -176,9 +217,8 @@
           const v = p.travel_minutes[name];
           html += `<div class="popup-line"><span>${label}</span><b>${v === null ? 'No path' : `${v} min`}</b></div>`;
         }
-      } else if (p.feature_type === 'healthcare_hub') {
-        html += '<div>Placeholder location · verify facility data before use.</div>';
-      } else html += '<div>Illustrative stop · not matched to NaPTAN.</div>';
+      } else if (p.feature_type === 'healthcare_hub') html += '<div>Placeholder location · verify facility data before use.</div>';
+      else html += '<div>Illustrative stop · not matched to NaPTAN.</div>';
       layer.bindPopup(html);
       if (p.feature_type !== 'demand_zone') layer.bindTooltip(esc(p.label), { direction:'top', opacity:.9 });
     }
@@ -189,47 +229,109 @@
     function modeLabel(mode) {
       return ({ baseline:'Current baseline', intervention:'Candidate feeder links', flood_baseline:'Flood stress · baseline', flood_intervention:'Flood stress · with feeder links' })[mode];
     }
-    function renderAreas(areas) {
+    function renderDemoAreas(areas) {
       const list = document.getElementById('area-list');
+      document.getElementById('area-heading').textContent = 'Areas outside the target';
       document.getElementById('area-count').textContent = `${areas.length} areas`;
       if (!areas.length) { list.innerHTML = '<li><span>All demo areas are within the selected threshold.</span><span class="area-time">✓</span></li>'; return; }
       list.innerHTML = areas.map(a => `<li><span class="area-name"><i class="dot"></i>${esc(a.area)} <span class="tag">${a.people_65_plus_without_car}</span></span><span class="area-time">${a.travel_minutes === null ? 'No path' : `${a.travel_minutes} min`}</span></li>`).join('');
     }
-    async function update() {
+    function renderCandidates(candidates) {
+      const list = document.getElementById('area-list');
+      document.getElementById('area-heading').textContent = 'Initial screening candidates';
+      document.getElementById('area-count').textContent = `${candidates.length} Small Areas`;
+      list.innerHTML = candidates.map((c, index) => `<li><span class="area-name"><i class="dot"></i><span><b>${index+1}. ${esc(c.electoral_division)}</b><br><small>SA ${esc(c.sa_code)} · est. ${c.estimated_older_no_car_population} older residents</small></span></span><span class="area-time">GP ${c.cso_median_gp_distance_km_all_persons} km</span></li>`).join('');
+    }
+    async function updateCountyView() {
+      const status = document.getElementById('status');
+      status.textContent = countyLoaded ? 'CSO, Pobal and NTA geography joined · screening only' : 'Loading countywide source layers…';
+      try {
+        if (!countyLoaded) {
+          const [areasResponse, reportResponse, stopsResponse] = await Promise.all([
+            fetch('/api/data/tipperary/tipperary_census_access_screen.geojson'),
+            fetch('/api/data/tipperary/tipperary_ingestion_report.json'),
+            fetch('/api/data/tipperary/tipperary_naptan_stops.geojson')
+          ]);
+          if (!areasResponse.ok || !reportResponse.ok || !stopsResponse.ok) throw new Error('County data not generated; run python -m backend.ingest_tipperary.');
+          [countyData, countyReport] = await Promise.all([areasResponse.json(), reportResponse.json()]);
+          const stops = await stopsResponse.json();
+          areaLayer.addData(countyData); stopLayer.addData(stops); countyLoaded = true;
+        }
+        const view = document.getElementById('view-mode').value === 'county';
+        setLayer(areaLayer, view); setLayer(stopLayer, view && document.getElementById('show-stops').checked);
+        setLayer(routeLayer, !view); setLayer(markerLayer, !view);
+        if (view && !countyFitted) { map.fitBounds(areaLayer.getBounds().pad(.04)); countyFitted = true; }
+        const r = countyReport;
+        const percent65 = 100*r.population_65_plus_2022/r.census_population_2022;
+        document.getElementById('primary-label').textContent = 'Residents in Census 2022 Small Areas';
+        document.getElementById('population').innerHTML = `${r.census_population_2022.toLocaleString()} <span>County Tipperary</span>`;
+        document.getElementById('coverage-label').textContent = 'Residents aged 65+';
+        document.getElementById('coverage').textContent = `${r.population_65_plus_2022.toLocaleString()} · ${percent65.toFixed(1)}%`;
+        document.getElementById('coverage-bar').style.width = `${percent65}%`;
+        document.getElementById('delta').innerHTML = `<strong>${r.households_no_car_2022.toLocaleString()}</strong> of ${r.private_households_car_availability_total_2022.toLocaleString()} households have no car (${(100*r.no_car_household_share).toFixed(1)}%). Older no-car estimate: ${r.older_no_car_population_estimate.toLocaleString()}*.`;
+        renderCandidates(r.initial_screening_candidates);
+        document.getElementById('scenario-title').textContent = 'Small Areas · 2022';
+        document.getElementById('target-copy').textContent = 'Median GP distance · 2026';
+        document.getElementById('map-status').textContent = `${r.small_area_count} Census Small Areas · Tipperary countywide`;
+        status.textContent = `Median of Small Area median GP distances: ${r.cso_gp_person_median_distance_median_of_small_area_medians_km} km · ${r.naptan_active_stops_in_area} active NaPTAN stops`;
+      } catch (error) { status.textContent = `Could not load county data: ${error.message}`; }
+    }
+    async function updateDemoView() {
       const mode = document.getElementById('mode').value;
       const target = Number(document.getElementById('target').value || 45);
       const status = document.getElementById('status');
-      status.textContent = 'Recalculating shortest paths…';
+      status.textContent = 'Recalculating illustrative shortest paths…';
       try {
         const response = await fetch('/api/simulations/accessibility', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({mode, target_minutes:target}) });
         if (!response.ok) throw new Error((await response.json()).detail || `API error ${response.status}`);
-        const data = await response.json();
-        const meta = data.metadata;
-        const s = meta.selected_summary;
-        const delta = meta.change_vs_comparison;
+        const data = await response.json(), meta = data.metadata, s = meta.selected_summary, delta = meta.change_vs_comparison;
         routeLayer.clearLayers(); markerLayer.clearLayers();
-        const routes = { type:'FeatureCollection', features:data.features.filter(f => f.properties.feature_type === 'route') };
-        const markers = { type:'FeatureCollection', features:data.features.filter(f => f.properties.feature_type !== 'route') };
-        routeLayer.addData(routes); markerLayer.addData(markers);
-        if (!fitted) { map.fitBounds(L.geoJSON(data).getBounds().pad(.14)); fitted = true; }
+        routeLayer.addData({ type:'FeatureCollection', features:data.features.filter(f => f.properties.feature_type === 'route') });
+        markerLayer.addData({ type:'FeatureCollection', features:data.features.filter(f => f.properties.feature_type !== 'route') });
+        setLayer(areaLayer,false); setLayer(stopLayer,false); setLayer(routeLayer,true); setLayer(markerLayer,true);
+        if (!demoFitted) { map.fitBounds(L.geoJSON(data).getBounds().pad(.14)); demoFitted = true; }
+        document.getElementById('primary-label').textContent = 'Illustrative residents aged 65+ without a car';
         document.getElementById('population').innerHTML = `${s.population_65_plus_without_car} <span>people in demo</span>`;
+        document.getElementById('coverage-label').textContent = 'Within target';
         document.getElementById('coverage').textContent = `${s.reached_within_target} · ${s.coverage_pct}%`;
         document.getElementById('coverage-bar').style.width = `${s.coverage_pct}%`;
-        const deltaBox = document.getElementById('delta');
-        deltaBox.classList.toggle('negative', delta.additional_people_reached < 0);
-        deltaBox.innerHTML = `<strong>${delta.additional_people_reached > 0 ? '+' : ''}${delta.additional_people_reached}</strong> people newly within target vs ${esc(meta.comparison_mode.replaceAll('_',' '))}`;
+        document.getElementById('delta').innerHTML = `<strong>${delta.additional_people_reached > 0 ? '+' : ''}${delta.additional_people_reached}</strong> people newly within target vs ${esc(meta.comparison_mode.replaceAll('_',' '))}`;
+        document.getElementById('area-heading').textContent = 'Areas outside the target';
         document.getElementById('scenario-title').textContent = modeLabel(mode);
         document.getElementById('target-copy').textContent = `${target}-minute access target`;
-        renderAreas(meta.areas_outside_target);
+        document.getElementById('map-status').textContent = 'Illustrative locality points · schematic routes';
+        document.getElementById('stop-toggle').hidden = true;
+        document.getElementById('legend-title').textContent = 'Illustrative network';
+        document.getElementById('legend-content').innerHTML = '<div class="legend-row"><span class="legend-circle"></span> Within selected target</div><div class="legend-row"><span class="legend-circle out"></span> Outside selected target</div><div class="legend-row"><span class="legend-line"></span> Assumed baseline link</div><div class="legend-row"><span class="legend-line proposed"></span> Candidate feeder link</div><div class="legend-row"><span class="legend-square"></span> Placeholder health hub</div><div class="legend-row"><span class="legend-cross">×</span> Link closed in flood scenario</div>';
+        document.getElementById('note-title').textContent = 'Demonstration only · synthetic inputs';
+        document.getElementById('note-copy').textContent = 'Population, service locations, stops, journey times and closures are illustrative assumptions. The candidate paths are schematic and have not been checked for route, schedule, cost, capacity or service feasibility.';
+        renderDemoAreas(meta.areas_outside_target);
         const average = s.mean_minutes_among_reached === null ? 'No reached journeys' : `${s.mean_minutes_among_reached} min average among reached people`;
         status.textContent = `${average} · illustrative graph calculation`;
-      } catch (error) {
-        status.textContent = `Could not run simulation: ${error.message}`;
-      }
+      } catch (error) { status.textContent = `Could not run simulation: ${error.message}`; }
     }
-    document.getElementById('mode').addEventListener('change', update);
-    document.getElementById('target').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(update, 250); });
-    update();
+    function switchView() {
+      const county = document.getElementById('view-mode').value === 'county';
+      document.getElementById('simulation-controls').hidden = county;
+      document.getElementById('stop-toggle').hidden = !county;
+      document.getElementById('eyebrow').textContent = county ? 'Countywide evidence · real source layers' : 'Accessibility simulation · demonstration data';
+      document.getElementById('main-title').textContent = county ? 'Where do older residents face longer distances to a GP?' : 'Can older residents reach healthcare in 45 minutes?';
+      document.getElementById('intro').textContent = county
+        ? 'Explore Census 2022 Small Areas across all of County Tipperary alongside CSO 2026 median distance to a GP, Pobal Electoral Division context and active NaPTAN stops.'
+        : 'Compare an illustrative baseline with candidate rural feeder links, then stress-test assumed journeys against hypothetical flood-related closures.';
+      if (county) {
+        document.getElementById('legend-title').textContent = 'Median distance to nearest GP';
+        document.getElementById('legend-content').innerHTML = '<div class="legend-row"><i class="legend-circle" style="background:#3b8061"></i> Under 2 km</div><div class="legend-row"><i class="legend-circle" style="background:#95a84a"></i> 2 to under 5 km</div><div class="legend-row"><i class="legend-circle" style="background:#d29a3c"></i> 5 to under 8 km</div><div class="legend-row"><span class="legend-circle out"></span> 8 km or more</div><div class="legend-row"><span class="legend-square"></span> Active NaPTAN stop</div>';
+        document.getElementById('note-title').textContent = 'Read this as a screening layer';
+        document.getElementById('note-copy').textContent = 'The estimated older no-car population is an ecological proxy: Small Area residents aged 65+ multiplied by the share of households with no car. CSO GP distance applies to all persons and is a distance measure, not public-transport travel time. Pobal is an Electoral Division attribute.';
+        updateCountyView();
+      } else updateDemoView();
+    }
+    document.getElementById('view-mode').addEventListener('change', switchView);
+    document.getElementById('mode').addEventListener('change', () => { if (document.getElementById('view-mode').value === 'demo') updateDemoView(); });
+    document.getElementById('target').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { if (document.getElementById('view-mode').value === 'demo') updateDemoView(); }, 250); });
+    document.getElementById('show-stops').addEventListener('change', () => updateCountyView());
+    switchView();
   </script>
 </body>
 </html>
