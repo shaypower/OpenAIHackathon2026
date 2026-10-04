@@ -1,0 +1,746 @@
+{
+  "context": {
+    "schemaVersion": 1,
+    "objective": {
+      "id": "fefcb01d-ecf6-4aa8-a838-6d8a19b1c16d",
+      "text": "Make primary healthcare reachable within 45 minutes for elderly residents without cars in rural Tipperary.",
+      "regionId": "tipperary",
+      "targetMinutes": 45,
+      "targetAccessPercent": 90,
+      "cohort": "Residents aged 65+ without cars",
+      "mock": true
+    },
+    "community": {
+      "id": "borrisoleigh",
+      "name": "Borrisoleigh",
+      "regionId": "tipperary",
+      "center": [
+        -7.953,
+        52.752
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.023,
+              52.734
+            ],
+            [
+              -8.003,
+              52.788000000000004
+            ],
+            [
+              -7.956,
+              52.809000000000005
+            ],
+            [
+              -7.882000000000001,
+              52.777
+            ],
+            [
+              -7.891,
+              52.722
+            ],
+            [
+              -7.947,
+              52.7
+            ],
+            [
+              -8.023,
+              52.734
+            ]
+          ]
+        ]
+      },
+      "population": {
+        "total": 684,
+        "aged65Plus": 184,
+        "withoutCar": 132
+      },
+      "evidence": [
+        {
+          "id": "ev-timetable",
+          "claim": "The morning feeder arrives after the connecting service has departed.",
+          "source": {
+            "id": "fixture-transit",
+            "name": "CIVIC demo fixtures",
+            "dataset": "Synthetic timetable",
+            "updatedAt": "2026-10-04T09:00:00Z",
+            "mock": true
+          },
+          "confidence": 0.96,
+          "status": "synthetic"
+        },
+        {
+          "id": "ev-population",
+          "claim": "Older residents without cars are disproportionately affected by the connection gap.",
+          "source": {
+            "id": "fixture-population",
+            "name": "CIVIC demo fixtures",
+            "dataset": "Synthetic population profile",
+            "updatedAt": "2026-10-04T09:00:00Z",
+            "mock": true
+          },
+          "confidence": 0.91,
+          "status": "synthetic"
+        },
+        {
+          "id": "ev-service",
+          "claim": "The next viable appointment cannot be reached within the objective window.",
+          "source": {
+            "id": "fixture-services",
+            "name": "CIVIC demo fixtures",
+            "dataset": "Synthetic service availability",
+            "updatedAt": "2026-10-04T09:00:00Z",
+            "mock": true
+          },
+          "confidence": 0.89,
+          "status": "synthetic"
+        }
+      ]
+    },
+    "baseline": {
+      "communityId": "borrisoleigh",
+      "accessPercent": 57,
+      "targetPercent": 90,
+      "travelMinutes": 69,
+      "affectedResidents": 294,
+      "status": "fail",
+      "mock": true,
+      "reason": {
+        "id": "reason-borrisoleigh",
+        "title": "A connection missed by 24 minutes",
+        "description": "The feeder reaches the interchange after the only viable morning connection. The next service leaves at 10:42.",
+        "severity": "high",
+        "evidence": [
+          {
+            "id": "ev-timetable",
+            "claim": "The morning feeder arrives after the connecting service has departed.",
+            "source": {
+              "id": "fixture-transit",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic timetable",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.96,
+            "status": "synthetic"
+          },
+          {
+            "id": "ev-population",
+            "claim": "Older residents without cars are disproportionately affected by the connection gap.",
+            "source": {
+              "id": "fixture-population",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic population profile",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.91,
+            "status": "synthetic"
+          },
+          {
+            "id": "ev-service",
+            "claim": "The next viable appointment cannot be reached within the objective window.",
+            "source": {
+              "id": "fixture-services",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic service availability",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.89,
+            "status": "synthetic"
+          }
+        ]
+      }
+    },
+    "services": [
+      {
+        "id": "thurles-gp",
+        "name": "Thurles primary care · demo",
+        "kind": "healthcare",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -7.813,
+            52.68
+          ]
+        },
+        "evidence": [
+          {
+            "id": "ev-timetable",
+            "claim": "The morning feeder arrives after the connecting service has departed.",
+            "source": {
+              "id": "fixture-transit",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic timetable",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.96,
+            "status": "synthetic"
+          },
+          {
+            "id": "ev-population",
+            "claim": "Older residents without cars are disproportionately affected by the connection gap.",
+            "source": {
+              "id": "fixture-population",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic population profile",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.91,
+            "status": "synthetic"
+          },
+          {
+            "id": "ev-service",
+            "claim": "The next viable appointment cannot be reached within the objective window.",
+            "source": {
+              "id": "fixture-services",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic service availability",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.89,
+            "status": "synthetic"
+          }
+        ]
+      },
+      {
+        "id": "nenagh-gp",
+        "name": "Nenagh primary care · demo",
+        "kind": "healthcare",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -8.195,
+            52.865
+          ]
+        },
+        "evidence": [
+          {
+            "id": "ev-timetable",
+            "claim": "The morning feeder arrives after the connecting service has departed.",
+            "source": {
+              "id": "fixture-transit",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic timetable",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.96,
+            "status": "synthetic"
+          },
+          {
+            "id": "ev-population",
+            "claim": "Older residents without cars are disproportionately affected by the connection gap.",
+            "source": {
+              "id": "fixture-population",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic population profile",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.91,
+            "status": "synthetic"
+          },
+          {
+            "id": "ev-service",
+            "claim": "The next viable appointment cannot be reached within the objective window.",
+            "source": {
+              "id": "fixture-services",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic service availability",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.89,
+            "status": "synthetic"
+          }
+        ]
+      },
+      {
+        "id": "roscrea-gp",
+        "name": "Roscrea primary care · demo",
+        "kind": "healthcare",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -7.791,
+            52.951
+          ]
+        },
+        "evidence": [
+          {
+            "id": "ev-timetable",
+            "claim": "The morning feeder arrives after the connecting service has departed.",
+            "source": {
+              "id": "fixture-transit",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic timetable",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.96,
+            "status": "synthetic"
+          },
+          {
+            "id": "ev-population",
+            "claim": "Older residents without cars are disproportionately affected by the connection gap.",
+            "source": {
+              "id": "fixture-population",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic population profile",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.91,
+            "status": "synthetic"
+          },
+          {
+            "id": "ev-service",
+            "claim": "The next viable appointment cannot be reached within the objective window.",
+            "source": {
+              "id": "fixture-services",
+              "name": "CIVIC demo fixtures",
+              "dataset": "Synthetic service availability",
+              "updatedAt": "2026-10-04T09:00:00Z",
+              "mock": true
+            },
+            "confidence": 0.89,
+            "status": "synthetic"
+          }
+        ]
+      }
+    ],
+    "transit": {
+      "routes": [
+        {
+          "id": "feeder",
+          "name": "Morning feeder · synthetic",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                -8.195,
+                52.865
+              ],
+              [
+                -8.083,
+                52.808
+              ],
+              [
+                -7.953,
+                52.752
+              ],
+              [
+                -7.887,
+                52.721
+              ],
+              [
+                -7.813,
+                52.68
+              ]
+            ]
+          },
+          "stopIds": [
+            "stop-borrisoleigh"
+          ],
+          "status": "existing"
+        },
+        {
+          "id": "north-link",
+          "name": "North county connection · synthetic",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                -7.799,
+                52.955
+              ],
+              [
+                -7.827,
+                52.898
+              ],
+              [
+                -7.811,
+                52.793
+              ],
+              [
+                -7.813,
+                52.68
+              ]
+            ]
+          },
+          "stopIds": [
+            "stop-roscrea"
+          ],
+          "status": "existing"
+        }
+      ],
+      "stops": [
+        {
+          "id": "stop-borrisoleigh",
+          "name": "Borrisoleigh interchange · demo",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -7.953,
+              52.752
+            ]
+          }
+        },
+        {
+          "id": "stop-roscrea",
+          "name": "Roscrea interchange · demo",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -7.799,
+              52.955
+            ]
+          }
+        },
+        {
+          "id": "stop-newport",
+          "name": "Newport interchange · demo",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -8.41,
+              52.713
+            ]
+          }
+        }
+      ]
+    },
+    "journey": {
+      "id": "journey-borrisoleigh",
+      "communityId": "borrisoleigh",
+      "residentDescription": "Representative resident · age 74 · no car",
+      "timezone": "Europe/Dublin",
+      "mock": true,
+      "legs": [
+        {
+          "id": "home",
+          "mode": "walk",
+          "label": "Leave home",
+          "startTime": "07:18",
+          "endTime": "07:31",
+          "durationMinutes": 13,
+          "status": "completed",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                -7.973,
+                52.764
+              ],
+              [
+                -7.953,
+                52.752
+              ]
+            ]
+          }
+        },
+        {
+          "id": "stop",
+          "mode": "wait",
+          "label": "Reach local stop",
+          "startTime": "07:31",
+          "endTime": "07:39",
+          "durationMinutes": 8,
+          "status": "completed"
+        },
+        {
+          "id": "bus",
+          "mode": "bus",
+          "label": "Morning feeder",
+          "startTime": "07:39",
+          "endTime": "08:17",
+          "durationMinutes": 38,
+          "status": "completed",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                -7.953,
+                52.752
+              ],
+              [
+                -7.86,
+                52.714
+              ],
+              [
+                -7.813,
+                52.68
+              ]
+            ]
+          }
+        },
+        {
+          "id": "transfer",
+          "mode": "transfer",
+          "label": "Missed connection",
+          "startTime": "08:17",
+          "endTime": "10:42",
+          "durationMinutes": 145,
+          "status": "failed",
+          "detail": "Connection departed 07:53 · missed by 24 min. Next service 10:42."
+        },
+        {
+          "id": "gp",
+          "mode": "service",
+          "label": "Primary healthcare",
+          "startTime": "10:42",
+          "endTime": "11:03",
+          "durationMinutes": 21,
+          "status": "unavailable",
+          "detail": "The 45-minute civic objective is not met."
+        }
+      ]
+    },
+    "investigation": {
+      "communityId": "borrisoleigh",
+      "rootCause": "The feeder reaches the interchange after the only viable morning connection. The next service leaves at 10:42.",
+      "evidence": [
+        {
+          "id": "ev-timetable",
+          "claim": "The morning feeder arrives after the connecting service has departed.",
+          "source": {
+            "id": "fixture-transit",
+            "name": "CIVIC demo fixtures",
+            "dataset": "Synthetic timetable",
+            "updatedAt": "2026-10-04T09:00:00Z",
+            "mock": true
+          },
+          "confidence": 0.96,
+          "status": "synthetic"
+        },
+        {
+          "id": "ev-population",
+          "claim": "Older residents without cars are disproportionately affected by the connection gap.",
+          "source": {
+            "id": "fixture-population",
+            "name": "CIVIC demo fixtures",
+            "dataset": "Synthetic population profile",
+            "updatedAt": "2026-10-04T09:00:00Z",
+            "mock": true
+          },
+          "confidence": 0.91,
+          "status": "synthetic"
+        },
+        {
+          "id": "ev-service",
+          "claim": "The next viable appointment cannot be reached within the objective window.",
+          "source": {
+            "id": "fixture-services",
+            "name": "CIVIC demo fixtures",
+            "dataset": "Synthetic service availability",
+            "updatedAt": "2026-10-04T09:00:00Z",
+            "mock": true
+          },
+          "confidence": 0.89,
+          "status": "synthetic"
+        }
+      ],
+      "queriedDatasets": [
+        "Synthetic timetable",
+        "Synthetic population profile",
+        "Synthetic service availability"
+      ]
+    },
+    "observations": [],
+    "evidence": [
+      {
+        "id": "ev-timetable",
+        "claim": "The morning feeder arrives after the connecting service has departed.",
+        "source": {
+          "id": "fixture-transit",
+          "name": "CIVIC demo fixtures",
+          "dataset": "Synthetic timetable",
+          "updatedAt": "2026-10-04T09:00:00Z",
+          "mock": true
+        },
+        "confidence": 0.96,
+        "status": "synthetic"
+      },
+      {
+        "id": "ev-population",
+        "claim": "Older residents without cars are disproportionately affected by the connection gap.",
+        "source": {
+          "id": "fixture-population",
+          "name": "CIVIC demo fixtures",
+          "dataset": "Synthetic population profile",
+          "updatedAt": "2026-10-04T09:00:00Z",
+          "mock": true
+        },
+        "confidence": 0.91,
+        "status": "synthetic"
+      },
+      {
+        "id": "ev-service",
+        "claim": "The next viable appointment cannot be reached within the objective window.",
+        "source": {
+          "id": "fixture-services",
+          "name": "CIVIC demo fixtures",
+          "dataset": "Synthetic service availability",
+          "updatedAt": "2026-10-04T09:00:00Z",
+          "mock": true
+        },
+        "confidence": 0.89,
+        "status": "synthetic"
+      }
+    ],
+    "sources": [
+      {
+        "id": "fixture-transit",
+        "name": "CIVIC demo fixtures",
+        "dataset": "Synthetic timetable",
+        "updatedAt": "2026-10-04T09:00:00Z",
+        "mock": true
+      },
+      {
+        "id": "fixture-population",
+        "name": "CIVIC demo fixtures",
+        "dataset": "Synthetic population profile",
+        "updatedAt": "2026-10-04T09:00:00Z",
+        "mock": true
+      },
+      {
+        "id": "fixture-services",
+        "name": "CIVIC demo fixtures",
+        "dataset": "Synthetic service availability",
+        "updatedAt": "2026-10-04T09:00:00Z",
+        "mock": true
+      }
+    ],
+    "missingInputs": [
+      "Joint count of residents aged 65+ without car access",
+      "Routable street graph and accessible walking constraints",
+      "Dated transit trips, stop times and service calendars",
+      "Facility opening hours, appointment capacity and eligibility",
+      "Executable intervention changes and disruption edge/service/trip IDs",
+      "Evaluation departure window and cost/resource limits"
+    ],
+    "reproducibility": {
+      "snapshotId": "synthetic-tipperary-v1",
+      "engineVersion": "fixture-replay-v1",
+      "seed": 0,
+      "timezone": "Europe/Dublin"
+    },
+    "mock": true
+  },
+  "intervention": {
+    "id": "borrisoleigh-patch-2",
+    "communityId": "borrisoleigh",
+    "name": "Feeder + mobile clinic",
+    "description": "Combine a direct morning connection with a weekly clinic at the local stop.",
+    "kind": "combined",
+    "impact": {
+      "accessPercent": 94,
+      "residentsHelped": 231,
+      "operatingCostWeekly": 980,
+      "resiliencePercent": 89,
+      "equityPercent": 95
+    },
+    "metrics": [
+      {
+        "name": "Access",
+        "value": 94,
+        "unit": "%"
+      },
+      {
+        "name": "Operating impact",
+        "value": 980,
+        "unit": "EUR/week"
+      }
+    ],
+    "features": [
+      {
+        "id": "route-borrisoleigh",
+        "label": "Proposed accessible feeder",
+        "kind": "route",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -7.953,
+              52.752
+            ],
+            [
+              -7.921,
+              52.739000000000004
+            ],
+            [
+              -7.878,
+              52.719
+            ],
+            [
+              -7.813,
+              52.68
+            ]
+          ]
+        }
+      },
+      {
+        "id": "clinic-borrisoleigh",
+        "label": "Proposed mobile clinic",
+        "kind": "facility",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -7.9350000000000005,
+            52.744
+          ]
+        }
+      }
+    ],
+    "evidence": [
+      {
+        "id": "ev-timetable",
+        "claim": "The morning feeder arrives after the connecting service has departed.",
+        "source": {
+          "id": "fixture-transit",
+          "name": "CIVIC demo fixtures",
+          "dataset": "Synthetic timetable",
+          "updatedAt": "2026-10-04T09:00:00Z",
+          "mock": true
+        },
+        "confidence": 0.96,
+        "status": "synthetic"
+      },
+      {
+        "id": "ev-population",
+        "claim": "Older residents without cars are disproportionately affected by the connection gap.",
+        "source": {
+          "id": "fixture-population",
+          "name": "CIVIC demo fixtures",
+          "dataset": "Synthetic population profile",
+          "updatedAt": "2026-10-04T09:00:00Z",
+          "mock": true
+        },
+        "confidence": 0.91,
+        "status": "synthetic"
+      },
+      {
+        "id": "ev-service",
+        "claim": "The next viable appointment cannot be reached within the objective window.",
+        "source": {
+          "id": "fixture-services",
+          "name": "CIVIC demo fixtures",
+          "dataset": "Synthetic service availability",
+          "updatedAt": "2026-10-04T09:00:00Z",
+          "mock": true
+        },
+        "confidence": 0.89,
+        "status": "synthetic"
+      }
+    ],
+    "mock": true
+  }
+}
