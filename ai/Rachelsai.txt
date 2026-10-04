@@ -1,0 +1,10 @@
+I built and ran a working map prototype for the 45-minute healthcare-access scenario.
+Illustrative simulation results: the baseline reaches 48 of 110 modeled residents within 45 minutes (43.6%). The assumed feeder links bring all 110 within the target. The baseline gaps are Borrisoleigh (51 min), Silvermines (49 min) and Upperchurch (58 min). Under the hypothetical flood closures, those three links have no path; adding the candidate links restores access for all 110 in this model.
+The map and API ran successfully and returned 29 GeoJSON features. Start the app with uvicorn backend.main:app --reload, then open http://127.0.0.1:8000/. The CLI command is python -m backend.simulate_demo --mode intervention --target 45.
+- [Interactive map](/home/tatabbyi/Projects/Hackathon/OpenAIHackathon2026/frontend/index.html)
+- [Simulation code (line 118)](/home/tatabbyi/Projects/Hackathon/OpenAIHackathon2026/backend/main.py:118)
+- [Scenario inputs](/home/tatabbyi/Projects/Hackathon/OpenAIHackathon2026/backend/data/north_tipperary_demo.json)
+- [Simulation GeoJSON output](/home/tatabbyi/Projects/Hackathon/OpenAIHackathon2026/backend/data/demo_simulation_result.geojson)
+- [Dataset inventory and cleaning plan](/home/tatabbyi/Projects/Hackathon/OpenAIHackathon2026/backend/data/source_inventory.json)
+- [Run instructions and model limitations](/home/tatabbyi/Projects/Hackathon/OpenAIHackathon2026/README.md)
+These results are synthetic, not findings about actual communities. The workspace had no source datasets, so the map uses illustrative population counts, service hubs, journey times and flood closures. The inventory marks all listed sources as not ingested. CSO publishes Census 2022 small-area statistics as CSV, with corresponding boundary files available through Tailte Éireann; those real layers still need to be brought into the analysis.CSO source

@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "data_status": "No external datasets are ingested in this repository yet. The map demo uses synthetic demand, service and journey-time inputs.",
+  "standardisation_target": {
+    "crs": "OGC:CRS84 / WGS 84 longitude-latitude for GeoJSON exchange; use EPSG:2157 for Irish distance/area analysis after reprojection.",
+    "geography_key": "CSO Small Area 2022 code, retained as text and joined to the matching 2022 boundary vintage.",
+    "journey_time": "Door-to-door generalized minutes at a named departure date/time, retaining access walk, scheduled waiting, in-vehicle time, transfer and final walk separately.",
+    "provenance": "Record source URL, retrieval timestamp, source vintage, licence/terms, native CRS, transformation, units, null handling and file checksum for every imported layer."
+  },
+  "sources": [
+    {
+      "id": "cso-saps-2022",
+      "name": "CSO Census 2022 Small Area Population Statistics",
+      "url": "https://www.cso.ie/en/census/census2022/census2022smallareapopulationstatistics/",
+      "role": "Small Area demand, age, disability/health, households and motor-car availability.",
+      "expected_formats": ["CSV", "boundary download via Tailte Éireann Open Data Portal"],
+      "status": "not_ingested",
+      "cleaning": "Select and document table/variable definitions; preserve Small Area codes as text; validate counts and table denominators; join only to matching Census 2022 boundary vintage."
+    },
+    {
+      "id": "cso-health-distance-2026",
+      "name": "CSO Measuring Distance to Services in Ireland 2026 – Health Services",
+      "url": "https://www.cso.ie/en/releasesandpublications/ep/p-mdsihs/measuringdistancetoservicesinireland2026-healthservices/data/",
+      "role": "Published distance-to-health-service baseline for model comparison, subject to checking definitions and geographic level.",
+      "expected_formats": ["CSO PxStat data"],
+      "status": "not_ingested",
+      "cleaning": "Record service definition, distance method, reference date, geography and suppression/quality flags; do not treat distance as public-transport travel time."
+    },
+    {
+      "id": "nta-gtfs",
+      "name": "NTA public transport GTFS",
+      "url": "https://data.gov.ie/en_GB/dataset/nta-gtfs",
+      "role": "Scheduled stop, trip, route, service calendar and stop-time network.",
+      "expected_formats": ["GTFS ZIP / CSV tables"],
+      "status": "not_ingested",
+      "cleaning": "Validate GTFS foreign keys and service calendars; normalize stop coordinates/time zones; calculate departure-specific itineraries with access, wait, transfer, ride and egress times."
+    },
+    {
+      "id": "naptan",
+      "name": "NTA National Public Transport Access Nodes",
+      "url": "https://data.gov.ie/en_GB/dataset/national-public-transport-access-nodes-naptan",
+      "role": "Stop/access-node IDs, positions and attributes for map matching and first/last-mile analysis.",
+      "expected_formats": ["CSV", "JSON", "XML"],
+      "status": "not_ingested",
+      "cleaning": "Preserve official stop IDs; normalize coordinate order/CRS; deduplicate only with a documented rule; reconcile IDs to GTFS stops."
+    },
+    {
+      "id": "pobal-hp-2022",
+      "name": "Pobal HP Deprivation Index 2022",
+      "url": "https://data.gov.ie/dataset/pobal-hp-deprivation-index-scores-2022",
+      "role": "Socioeconomic context and equity weighting at its documented geography.",
+      "expected_formats": ["CSV", "geospatial download if provided"],
+      "status": "not_ingested",
+      "cleaning": "Confirm index version, geography key and direction of score; join by official area code and keep the raw score alongside any normalized weight."
+    },
+    {
+      "id": "osm-ireland",
+      "name": "OpenStreetMap Ireland and Northern Ireland extract",
+      "url": "https://download.geofabrik.de/europe/ireland-and-northern-ireland.html",
+      "role": "Walk/road graph, buildings, crossings, footways and mapped service candidates.",
+      "expected_formats": ["PBF", "Shapefile extracts"],
+      "status": "not_ingested",
+      "cleaning": "Clip to the study extent; retain OSM IDs and tags; build a routable graph with access/one-way/surface/slope rules; record ODbL attribution and extraction date."
+    },
+    {
+      "id": "tipperary-open-data",
+      "name": "Tipperary County Council Open Data / GIS",
+      "url": "https://www.tipperarycoco.ie/information-technology/geographic-information-systems-data-access",
+      "role": "Local authority services, road notices and other county-specific layers where available.",
+      "expected_formats": ["dataset-specific; inspect linked catalogue"],
+      "status": "not_ingested",
+      "cleaning": "Inventory each layer separately; capture update cadence, geometry, status/date fields and authoritative contact; distinguish current from historical notices."
+    },
+    {
+      "id": "opw-flood-extents",
+      "name": "OPW community-scale river flood extents",
+      "url": "https://data.gov.ie/dataset/community-scale-river-flood-extents-current-scenario",
+      "role": "Flood exposure scenario for affected roads/services, subject to the dataset scenario and coverage metadata.",
+      "expected_formats": ["geospatial data; inspect catalogue resource"],
+      "status": "not_ingested",
+      "cleaning": "Keep scenario/probability and model vintage as attributes; transform to the road graph CRS; spatially intersect with links and separately report exposure assumptions."
+    },
+    {
+      "id": "gsi-lidar",
+      "name": "Geological Survey Ireland Open Topographic LiDAR",
+      "url": "https://data.gov.ie/dataset/open-topographic-lidar-data",
+      "role": "Terrain/surface context for gradients and a selected-site 3D showcase where coverage exists.",
+      "expected_formats": ["GeoTIFF / raster products; inspect catalogue resource"],
+      "status": "not_ingested",
+      "cleaning": "Check survey footprint, vertical datum, cell size and surface-vs-terrain model; derive footway slope only where resolution/coverage supports it."
+    },
+    {
+      "id": "mapillary",
+      "name": "Mapillary imagery and API",
+      "url": "https://help.mapillary.com/hc/en-us/articles/360010234680-Accessing-imagery-and-data-through-the-Mapillary-API",
+      "role": "Optional street-level visual audit of a chosen stop or route segment, subject to coverage and API terms.",
+      "expected_formats": ["API JSON / image references"],
+      "status": "not_ingested",
+      "cleaning": "Store image IDs, capture dates, location, attribution and access terms; avoid implying image coverage or accessibility condition where no image exists."
+    }
+  ]
+}
